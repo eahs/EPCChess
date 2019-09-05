@@ -11,8 +11,8 @@ namespace ADSBackend.Models.ConfigurationViewModels
 
         [Required]
         [DataType(DataType.Url)]
-        [Display(Name = "iCalendar URL")]
-        public string CalendarUrl { get; set; }
+        [Display(Name = "Mobile App Privacy Policy URL")]
+        public string PrivacyPolicyUrl { get; set; }
 
         [Required]
         [Display(Name = "Listen (Public) Azure Hub Connection String")]

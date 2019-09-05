@@ -24,7 +24,7 @@ namespace ADSBackend.Controllers
             var viewModel = new ConfigurationViewModel
             {
                 RSSFeedUrl = Configuration.Get("RSSFeedUrl"),
-                CalendarUrl = Configuration.Get("CalendarUrl"),
+                PrivacyPolicyUrl = Configuration.Get("PrivacyPolicyUrl"),
                 AzureHubListenConnectionString = Configuration.Get("AzureHubListenConnectionString"),
                 AzureHubFullConnectionString = Configuration.Get("AzureHubFullConnectionString"),
                 AzureHubName = Configuration.Get("AzureHubName")
@@ -41,7 +41,7 @@ namespace ADSBackend.Controllers
             if (ModelState.IsValid)
             {
                 Configuration.Set("RSSFeedUrl", viewModel.RSSFeedUrl);
-                Configuration.Set("CalendarUrl", viewModel.CalendarUrl);
+                Configuration.Set("PrivacyPolicyUrl", viewModel.PrivacyPolicyUrl);
                 Configuration.Set("AzureHubListenConnectionString", viewModel.AzureHubListenConnectionString);
                 Configuration.Set("AzureHubFullConnectionString", viewModel.AzureHubFullConnectionString);
                 Configuration.Set("AzureHubName", viewModel.AzureHubName);
