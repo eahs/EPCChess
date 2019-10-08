@@ -11,8 +11,16 @@ namespace ADSBackend.Models
     {
         [Key]
         public int SchoolId { get; set; }
+
+        [DisplayName("School Name")]
         public String Name { get; set; }
+
+        [DisplayName("Short Name")]
+        [StringLength(12)]
         public String ShortName { get; set; }
+
+        [DisplayName("Abbreviation")]
+        [StringLength(2)]
         public String Abbreviation { get; set; }
 
         [DisplayName("Advisor Name")]

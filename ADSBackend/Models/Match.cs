@@ -7,7 +7,7 @@ namespace ADSBackend.Models
 {
     public class Match
     {
-        public int MatchID { get; set; }
+        public int MatchId { get; set; }
 
         public DateTime MatchDate { get; set; }
 

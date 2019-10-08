@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ADSBackend.Data;
 using ADSBackend.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ADSBackend.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class SeasonsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -34,7 +36,7 @@ namespace ADSBackend.Controllers
             }
 
             var season = await _context.Season
-                .FirstOrDefaultAsync(m => m.SeasonID == id);
+                .FirstOrDefaultAsync(m => m.SeasonId == id);
             if (season == null)
             {
                 return NotFound();
@@ -54,7 +56,7 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("SeasonID,Name,StartingYear")] Season season)
+        public async Task<IActionResult> Create([Bind("SeasonId,Name,StartingYear")] Season season)
         {
             if (ModelState.IsValid)
             {
@@ -86,9 +88,9 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("SeasonID,Name,StartingYear")] Season season)
+        public async Task<IActionResult> Edit(int id, [Bind("SeasonId,Name,StartingYear")] Season season)
         {
-            if (id != season.SeasonID)
+            if (id != season.SeasonId)
             {
                 return NotFound();
             }
@@ -102,7 +104,7 @@ namespace ADSBackend.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SeasonExists(season.SeasonID))
+                    if (!SeasonExists(season.SeasonId))
                     {
                         return NotFound();
                     }
@@ -125,7 +127,7 @@ namespace ADSBackend.Controllers
             }
 
             var season = await _context.Season
-                .FirstOrDefaultAsync(m => m.SeasonID == id);
+                .FirstOrDefaultAsync(m => m.SeasonId == id);
             if (season == null)
             {
                 return NotFound();
@@ -147,7 +149,7 @@ namespace ADSBackend.Controllers
 
         private bool SeasonExists(int id)
         {
-            return _context.Season.Any(e => e.SeasonID == id);
+            return _context.Season.Any(e => e.SeasonId == id);
         }
     }
 }

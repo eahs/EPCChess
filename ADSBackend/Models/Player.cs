@@ -9,8 +9,9 @@ namespace ADSBackend.Models
     public class Player
     {
         [Key]
-        public int PlayerID { get; set; }
+        public int PlayerId { get; set; }
 
+        public int SchoolId { get; set; }
         public School PlayerSchool { get; set; }
 
         public String FirstName { get; set; }
