@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ADSBackend.Data;
 using ADSBackend.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ADSBackend.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class SchoolsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,7 +24,11 @@ namespace ADSBackend.Controllers
         // GET: Schools
         public async Task<IActionResult> Index()
         {
-            return View(await _context.School.ToListAsync());
+            var schools = await _context.School.Include(m => m.Season)
+                                               .OrderBy(m => m.Season.StartingYear)
+                                               .ToListAsync();
+
+            return View(schools);
         }
 
         public async Task<School> GetModel (int ?id)
@@ -39,24 +45,6 @@ namespace ADSBackend.Controllers
 
             return school;
 
-            /*
-            var seasons = await _context.Season.Select(x => x)
-                                               .ToListAsync();
-
-            // School editing should probably not be allowed at all if there isn't at least one season
-            if (seasons == null)
-                return null;
-
-            //school.Season = seasons.Where(s => s.SeasonID = school.SeasonId).FirstOrDefault();
-
-            SchoolViewModel viewModel = new Models.SchoolViewModels.SchoolViewModel
-            {
-                School = school,
-                Seasons = seasons
-            };
-
-            return viewModel;
-            */
         }
 
         // GET: Schools/Details/5
@@ -75,10 +63,7 @@ namespace ADSBackend.Controllers
         // GET: Schools/Create
         public async Task<IActionResult> Create()
         {
-            var seasons = await _context.Season.Select(x => x)
-                                               .ToListAsync();
-
-            ViewBag.Seasons = new SelectList(seasons, "SeasonId", "Name");
+            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x).ToListAsync(), "SeasonId", "Name");
 
             return View();
         }
@@ -88,10 +73,17 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("SchoolId,Name")] School school)
+        public async Task<IActionResult> Create([Bind("SeasonId,SchoolId,Name,ShortName,Abbreviation,AdivisorName,AdvisorEmail,AdvisorPhoneNumber")] School school)
         {
             if (ModelState.IsValid)
             {
+                if (school.Abbreviation != null)
+                {
+                    school.Abbreviation = school.Abbreviation.ToUpper();
+                    if (school.Abbreviation.Length > 2)
+                        school.Abbreviation = school.Abbreviation.Substring(0, 2);
+                }
+
                 _context.Add(school);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -112,6 +104,9 @@ namespace ADSBackend.Controllers
             {
                 return NotFound();
             }
+
+            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x).ToListAsync(), "SeasonId", "Name");
+
             return View(school);
         }
 
@@ -120,7 +115,7 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("SchoolId,Name")] School school)
+        public async Task<IActionResult> Edit(int id, [Bind("SeasonId,SchoolId,Name,ShortName,Abbreviation,AdivisorName,AdvisorEmail,AdvisorPhoneNumber")] School school)
         {
             if (id != school.SchoolId)
             {
@@ -129,6 +124,13 @@ namespace ADSBackend.Controllers
 
             if (ModelState.IsValid)
             {
+                if (school.Abbreviation != null)
+                {
+                    school.Abbreviation = school.Abbreviation.ToUpper();
+                    if (school.Abbreviation.Length > 2)
+                        school.Abbreviation = school.Abbreviation.Substring(0, 2);
+                }
+
                 try
                 {
                     _context.Update(school);
@@ -164,6 +166,8 @@ namespace ADSBackend.Controllers
             {
                 return NotFound();
             }
+
+            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x).ToListAsync(), "SeasonId", "Name");
 
             return View(school);
         }

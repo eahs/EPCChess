@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ADSBackend.Data;
 using ADSBackend.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ADSBackend.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class PlayersController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -34,7 +36,7 @@ namespace ADSBackend.Controllers
             }
 
             var player = await _context.Player
-                .FirstOrDefaultAsync(m => m.PlayerID == id);
+                .FirstOrDefaultAsync(m => m.PlayerId == id);
             if (player == null)
             {
                 return NotFound();
@@ -54,7 +56,7 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PlayerID,FirstName,LastName,Rating")] Player player)
+        public async Task<IActionResult> Create([Bind("PlayerId,FirstName,LastName,Rating")] Player player)
         {
             if (ModelState.IsValid)
             {
@@ -86,9 +88,9 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PlayerID,FirstName,LastName,Rating")] Player player)
+        public async Task<IActionResult> Edit(int id, [Bind("PlayerId,FirstName,LastName,Rating")] Player player)
         {
-            if (id != player.PlayerID)
+            if (id != player.PlayerId)
             {
                 return NotFound();
             }
@@ -102,7 +104,7 @@ namespace ADSBackend.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PlayerExists(player.PlayerID))
+                    if (!PlayerExists(player.PlayerId))
                     {
                         return NotFound();
                     }
@@ -125,7 +127,7 @@ namespace ADSBackend.Controllers
             }
 
             var player = await _context.Player
-                .FirstOrDefaultAsync(m => m.PlayerID == id);
+                .FirstOrDefaultAsync(m => m.PlayerId == id);
             if (player == null)
             {
                 return NotFound();
@@ -147,7 +149,7 @@ namespace ADSBackend.Controllers
 
         private bool PlayerExists(int id)
         {
-            return _context.Player.Any(e => e.PlayerID == id);
+            return _context.Player.Any(e => e.PlayerId == id);
         }
     }
 }

@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ADSBackend.Data;
 using ADSBackend.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ADSBackend.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class MatchesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -34,7 +36,7 @@ namespace ADSBackend.Controllers
             }
 
             var match = await _context.Match
-                .FirstOrDefaultAsync(m => m.MatchID == id);
+                .FirstOrDefaultAsync(m => m.MatchId == id);
             if (match == null)
             {
                 return NotFound();
@@ -88,7 +90,7 @@ namespace ADSBackend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MatchID,MatchDate,Completed,HomePoints,AwayPoints")] Match match)
         {
-            if (id != match.MatchID)
+            if (id != match.MatchId)
             {
                 return NotFound();
             }
@@ -102,7 +104,7 @@ namespace ADSBackend.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MatchExists(match.MatchID))
+                    if (!MatchExists(match.MatchId))
                     {
                         return NotFound();
                     }
@@ -125,7 +127,7 @@ namespace ADSBackend.Controllers
             }
 
             var match = await _context.Match
-                .FirstOrDefaultAsync(m => m.MatchID == id);
+                .FirstOrDefaultAsync(m => m.MatchId == id);
             if (match == null)
             {
                 return NotFound();
@@ -147,7 +149,7 @@ namespace ADSBackend.Controllers
 
         private bool MatchExists(int id)
         {
-            return _context.Match.Any(e => e.MatchID == id);
+            return _context.Match.Any(e => e.MatchId == id);
         }
     }
 }

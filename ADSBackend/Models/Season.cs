@@ -10,8 +10,9 @@ namespace ADSBackend.Models
     public class Season
     {
         [Key]
-        public int SeasonID { get; set; }
+        public int SeasonId { get; set; }
 
+        [DisplayName("Season Name")]
         public String Name { get; set; }
 
         [DisplayName("Starting Year")]
