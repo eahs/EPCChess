@@ -4,14 +4,16 @@ using ADSBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ADSBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191004175538_ChessModels")]
+    partial class ChessModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -215,23 +217,9 @@ namespace ADSBackend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Abbreviation");
-
-                    b.Property<string>("AdvisorEmail");
-
-                    b.Property<string>("AdvisorName");
-
-                    b.Property<string>("AdvisorPhoneNumber");
-
                     b.Property<string>("Name");
 
-                    b.Property<int>("SeasonId");
-
-                    b.Property<string>("ShortName");
-
                     b.HasKey("SchoolId");
-
-                    b.HasIndex("SeasonId");
 
                     b.ToTable("School");
                 });
@@ -340,7 +328,7 @@ namespace ADSBackend.Migrations
                         .WithMany()
                         .HasForeignKey("BlackPlayerID");
 
-                    b.HasOne("ADSBackend.Models.Match", "Match")
+                    b.HasOne("ADSBackend.Models.Match")
                         .WithMany("Games")
                         .HasForeignKey("MatchID");
 
@@ -363,16 +351,8 @@ namespace ADSBackend.Migrations
             modelBuilder.Entity("ADSBackend.Models.Player", b =>
                 {
                     b.HasOne("ADSBackend.Models.School", "PlayerSchool")
-                        .WithMany("Players")
+                        .WithMany()
                         .HasForeignKey("PlayerSchoolSchoolId");
-                });
-
-            modelBuilder.Entity("ADSBackend.Models.School", b =>
-                {
-                    b.HasOne("ADSBackend.Models.Season", "Season")
-                        .WithMany("Schools")
-                        .HasForeignKey("SeasonId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

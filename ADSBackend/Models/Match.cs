@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace ADSBackend.Models
+{
+    public class Match
+    {
+        public int MatchID { get; set; }
+
+        public DateTime MatchDate { get; set; }
+
+        public School HomeSchool { get; set; }
+        public School AwaySchool { get; set; }
+
+        public bool Completed { get; set; }
+
+        public double HomePoints { get; set; }
+        public double AwayPoints { get; set; }
+
+        public List<Game> Games { get; set; }
+    }
+}
