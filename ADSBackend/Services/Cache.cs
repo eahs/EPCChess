@@ -39,7 +39,7 @@ namespace ADSBackend.Services
                 {
                     // an error occurred while trying to retrieve from the source
                     // return the default for the generic type
-                    oRet = default;
+                    oRet = default(T);
                 }
             }
             else
@@ -76,7 +76,7 @@ namespace ADSBackend.Services
                 {
                     // an error occurred while trying to retrieve from the source
                     // return the default for the generic type
-                    oRet = default;
+                    oRet = default(T);
                 }
             }
             else

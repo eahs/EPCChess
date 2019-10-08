@@ -4,14 +4,16 @@ using ADSBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ADSBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191008114748_AddedSchoolSeason")]
+    partial class AddedSchoolSeason
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -215,19 +217,9 @@ namespace ADSBackend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Abbreviation");
-
-                    b.Property<string>("AdvisorEmail");
-
-                    b.Property<string>("AdvisorName");
-
-                    b.Property<string>("AdvisorPhoneNumber");
-
                     b.Property<string>("Name");
 
                     b.Property<int>("SeasonId");
-
-                    b.Property<string>("ShortName");
 
                     b.HasKey("SchoolId");
 

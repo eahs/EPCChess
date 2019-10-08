@@ -2,6 +2,7 @@
 using ADSBackend.Models.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using ADSBackend.Models.MessagesModels;
 
 namespace ADSBackend.Data
 {
@@ -21,5 +22,17 @@ namespace ADSBackend.Data
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
         }
+
+        public DbSet<ADSBackend.Models.MessagesModels.Message> Message { get; set; }
+
+        public DbSet<ADSBackend.Models.Season> Season { get; set; }
+
+        public DbSet<ADSBackend.Models.School> School { get; set; }
+
+        public DbSet<ADSBackend.Models.Match> Match { get; set; }
+
+        public DbSet<ADSBackend.Models.Player> Player { get; set; }
+
+        public DbSet<ADSBackend.Models.Game> Game { get; set; }
     }
 }

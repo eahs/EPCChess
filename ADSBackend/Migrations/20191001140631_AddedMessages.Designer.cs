@@ -4,14 +4,16 @@ using ADSBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ADSBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191001140631_AddedMessages")]
+    partial class AddedMessages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,33 +31,6 @@ namespace ADSBackend.Migrations
                     b.HasKey("Key");
 
                     b.ToTable("ConfigurationItem");
-                });
-
-            modelBuilder.Entity("ADSBackend.Models.Game", b =>
-                {
-                    b.Property<int>("GameId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("BlackPlayerID");
-
-                    b.Property<bool>("Completed");
-
-                    b.Property<int?>("MatchID");
-
-                    b.Property<int>("Result");
-
-                    b.Property<int?>("WhitePlayerID");
-
-                    b.HasKey("GameId");
-
-                    b.HasIndex("BlackPlayerID");
-
-                    b.HasIndex("MatchID");
-
-                    b.HasIndex("WhitePlayerID");
-
-                    b.ToTable("Game");
                 });
 
             modelBuilder.Entity("ADSBackend.Models.Identity.ApplicationRole", b =>
@@ -141,33 +116,6 @@ namespace ADSBackend.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("ADSBackend.Models.Match", b =>
-                {
-                    b.Property<int>("MatchID")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<double>("AwayPoints");
-
-                    b.Property<int?>("AwaySchoolSchoolId");
-
-                    b.Property<bool>("Completed");
-
-                    b.Property<double>("HomePoints");
-
-                    b.Property<int?>("HomeSchoolSchoolId");
-
-                    b.Property<DateTime>("MatchDate");
-
-                    b.HasKey("MatchID");
-
-                    b.HasIndex("AwaySchoolSchoolId");
-
-                    b.HasIndex("HomeSchoolSchoolId");
-
-                    b.ToTable("Match");
-                });
-
             modelBuilder.Entity("ADSBackend.Models.MessagesModels.Message", b =>
                 {
                     b.Property<string>("Id")
@@ -186,69 +134,6 @@ namespace ADSBackend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Message");
-                });
-
-            modelBuilder.Entity("ADSBackend.Models.Player", b =>
-                {
-                    b.Property<int>("PlayerID")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("FirstName");
-
-                    b.Property<string>("LastName");
-
-                    b.Property<int?>("PlayerSchoolSchoolId");
-
-                    b.Property<int>("Rating");
-
-                    b.HasKey("PlayerID");
-
-                    b.HasIndex("PlayerSchoolSchoolId");
-
-                    b.ToTable("Player");
-                });
-
-            modelBuilder.Entity("ADSBackend.Models.School", b =>
-                {
-                    b.Property<int>("SchoolId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Abbreviation");
-
-                    b.Property<string>("AdvisorEmail");
-
-                    b.Property<string>("AdvisorName");
-
-                    b.Property<string>("AdvisorPhoneNumber");
-
-                    b.Property<string>("Name");
-
-                    b.Property<int>("SeasonId");
-
-                    b.Property<string>("ShortName");
-
-                    b.HasKey("SchoolId");
-
-                    b.HasIndex("SeasonId");
-
-                    b.ToTable("School");
-                });
-
-            modelBuilder.Entity("ADSBackend.Models.Season", b =>
-                {
-                    b.Property<int>("SeasonID")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name");
-
-                    b.Property<int>("StartingYear");
-
-                    b.HasKey("SeasonID");
-
-                    b.ToTable("Season");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -332,47 +217,6 @@ namespace ADSBackend.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
-                });
-
-            modelBuilder.Entity("ADSBackend.Models.Game", b =>
-                {
-                    b.HasOne("ADSBackend.Models.Player", "Black")
-                        .WithMany()
-                        .HasForeignKey("BlackPlayerID");
-
-                    b.HasOne("ADSBackend.Models.Match", "Match")
-                        .WithMany("Games")
-                        .HasForeignKey("MatchID");
-
-                    b.HasOne("ADSBackend.Models.Player", "White")
-                        .WithMany()
-                        .HasForeignKey("WhitePlayerID");
-                });
-
-            modelBuilder.Entity("ADSBackend.Models.Match", b =>
-                {
-                    b.HasOne("ADSBackend.Models.School", "AwaySchool")
-                        .WithMany()
-                        .HasForeignKey("AwaySchoolSchoolId");
-
-                    b.HasOne("ADSBackend.Models.School", "HomeSchool")
-                        .WithMany()
-                        .HasForeignKey("HomeSchoolSchoolId");
-                });
-
-            modelBuilder.Entity("ADSBackend.Models.Player", b =>
-                {
-                    b.HasOne("ADSBackend.Models.School", "PlayerSchool")
-                        .WithMany("Players")
-                        .HasForeignKey("PlayerSchoolSchoolId");
-                });
-
-            modelBuilder.Entity("ADSBackend.Models.School", b =>
-                {
-                    b.HasOne("ADSBackend.Models.Season", "Season")
-                        .WithMany("Schools")
-                        .HasForeignKey("SeasonId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
