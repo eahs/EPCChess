@@ -1,0 +1,26 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Http
+
+@inject ADSBackend.Data.ApplicationDbContext  _context
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var seasons = await _context.Season.Select(x => x)
+                                          .OrderByDescending(x => x.StartDate)
+                                          .ToListAsync();
+
+    var defaultSeason = seasons.FirstOrDefault(x => x.StartDate <= DateTime.Now && x.EndDate >= DateTime.Now)?.SeasonId ?? 0;
+
+    var seasonId = HttpContextAccessor.HttpContext.Session.GetInt32("SeasonId") ?? defaultSeason;
+    var seasonsSelect = new SelectList(seasons, "SeasonId", "Name", seasonId);
+}
+<form asp-controller="SeasonSwitcher" asp-action="Switch" method="post" id="seasonSwitch" class="navbar-right">
+    <ul class="nav navbar-top-links navbar-left">
+        <li>
+            <a href="">Current Season: </a>
+        </li>
+        <li>
+            <select name="seasonId" asp-items="@seasonsSelect" onchange="$.post('/SeasonSwitcher/Switch/' + $('select[name=seasonId]').val(), function (data) { location.reload(); })" class="form-control"></select>
+        </li>
+    </ul>
+</form>

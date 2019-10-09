@@ -56,7 +56,7 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("SeasonId,Name,StartingYear")] Season season)
+        public async Task<IActionResult> Create([Bind("SeasonId,Name,StartDate,EndDate")] Season season)
         {
             if (ModelState.IsValid)
             {
@@ -88,7 +88,7 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("SeasonId,Name,StartingYear")] Season season)
+        public async Task<IActionResult> Edit(int id, [Bind("SeasonId,Name,StartDate,EndDate")] Season season)
         {
             if (id != season.SeasonId)
             {
