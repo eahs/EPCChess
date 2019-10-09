@@ -25,7 +25,7 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> Index()
         {
             var schools = await _context.School.Include(m => m.Season)
-                                               .OrderBy(m => m.Season.StartingYear)
+                                               .OrderBy(m => m.Season.StartDate)
                                                .ToListAsync();
 
             return View(schools);
@@ -63,7 +63,9 @@ namespace ADSBackend.Controllers
         // GET: Schools/Create
         public async Task<IActionResult> Create()
         {
-            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x).ToListAsync(), "SeasonId", "Name");
+            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x)
+                                                                  .OrderByDescending(x => x.StartDate)
+                                                                  .ToListAsync(), "SeasonId", "Name");
 
             return View();
         }
@@ -105,7 +107,9 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x).ToListAsync(), "SeasonId", "Name");
+            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x)
+                                                                  .OrderByDescending(x => x.StartDate)
+                                                                  .ToListAsync(), "SeasonId", "Name");
 
             return View(school);
         }
