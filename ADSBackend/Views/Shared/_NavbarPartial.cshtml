@@ -4,6 +4,25 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
+@{ 
+                var handlingController = this.ViewContext.RouteData.Values["controller"].ToString();
+
+                var setupClass = "";
+                var adminClass = "";
+
+
+                switch (handlingController)
+                {
+                    // League Setup
+                    case "Seasons": setupClass = "active"; break;
+                    case "Schools": setupClass = "active"; break;
+
+                    // Admininstration
+                    case "Users": adminClass = "active"; break;
+                    case "Configuration": adminClass = "active"; break;
+                }
+            }
+
 <nav class="navbar-default navbar-static-side" role="navigation">
     <div class="sidebar-collapse">
         <ul class="nav metismenu" id="side-menu">
@@ -42,7 +61,7 @@
                 </li>
                 @if (User.IsInRole("Admin"))
                 {
-                    <li>
+                    <li id="nav_setup" class="@setupClass">
                         <a href="#"><i class="fa fa-sitemap"></i> <span class="nav-label">League Setup </span><span class="fa arrow"></span></a>
                         <ul class="nav nav-second-level collapse">
                             <li is-active-route asp-controller="Seasons">
@@ -53,7 +72,7 @@
                             </li>
                         </ul>
                     </li>
-                    <li>
+                    <li id="nav_admin" class="@adminClass">
                         <a href="#"><i class="fa fa-cog"></i> <span class="nav-label">Administration </span><span class="fa arrow"></span></a>
                         <ul class="nav nav-second-level collapse">
                             <li is-active-route asp-controller="Users">
@@ -66,7 +85,7 @@
                     </li>
 
                 }
-            }
+    }
             else
             {
                 // not signed in
