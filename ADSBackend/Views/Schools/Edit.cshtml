@@ -4,54 +4,60 @@
     ViewData["Title"] = "Edit";
 }
 
+
 <h2>Edit</h2>
 
-<h4>School</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="SchoolId" />
-            <div class="form-group">
-                <select asp-for="SeasonId" asp-items="ViewBag.Seasons" class="form-control"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ShortName" class="control-label"></label>
-                <input asp-for="ShortName" maxlength="12" class="form-control" />
-                <span asp-validation-for="ShortName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Abbreviation" class="control-label"></label>
-                <input asp-for="Abbreviation" maxlength="2" class="form-control" />
-                <span asp-validation-for="Abbreviation" class="text-danger"></span>
-            </div>
+    <div class="ibox">
+            <div class="ibox-title"><h4>School</h4></div>
+            <div class="ibox-content">
 
-            <div class="form-group">
-                <label asp-for="AdvisorName" class="control-label"></label>
-                <input asp-for="AdvisorName" class="form-control" />
-                <span asp-validation-for="AdvisorName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AdvisorEmail" class="control-label"></label>
-                <input asp-for="AdvisorEmail" class="form-control" />
-                <span asp-validation-for="AdvisorEmail" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AdvisorPhoneNumber" class="control-label"></label>
-                <input asp-for="AdvisorPhoneNumber" class="form-control" />
-                <span asp-validation-for="AdvisorPhoneNumber" class="text-danger"></span>
-            </div>
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="SchoolId" />
+                        <div class="form-group">
+                            <select asp-for="SeasonId" asp-items="ViewBag.Seasons" class="form-control"></select>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="ShortName" class="control-label"></label>
+                            <input asp-for="ShortName" maxlength="12" class="form-control" />
+                            <span asp-validation-for="ShortName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Abbreviation" class="control-label"></label>
+                            <input asp-for="Abbreviation" maxlength="2" class="form-control" />
+                            <span asp-validation-for="Abbreviation" class="text-danger"></span>
+                        </div>
 
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-default" />
+                        <div class="form-group">
+                            <label asp-for="AdvisorName" class="control-label"></label>
+                            <input asp-for="AdvisorName" class="form-control" />
+                            <span asp-validation-for="AdvisorName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="AdvisorEmail" class="control-label"></label>
+                            <input asp-for="AdvisorEmail" class="form-control" />
+                            <span asp-validation-for="AdvisorEmail" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="AdvisorPhoneNumber" class="control-label"></label>
+                            <input asp-for="AdvisorPhoneNumber" class="form-control" data-mask="(999) 999-9999" placeholder="" />
+                            <span asp-validation-for="AdvisorPhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="submit" value="Save" class="btn btn-default" />
+                        </div>
+                    </form>
+
+               
             </div>
-        </form>
     </div>
 </div>
 
