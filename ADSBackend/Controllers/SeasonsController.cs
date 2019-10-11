@@ -24,7 +24,7 @@ namespace ADSBackend.Controllers
         // GET: Seasons
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Season.ToListAsync());
+            return View(await _context.Season.Where(m => m.SeasonId != 1).ToListAsync());
         }
 
         // GET: Seasons/Details/5
