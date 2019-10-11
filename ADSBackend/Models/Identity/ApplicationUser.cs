@@ -16,6 +16,9 @@ namespace ADSBackend.Models.Identity
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
 
+        public int SchoolId { get; set; }
+        public School School { get; set; }
+
         public virtual string FullName => FirstName.Trim() + " " + LastName?.Trim();
 
         public virtual string GravitarHash()

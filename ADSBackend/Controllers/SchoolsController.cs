@@ -24,7 +24,8 @@ namespace ADSBackend.Controllers
         // GET: Schools
         public async Task<IActionResult> Index()
         {
-            var schools = await _context.School.Include(m => m.Season)
+            var schools = await _context.School.Where(m => m.SchoolId != 1)
+                                               .Include(m => m.Season)
                                                .OrderBy(m => m.Season.StartDate)
                                                .ToListAsync();
 

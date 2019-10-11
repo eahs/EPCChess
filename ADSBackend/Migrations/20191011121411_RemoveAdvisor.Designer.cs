@@ -4,14 +4,16 @@ using ADSBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ADSBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191011121411_RemoveAdvisor")]
+    partial class RemoveAdvisor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -121,8 +123,6 @@ namespace ADSBackend.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed");
 
-                    b.Property<int>("SchoolId");
-
                     b.Property<string>("SecurityStamp");
 
                     b.Property<bool>("TwoFactorEnabled");
@@ -139,8 +139,6 @@ namespace ADSBackend.Migrations
                         .IsUnique()
                         .HasName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.HasIndex("SchoolId");
 
                     b.ToTable("AspNetUsers");
                 });
@@ -356,14 +354,6 @@ namespace ADSBackend.Migrations
                     b.HasOne("ADSBackend.Models.Player", "White")
                         .WithMany()
                         .HasForeignKey("WhitePlayerId");
-                });
-
-            modelBuilder.Entity("ADSBackend.Models.Identity.ApplicationUser", b =>
-                {
-                    b.HasOne("ADSBackend.Models.School", "School")
-                        .WithMany()
-                        .HasForeignKey("SchoolId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("ADSBackend.Models.Match", b =>

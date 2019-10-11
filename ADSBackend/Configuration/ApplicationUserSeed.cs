@@ -24,7 +24,8 @@ namespace ADSBackend.Configuration
             var adminUser = new ApplicationUser
             {
                 UserName = "admin",
-                FirstName = "Admin"
+                FirstName = "Admin",
+                SchoolId = 1
             };
 
             IdentityResult result;

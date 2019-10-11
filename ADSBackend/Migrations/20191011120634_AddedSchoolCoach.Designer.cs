@@ -4,14 +4,16 @@ using ADSBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ADSBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191011120634_AddedSchoolCoach")]
+    partial class AddedSchoolCoach
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -121,8 +123,6 @@ namespace ADSBackend.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed");
 
-                    b.Property<int>("SchoolId");
-
                     b.Property<string>("SecurityStamp");
 
                     b.Property<bool>("TwoFactorEnabled");
@@ -139,8 +139,6 @@ namespace ADSBackend.Migrations
                         .IsUnique()
                         .HasName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.HasIndex("SchoolId");
 
                     b.ToTable("AspNetUsers");
                 });
@@ -228,6 +226,8 @@ namespace ADSBackend.Migrations
 
                     b.Property<string>("AdvisorPhoneNumber");
 
+                    b.Property<int>("CoachId");
+
                     b.Property<string>("Name");
 
                     b.Property<int>("SeasonId");
@@ -236,6 +236,8 @@ namespace ADSBackend.Migrations
                         .HasMaxLength(12);
 
                     b.HasKey("SchoolId");
+
+                    b.HasIndex("CoachId");
 
                     b.HasIndex("SeasonId");
 
@@ -358,14 +360,6 @@ namespace ADSBackend.Migrations
                         .HasForeignKey("WhitePlayerId");
                 });
 
-            modelBuilder.Entity("ADSBackend.Models.Identity.ApplicationUser", b =>
-                {
-                    b.HasOne("ADSBackend.Models.School", "School")
-                        .WithMany()
-                        .HasForeignKey("SchoolId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("ADSBackend.Models.Match", b =>
                 {
                     b.HasOne("ADSBackend.Models.School", "AwaySchool")
@@ -387,6 +381,11 @@ namespace ADSBackend.Migrations
 
             modelBuilder.Entity("ADSBackend.Models.School", b =>
                 {
+                    b.HasOne("ADSBackend.Models.Identity.ApplicationUser", "Coach")
+                        .WithMany()
+                        .HasForeignKey("CoachId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("ADSBackend.Models.Season", "Season")
                         .WithMany("Schools")
                         .HasForeignKey("SeasonId")

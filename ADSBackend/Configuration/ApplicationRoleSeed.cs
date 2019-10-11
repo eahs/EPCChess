@@ -18,6 +18,7 @@ namespace ADSBackend.Configuration
             var roles = new List<string>
             {
                 "Admin",
+                "Advisor",
                 "User"
             };
 
