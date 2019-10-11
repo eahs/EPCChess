@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,8 +15,12 @@ namespace ADSBackend.Models
         public int SchoolId { get; set; }
         public School PlayerSchool { get; set; }
 
+        [DisplayName("First Name")]
         public String FirstName { get; set; }
+
+        [DisplayName("Last Name")]
         public String LastName { get; set; }
+
         public int Rating { get; set; }
     }
 }

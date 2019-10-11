@@ -96,7 +96,7 @@ namespace ADSBackend.Migrations
                 name: "SchoolId",
                 table: "Player",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 1);
 
             migrationBuilder.AlterColumn<int>(
                 name: "MatchId",

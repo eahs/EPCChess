@@ -39,7 +39,7 @@
                     @Html.DisplayFor(modelItem => item.EndDate)
                 </td>
                 <td style="vertical-align: middle">
-                    @Html.Partial("_CrudOptions", item.SeasonId)
+                    @await Html.PartialAsync("_CrudOptions", item.SeasonId)
 
                 </td>
             </tr>

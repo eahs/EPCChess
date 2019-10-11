@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace ADSBackend.Models.AdminViewModels
 {
@@ -22,6 +23,9 @@ namespace ADSBackend.Models.AdminViewModels
         
         [DataType(DataType.Password)]
         public string Password { get; set; }
+
+        public int SchoolId { get; set; }
+        public School School { get; set; }
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirm Password")]
