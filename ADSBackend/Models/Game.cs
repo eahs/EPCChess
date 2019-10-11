@@ -22,6 +22,6 @@ namespace ADSBackend.Models
 
         public bool Completed { get; set; }
 
-        public int Result { get; set; }  // -1 = White Wins, 0 = draw, 1 = Black Wins
+        public int Result { get; set; }  // -1 = Away Wins, 0 = draw, 1 = Home Wins
     }
 }
