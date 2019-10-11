@@ -20,6 +20,11 @@ namespace ADSBackend.Models
         public int AwayPlayerId { get; set; }
         public Player AwayPlayer { get; set; }
 
+        public int HomePlayerRatingBefore { get; set; }
+        public int AwayPlayerRatingBefore { get; set; }
+        public int HomePlayerRatingAfter { get; set; }
+        public int AwayPlayerRatingAfter { get; set; }
+
         public bool Completed { get; set; }
 
         public int Result { get; set; }  // -1 = Away Wins, 0 = draw, 1 = Home Wins
