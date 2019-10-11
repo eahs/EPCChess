@@ -28,9 +28,23 @@ namespace ADSBackend.Controllers
             _emailSender = emailSender;
         }
 
+        public async Task<SelectList> GetSchoolSelectList ()
+        {
+            var schools = await _context.School.Include(s => s.Season)
+                                               .OrderByDescending(s => s.Season.EndDate)
+                                               .ThenBy(x => x.Name)
+                                               .ToListAsync();
+
+            return new SelectList(schools.Select(a => new SelectListItem
+                                                            {
+                                                                Text = a.Name + " (" + a.Season.Name + ")",
+                                                                Value = "" + a.SchoolId
+                                                            }), "Value", "Text");
+        }
+
         public async Task<IActionResult> Index()
         {
-            var users = await _context.Users.OrderBy(x => x.LastName).ToListAsync();
+            var users = await _context.Users.Include(x => x.School).OrderBy(x => x.LastName).ToListAsync();
 
             var viewModel = users.Select(x => new UserViewModel
             {
@@ -38,7 +52,9 @@ namespace ADSBackend.Controllers
                 Email = x.Email,
                 FirstName = x.FirstName,
                 LastName = x.LastName,
-                Role = _userManager.GetRolesAsync(x).Result.FirstOrDefault()
+                Role = _userManager.GetRolesAsync(x).Result.FirstOrDefault(),
+                SchoolId = x.SchoolId,
+                School = x.School
             }).ToList();
 
             return View(viewModel);
@@ -47,12 +63,14 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> Create()
         {
             ViewBag.Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Name", "Name");
+            ViewBag.Schools = await GetSchoolSelectList();
+
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Email,FirstName,LastName,Role,Password,ConfirmPassword")] UserViewModel viewModel)
+        public async Task<IActionResult> Create([Bind("Email,FirstName,LastName,Role,SchoolId,Password,ConfirmPassword")] UserViewModel viewModel)
         {
             if (string.IsNullOrEmpty(viewModel.Password))
             {
@@ -66,7 +84,8 @@ namespace ADSBackend.Controllers
                     UserName = viewModel.Email,
                     Email = viewModel.Email,
                     FirstName = viewModel.FirstName,
-                    LastName = viewModel.LastName
+                    LastName = viewModel.LastName,
+                    SchoolId = viewModel.SchoolId
                 };
 
                 user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, viewModel.Password);
@@ -94,6 +113,7 @@ namespace ADSBackend.Controllers
             var role = await _userManager.GetRolesAsync(user);
 
             ViewBag.Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Name", "Name");
+            ViewBag.Schools = await GetSchoolSelectList();
 
             var viewModel = new UserViewModel
             {
@@ -101,6 +121,7 @@ namespace ADSBackend.Controllers
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                SchoolId = user.SchoolId,
                 Role = role.FirstOrDefault()
             };
 
@@ -109,7 +130,7 @@ namespace ADSBackend.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Email,FirstName,LastName,Role,Password,ConfirmPassword")] UserViewModel viewModel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Email,FirstName,LastName,Role,SchoolId,Password,ConfirmPassword")] UserViewModel viewModel)
         {
             if (id != viewModel.Id)
             {
@@ -125,6 +146,7 @@ namespace ADSBackend.Controllers
                     user.Email = viewModel.Email;
                     user.FirstName = viewModel.FirstName;
                     user.LastName = viewModel.LastName;
+                    user.SchoolId = viewModel.SchoolId;
 
                     if (!string.IsNullOrEmpty(viewModel.Password))
                     {

@@ -34,7 +34,7 @@
                     </td>
 
                     <td style="vertical-align: middle">
-                        @Html.Partial("_CrudOptions", item.SchoolId)
+                        @await Html.PartialAsync("_CrudOptions", item.SchoolId)
                     </td>
                 </tr>
             }

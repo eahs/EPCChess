@@ -8,23 +8,37 @@ using Microsoft.EntityFrameworkCore;
 using ADSBackend.Data;
 using ADSBackend.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using ADSBackend.Models.Identity;
 
 namespace ADSBackend.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Advisor")]
     public class PlayersController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public PlayersController(ApplicationDbContext context)
+        public PlayersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Players
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Player.ToListAsync());
+            int schoolId = await GetSchoolIdAsync();
+
+            if (schoolId == -1)
+            {
+                return NotFound();
+            }
+
+            ViewBag.School = await _context.School.FirstOrDefaultAsync(x => x.SchoolId == schoolId);
+
+
+            return View(await _context.Player.Where(x => x.SchoolId == schoolId).OrderByDescending(x => x.Rating).ToListAsync());
         }
 
         // GET: Players/Details/5
@@ -35,8 +49,11 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            var player = await _context.Player
-                .FirstOrDefaultAsync(m => m.PlayerId == id);
+            int schoolId = await GetSchoolIdAsync();
+
+            var player = await _context.Player                
+                .FirstOrDefaultAsync(m => m.PlayerId == id && m.SchoolId == schoolId);
+
             if (player == null)
             {
                 return NotFound();
@@ -58,8 +75,12 @@ namespace ADSBackend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("PlayerId,FirstName,LastName,Rating")] Player player)
         {
+            int schoolId = await GetSchoolIdAsync();
+
             if (ModelState.IsValid)
             {
+                player.SchoolId = schoolId;
+
                 _context.Add(player);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -90,11 +111,13 @@ namespace ADSBackend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("PlayerId,FirstName,LastName,Rating")] Player player)
         {
-            if (id != player.PlayerId)
+            int schoolId = await GetSchoolIdAsync();
+
+            if (id != player.PlayerId || player.SchoolId != schoolId)
             {
                 return NotFound();
             }
-
+            
             if (ModelState.IsValid)
             {
                 try
@@ -126,8 +149,10 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
+            int schoolId = await GetSchoolIdAsync();
+
             var player = await _context.Player
-                .FirstOrDefaultAsync(m => m.PlayerId == id);
+                .FirstOrDefaultAsync(m => m.PlayerId == id && m.SchoolId == schoolId);
             if (player == null)
             {
                 return NotFound();
@@ -150,6 +175,16 @@ namespace ADSBackend.Controllers
         private bool PlayerExists(int id)
         {
             return _context.Player.Any(e => e.PlayerId == id);
+        }
+
+        private async Task<int> GetSchoolIdAsync ()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+                return -1;
+
+            return user.SchoolId;
         }
     }
 }

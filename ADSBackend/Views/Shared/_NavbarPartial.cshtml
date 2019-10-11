@@ -5,22 +5,27 @@
 @inject UserManager<ApplicationUser> UserManager
 
 @{ 
-                var handlingController = this.ViewContext.RouteData.Values["controller"].ToString();
+    var handlingController = this.ViewContext.RouteData.Values["controller"].ToString();
 
-                var setupClass = "";
-                var adminClass = "";
+    var setupClass = "";
+    var teamClass = "";
+    var adminClass = "";
 
 
-                switch (handlingController)
-                {
-                    // League Setup
-                    case "Seasons": setupClass = "active"; break;
-                    case "Schools": setupClass = "active"; break;
+    switch (handlingController)
+    {
+        // Team Management
+        case "Players": teamClass = "active"; break;
+        case "Matches": teamClass = "active"; break;
 
-                    // Admininstration
-                    case "Users": adminClass = "active"; break;
-                    case "Configuration": adminClass = "active"; break;
-                }
+        // League Setup
+        case "Seasons": setupClass = "active"; break;
+        case "Schools": setupClass = "active"; break;
+
+        // Admininstration
+        case "Users": adminClass = "active"; break;
+        case "Configuration": adminClass = "active"; break;
+    }
             }
 
 <nav class="navbar-default navbar-static-side" role="navigation">
@@ -59,6 +64,20 @@
                 <li is-active-route asp-controller="Admin">
                     <a asp-controller="Admin" asp-action="Index"><i class="fa fa-dashboard"></i><span class="nav-label">Dashboard</span></a>
                 </li>
+                @if (User.IsInRole("Admin") || User.IsInRole("Advisor"))
+                {
+                    <li id="nav_team" class="@teamClass">
+                        <a href="#"><i class="fa fa-trophy"></i> <span class="nav-label">Team Manager </span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level collapse">
+                            <li is-active-route asp-controller="Players">
+                                <a asp-controller="Players" asp-action="Index">Players</a>
+                            </li>
+                            <li is-active-route asp-controller="Matches">
+                                <a asp-controller="Matches" asp-action="Index">Matches</a>
+                            </li>
+                        </ul>
+                    </li>
+                }
                 @if (User.IsInRole("Admin"))
                 {
                     <li id="nav_setup" class="@setupClass">
@@ -85,11 +104,11 @@
                     </li>
 
                 }
-    }
+            }
             else
             {
                 // not signed in
             }
-        </ul>
+            </ul>
 </div>
 </nav>
