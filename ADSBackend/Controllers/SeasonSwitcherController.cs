@@ -6,6 +6,7 @@ using ADSBackend.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ADSBackend.Controllers
 {
@@ -29,7 +30,7 @@ namespace ADSBackend.Controllers
         {
             if (id == null) return "NOT OK";
 
-            var season = _context.Season.FirstOrDefault(x => x.SeasonId == id);
+            var season = await _context.Season.FirstOrDefaultAsync(x => x.SeasonId == id);
 
             if (season == null) return "NOT OK";
 
