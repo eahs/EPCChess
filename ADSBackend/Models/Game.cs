@@ -11,13 +11,15 @@ namespace ADSBackend.Models
         [Key]
         public int GameId { get; set; }
 
+        public int BoardPosition { get; set; }
+
         public int MatchId { get; set; }
         public Match Match { get; set; }
 
-        public int HomePlayerId { get; set; }
+        public int? HomePlayerId { get; set; }
         public Player HomePlayer { get; set; }
 
-        public int AwayPlayerId { get; set; }
+        public int? AwayPlayerId { get; set; }
         public Player AwayPlayer { get; set; }
 
         public int HomePlayerRatingBefore { get; set; }

@@ -1,10 +1,12 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Http
+@using ADSBackend.Util
 
 @inject ADSBackend.Data.ApplicationDbContext  _context
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
+    /*
     var seasons = await _context.Season.Select(x => x)
                                           .OrderByDescending(x => x.StartDate)
                                           .ToListAsync();
@@ -13,6 +15,11 @@
 
     var seasonId = HttpContextAccessor.HttpContext.Session.GetInt32("SeasonId") ?? defaultSeason;
     var seasonsSelect = new SelectList(seasons, "SeasonId", "Name", seasonId);
+
+    HttpContextAccessor.HttpContext.Session.SetInt32("SeasonId", seasonId);
+    */
+    var seasonId = await SeasonSelector.GetCurrentSeasonId(_context, HttpContextAccessor.HttpContext);
+    var seasonsSelect = await SeasonSelector.GetSeasonSelectList(_context, seasonId);
 }
 <form asp-controller="SeasonSwitcher" asp-action="Switch" method="post" id="seasonSwitch" class="navbar-right">
     <ul class="nav navbar-top-links navbar-left">

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ADSBackend.Data;
 using ADSBackend.Models;
 using Microsoft.AspNetCore.Authorization;
+using ADSBackend.Util;
 
 namespace ADSBackend.Controllers
 {
@@ -24,7 +25,15 @@ namespace ADSBackend.Controllers
         // GET: Matches
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Match.ToListAsync());
+            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
+
+            var matches = await _context.Match.Include(m => m.HomeSchool).ThenInclude(m => m.Season)
+                                              .Include(m => m.AwaySchool).ThenInclude(m => m.Season)
+                                              .Where(m => m.HomeSchool.SeasonId == currentSeason)
+                                              .OrderBy(m => m.MatchDate)
+                                              .ToListAsync();
+
+            return View(matches);
         }
 
         // GET: Matches/Details/5
@@ -46,8 +55,17 @@ namespace ADSBackend.Controllers
         }
 
         // GET: Matches/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
+
+            var schools = await _context.School.Select(x => x)
+                                               .Where (s => s.SeasonId == currentSeason)
+                                               .OrderBy(x => x.Name)
+                                               .ToListAsync();
+
+            ViewBag.Schools = new SelectList(schools, "SchoolId", "Name");
+
             return View();
         }
 
@@ -56,12 +74,31 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MatchID,MatchDate,Completed,HomePoints,AwayPoints")] Match match)
+        public async Task<IActionResult> Create([Bind("MatchDate,HomeSchoolId,AwaySchoolId")] Match match)
         {
             if (ModelState.IsValid)
             {
+                match.HomePoints = 0;
+                match.AwayPoints = 0;
+                match.Completed = false;
+
                 _context.Add(match);
+
                 await _context.SaveChangesAsync();
+
+                for (int board = 1; board <= 10; board++)
+                {
+                    Game g = new Game
+                    {
+                        MatchId = match.MatchId,
+                        BoardPosition = board
+                    };
+                    _context.Add(g);
+
+                }
+                await _context.SaveChangesAsync();
+
+
                 return RedirectToAction(nameof(Index));
             }
             return View(match);

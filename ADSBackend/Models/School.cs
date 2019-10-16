@@ -33,6 +33,7 @@ namespace ADSBackend.Models
         [DisplayName("Advisor Phone Number")]
         public String AdvisorPhoneNumber { get; set; }
 
+        [DisplayName("Season")]
         public int SeasonId { get; set; }
         public Season Season { get; set; }
 
