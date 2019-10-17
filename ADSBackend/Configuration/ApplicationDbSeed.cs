@@ -1,9 +1,11 @@
 ﻿using ADSBackend.Data;
 using ADSBackend.Models;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,10 +14,29 @@ namespace ADSBackend.Configuration
     public class ApplicationDbSeed
     {
         ApplicationDbContext _context;
-
+ 
         public ApplicationDbSeed (ApplicationDbContext context)
         {
             _context = context;
+           
+        }
+
+        public string GetJson (string seedFile)
+        {
+            var file = System.IO.File.ReadAllText(@"Configuration\SeedData\" + seedFile);
+            return file;
+        }
+
+        public void SeedDatabase<TEntity> (string jsonFile, DbSet<TEntity> dbset) where TEntity : class
+        {
+            var records = JsonConvert.DeserializeObject<List<TEntity>>(GetJson(jsonFile));
+
+            if (records?.Count > 0)
+            {
+                records.ForEach(s => dbset.Add(s));
+                _context.SaveChanges();
+                
+            }
         }
 
         public void CreateSeasons ()
@@ -23,16 +44,9 @@ namespace ADSBackend.Configuration
             var season = _context.Season.FirstOrDefault(m => m.SeasonId == 1);
             if (season == null)
             {
-                season = new Season
-                {
-                    Name = "Unassigned",
-                    StartDate = new DateTime(2000, 10, 1),
-                    EndDate = new DateTime(2001, 3, 31)
-                };
-
-                _context.Add(season);
-                _context.SaveChanges();
+                SeedDatabase<Season>("seasons.json", _context.Season);
             }
+
         }
 
         public void CreateSchools ()
@@ -40,16 +54,7 @@ namespace ADSBackend.Configuration
             var school = _context.School.FirstOrDefault(m => m.SchoolId == 1);
             if (school == null)
             {
-                school = new School
-                {
-                    SeasonId = 1,
-                    Name = "Unassigned School",
-                    ShortName = "Unassigned",
-                    Abbreviation = "UN"
-                };
-
-                _context.Add(school);
-                _context.SaveChanges();
+                SeedDatabase<School>("schools.json", _context.School);
             }
         }
     }
