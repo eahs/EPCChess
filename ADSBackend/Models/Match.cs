@@ -19,8 +19,10 @@ namespace ADSBackend.Models
         [DataType(DataType.DateTime)]
         public DateTime MatchStartTime { get; set; }
 
+
         [DisplayName("Home School")]
         public int HomeSchoolId { get; set; }
+
         public School HomeSchool { get; set; }
 
         [DisplayName("Away School")]

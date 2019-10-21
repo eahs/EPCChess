@@ -4,50 +4,86 @@
     ViewData["Title"] = "Index";
 }
 
-<h2>Index</h2>
+<h2>Scheduled Matches</h2>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-w-m btn-primary">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.MatchDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Completed)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HomePoints)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AwayPoints)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.MatchDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Completed)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.HomePoints)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AwayPoints)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MatchId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MatchId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MatchId">Delete</a>
-            </td>
-        </tr>
+<div class="ibox">
+    <div class="ibox-content">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 1%; white-space: nowrap">
+                        @Html.DisplayNameFor(model => model.MatchDate)
+                    </th>
+                    <th style="width: 1%; white-space: nowrap" class="text-center">
+                        @Html.DisplayNameFor(model => model.Completed)
+                    </th>
+                    <th>
+                        Home School
+                    </th>
+                    <th>
+                        Away School
+                    </th>
+                    <th class="text-center">
+                        Match Result
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.MatchDate)
+                        </td>
+                        <td class="text-center">
+                            <div class="i-checks">
+                                <label>
+                                    @Html.DisplayFor(modelItem => item.Completed)
+                                </label>
+                            </div>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.HomeSchool.ShortName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.AwaySchool.ShortName)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.HomePoints) - @Html.DisplayFor(modelItem => item.AwayPoints)
+                        </td>
+                        <td>
+                            @await Html.PartialAsync("_CrudOptions", item.MatchId)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+@section Styles {
+    <link href="~/lib/inspinia/plugins/iCheck/custom.css" rel="stylesheet">
+
+    <style type="text/css">
+        .icheckbox_square-green.checked.disabled {
+        background-position: -48px 0;
+        }
+    </style>
 }
-    </tbody>
-</table>
+
+@section Scripts {
+    <script src="~/lib/inspinia/plugins/iCheck/icheck.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green'
+            });
+        });
+    </script>
+}
+

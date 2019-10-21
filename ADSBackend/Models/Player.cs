@@ -12,7 +12,7 @@ namespace ADSBackend.Models
         [Key]
         public int PlayerId { get; set; }
 
-        public int SchoolId { get; set; }
+        public int PlayerSchoolId { get; set; }
         public School PlayerSchool { get; set; }
 
         [DisplayName("First Name")]
