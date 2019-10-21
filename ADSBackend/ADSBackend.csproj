@@ -37,4 +37,8 @@
     <None Include="wwwroot\lib\inspinia\plugins\slimscroll\jquery.slimscroll.min.js" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\lib\inspinia\plugins\NewFolder\" />
+  </ItemGroup>
+
 </Project>

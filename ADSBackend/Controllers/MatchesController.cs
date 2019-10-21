@@ -117,6 +117,16 @@ namespace ADSBackend.Controllers
             {
                 return NotFound();
             }
+
+            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
+
+            var schools = await _context.School.Select(x => x)
+                                               .Where(s => s.SeasonId == currentSeason)
+                                               .OrderBy(x => x.Name)
+                                               .ToListAsync();
+
+            ViewBag.Schools = new SelectList(schools, "SchoolId", "Name");
+
             return View(match);
         }
 
@@ -125,7 +135,7 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MatchID,MatchDate,Completed,HomePoints,AwayPoints")] Match match)
+        public async Task<IActionResult> Edit(int id, [Bind("MatchId,MatchDate,HomeSchoolId,AwaySchoolId,Completed,HomePoints,AwayPoints")] Match match)
         {
             if (id != match.MatchId)
             {

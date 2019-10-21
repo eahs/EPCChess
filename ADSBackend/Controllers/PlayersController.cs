@@ -38,7 +38,7 @@ namespace ADSBackend.Controllers
             ViewBag.School = await _context.School.FirstOrDefaultAsync(x => x.SchoolId == schoolId);
 
 
-            return View(await _context.Player.Where(x => x.SchoolId == schoolId).OrderByDescending(x => x.Rating).ToListAsync());
+            return View(await _context.Player.Where(x => x.PlayerSchoolId == schoolId).OrderByDescending(x => x.Rating).ToListAsync());
         }
 
         // GET: Players/Details/5
@@ -52,7 +52,7 @@ namespace ADSBackend.Controllers
             int schoolId = await GetSchoolIdAsync();
 
             var player = await _context.Player                
-                .FirstOrDefaultAsync(m => m.PlayerId == id && m.SchoolId == schoolId);
+                .FirstOrDefaultAsync(m => m.PlayerId == id && m.PlayerSchoolId == schoolId);
 
             if (player == null)
             {
@@ -73,13 +73,13 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PlayerId,FirstName,LastName,Rating")] Player player)
+        public async Task<IActionResult> Create([Bind("PlayerId,PlayerSchoolId,FirstName,LastName,Rating")] Player player)
         {
             int schoolId = await GetSchoolIdAsync();
 
             if (ModelState.IsValid)
             {
-                player.SchoolId = schoolId;
+                player.PlayerSchoolId = schoolId;
 
                 _context.Add(player);
                 await _context.SaveChangesAsync();
@@ -109,11 +109,11 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PlayerId,FirstName,LastName,Rating")] Player player)
+        public async Task<IActionResult> Edit(int id, [Bind("PlayerId,PlayerSchoolId,FirstName,LastName,Rating")] Player player)
         {
             int schoolId = await GetSchoolIdAsync();
 
-            if (id != player.PlayerId || player.SchoolId != schoolId)
+            if (id != player.PlayerId || player.PlayerSchoolId != schoolId)
             {
                 return NotFound();
             }
@@ -152,7 +152,7 @@ namespace ADSBackend.Controllers
             int schoolId = await GetSchoolIdAsync();
 
             var player = await _context.Player
-                .FirstOrDefaultAsync(m => m.PlayerId == id && m.SchoolId == schoolId);
+                .FirstOrDefaultAsync(m => m.PlayerId == id && m.PlayerSchoolId == schoolId);
             if (player == null)
             {
                 return NotFound();
