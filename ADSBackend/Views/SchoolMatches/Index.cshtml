@@ -1,14 +1,17 @@
 ﻿@model IEnumerable<ADSBackend.Models.Match>
 
 @{
-    ViewData["Title"] = "Index";
+    var school = ViewBag.School as School;
+
+
+    ViewData["Title"] = "Scheduled Matches for " + school?.Name;
+
+
 }
 
-<h2>Scheduled Matches</h2>
+<h2>@ViewData["Title"]</h2>
 
-<p>
-    <a asp-action="Create" class="btn btn-w-m btn-primary">Create New</a>
-</p>
+
 <div class="ibox">
     <div class="ibox-content">
         <table class="table table-hover">
@@ -36,27 +39,28 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>
+                        <td style="vertical-align: middle">
                             @Html.DisplayFor(modelItem => item.MatchDate)
                         </td>
-                        <td class="text-center">
+                        <td style="vertical-align: middle" class="text-center">
                             <div class="i-checks">
                                 <label>
                                     @Html.DisplayFor(modelItem => item.Completed)
                                 </label>
                             </div>
                         </td>
-                        <td>
+                        <td style="vertical-align: middle">
                             @Html.DisplayFor(modelItem => item.HomeSchool.ShortName)
                         </td>
-                        <td>
+                        <td style="vertical-align: middle">
                             @Html.DisplayFor(modelItem => item.AwaySchool.ShortName)
                         </td>
-                        <td class="text-center">
+                        <td style="vertical-align: middle" class="text-center">
                             @Html.DisplayFor(modelItem => item.HomePoints) - @Html.DisplayFor(modelItem => item.AwayPoints)
                         </td>
-                        <td>
-                            @await Html.PartialAsync("_CrudOptions", item.MatchId)
+                        <td style="vertical-align: middle">
+                            <a class="btn btn-white btn-bitbucket" asp-action="Manage" asp-route-id="@item.MatchId"><i class="fa fa-eye"></i> Manage Match</a>
+
                         </td>
                     </tr>
                 }
@@ -71,7 +75,7 @@
 
     <style type="text/css">
         .icheckbox_square-green.checked.disabled {
-        background-position: -48px 0;
+            background-position: -48px 0;
         }
     </style>
 }

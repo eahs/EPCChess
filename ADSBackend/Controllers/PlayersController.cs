@@ -109,20 +109,26 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PlayerId,PlayerSchoolId,FirstName,LastName,Rating")] Player player)
+        public async Task<IActionResult> Edit(int id, [Bind("PlayerId,FirstName,LastName,Rating")] Player player)
         {
             int schoolId = await GetSchoolIdAsync();
 
-            if (id != player.PlayerId || player.PlayerSchoolId != schoolId)
+            var _player = _context.Player.Find(id);
+
+            if (id != player.PlayerId && _player.PlayerSchoolId != schoolId)
             {
                 return NotFound();
             }
-            
+
+            _player.FirstName = player.FirstName;
+            _player.LastName = player.LastName;
+            _player.Rating = player.Rating;
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(player);
+                    _context.Update(_player);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
