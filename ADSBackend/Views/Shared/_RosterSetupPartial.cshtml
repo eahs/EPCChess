@@ -1,0 +1,53 @@
+﻿@model ADSBackend.Models.MatchSetupViewModels.MatchSetupViewModel
+
+@{ 
+    var schoolType = char.ToUpper(Model.Prefix[0]) + Model.Prefix.Substring(1);
+}
+
+<div class="ibox">
+    <div class="ibox-title" style="padding-left: 0px"><h4>@(schoolType) School: @Model.School.Name</h4></div>
+
+    <div class="ibox-content" style="padding: 0px;">
+
+        <br />
+        <input id="@(Model.Prefix)Lock" type="checkbox" checked="@Model.Match.HomeRosterLocked" data-toggle="toggle" data-on="Locked" data-off="Unlocked" data-onstyle="success" data-offstyle="danger">
+
+        <div class="alert alert-success" style="margin-top: 20px">Directions:  Drag available students over to your match roster in the board order they will play.  Lock the roster when complete.</div>
+
+        <table class="table table-hover" style="margin-top: 20px;">
+            <thead>
+                <tr>
+                    <th style="width: 1%; white-space: nowrap">
+                        Match Roster
+                    </th>
+                    <th>
+                        Available Players
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        <ul id="@(Model.Prefix)Roster" class="agile-list @(Model.Prefix)connectedSortable">
+                            @foreach (var player in Model.AssignedPlayers)
+                            {
+                                <li id="p_@player.PlayerId" class="success-element ui-sortable-handle">@player.FirstName @player.LastName (@player.Rating)</li>
+                            }
+                        </ul>
+                    </td>
+                    <td>
+                        <ul id="@(Model.Prefix)Available" class="agile-list @(Model.Prefix)connectedSortable">
+                            @foreach (var player in Model.RemainingPlayers)
+                            {
+                                <li id="p_@player.PlayerId" class="success-element ui-sortable-handle">@player.FirstName @player.LastName (@player.Rating)</li>
+                            }
+                        </ul>
+                    </td>
+
+                </tr>
+        </table>
+    </div>
+
+    <div class="ibox-footer text-left">
+
+    </div>
+</div>
+

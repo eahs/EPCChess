@@ -18,6 +18,9 @@ namespace ADSBackend.Models
         [DisplayName("Start Time")]
         [DataType(DataType.DateTime)]
         public DateTime MatchStartTime { get; set; }
+        public bool MatchStarted { get; set; }
+        public bool HomeRosterLocked { get; set; }
+        public bool AwayRosterLocked { get; set; }
 
 
         [DisplayName("Home School")]

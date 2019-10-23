@@ -1,0 +1,177 @@
+﻿@model ADSBackend.Models.Match
+
+@{
+    ViewData["Title"] = "Match Setup";
+
+    var homeAssignedPlayers = Model.Games.Where(g => g.HomePlayerId != null)
+                                         .Select(g => g.HomePlayer)
+                                         .ToList();
+
+    var awayAssignedPlayers = Model.Games.Where(g => g.AwayPlayerId != null)
+                                         .Select(g => g.AwayPlayer)
+                                         .ToList();
+
+
+    var homeMatch = new ADSBackend.Models.MatchSetupViewModels.MatchSetupViewModel
+    {
+        Prefix = "home",
+        RosterLocked = Model.AwayRosterLocked,
+        AssignedPlayers = homeAssignedPlayers,
+        RemainingPlayers = ViewBag.HomeStudents,
+        School = Model.HomeSchool,
+        Match = Model
+    };
+
+    var awayMatch = new ADSBackend.Models.MatchSetupViewModels.MatchSetupViewModel
+    {
+        Prefix = "away",
+        RosterLocked = Model.HomeRosterLocked,
+        AssignedPlayers = awayAssignedPlayers,
+        RemainingPlayers = ViewBag.HomeStudents,
+        School = Model.AwaySchool,
+        Match = Model
+    };
+}
+
+<h2>Match Setup</h2>
+
+<style>
+    #homeRoster, #homeAvailable, #awayRoster, #awayAvailable {
+        border: 1px solid #eee;
+        width: 250px;
+        min-height: 300px;
+        list-style-type: none;
+        margin: 0;
+        padding: 5px 0 0 0;
+        float: left;
+
+    }
+
+    #homeRoster li, #homeAvailable li, #awayRoster li, #awayAvailable li {
+        margin: 0 5px 5px 5px;
+        padding: 5px;
+        font-size: 1.0em;
+        overflow: hidden;
+
+    }
+
+     @@media (max-width : 360px) {
+        #homeRoster, #homeAvailable, #awayRoster, #awayAvailable {
+            width: 125px;
+        }
+
+        #homeRoster li, #homeAvailable li, #awayRoster li, #awayAvailable li {
+            font-size: 0.85em;
+            padding: 5px;
+        }
+      }
+
+     @@media (max-width : 599px) {
+        #homeRoster, #homeAvailable, #awayRoster, #awayAvailable {
+            width: 130px;
+        }
+
+        #homeRoster li, #homeAvailable li, #awayRoster li, #awayAvailable li {
+            font-size: 0.85em;
+            padding: 5px;
+        }
+      }
+</style>
+
+
+<div class="tabs-container">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="active"><a class="nav-link active" data-toggle="tab" href="#tab-1">@Model.HomeSchool.ShortName Roster</a></li>
+        <li><a class="nav-link" data-toggle="tab" href="#tab-2">@Model.AwaySchool.ShortName Roster</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" id="tab-1" class="tab-pane active">
+            <div class="panel-body">
+
+                @await Html.PartialAsync("_RosterSetupPartial", homeMatch)
+
+            </div>
+
+        </div>
+        <div role="tabpanel" id="tab-2" class="tab-pane">
+            <div class="panel-body">
+                @await Html.PartialAsync("_RosterSetupPartial", awayMatch)
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+
+}
+
+@section Scripts {
+
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+
+    <script>
+
+        function setupRoster(fkey) {
+            $("#"+fkey+"Lock").change(function () {
+
+                var Locked = $(this).prop('checked');
+
+                $("#"+fkey+"Roster").sortable("option", "disabled", Locked);
+                $("#"+fkey+"Available").sortable("option", "disabled", Locked);
+
+                if (Locked)
+                    $("#"+fkey+"Available").fadeTo(1, 0.5);
+                else
+                    $("#"+fkey+"Available").fadeTo(1, 1);
+            })
+
+            $("#"+fkey+"Roster").sortable({
+                connectWith: "."+fkey+"connectedSortable",
+                update: function (event, ui) {
+                    var rosterData = $(this).sortable('serialize');
+
+                    var ids = $(this).children().get().map(function(el) {
+                        return el.id.replace("p_", "");
+                    }).join(",");
+
+                    // POST to server using $.post or $.ajax
+
+                    var form = $('#__AjaxAntiForgeryForm');
+                    var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+                    $.ajax({
+                        data: {
+                            __RequestVerificationToken: token,
+                            id: @Model.MatchId,
+                            roster: ids
+                        },
+                        type: 'POST',
+                        url: '/SchoolMatches/UpdateRoster'
+                    });
+
+                }
+            }).disableSelection();
+            $("#"+fkey+"Available").sortable({
+                connectWith: "."+fkey+"connectedSortable"
+            }).disableSelection();
+
+        }
+
+
+        $(function () {
+            setupRoster("home");
+            setupRoster("away");
+        });
+    </script>
+
+}
