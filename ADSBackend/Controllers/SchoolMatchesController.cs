@@ -71,6 +71,45 @@ namespace ADSBackend.Controllers
             return View(match);
         }
 
+        public async Task<IActionResult> MatchSetup(int? id)
+        {
+            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
+            var schoolId = await GetSchoolIdAsync();
+
+            if (schoolId == -1)
+                return NotFound();
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var match = await _context.Match.Include(m => m.HomeSchool).ThenInclude(m => m.Season)
+                                                          .Include(m => m.AwaySchool).ThenInclude(m => m.Season)
+                                                          .Include(m => m.Games).ThenInclude(g => g.HomePlayer)
+                                                          .Include(m => m.Games).ThenInclude(g => g.AwayPlayer)
+                                                          .Where(m => m.MatchId == id && m.HomeSchool.SeasonId == currentSeason && (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId))
+                                                          .FirstOrDefaultAsync();
+
+            if (match == null)
+            {
+                return NotFound();
+            }
+
+            var homePlayers = match.Games.Where(g => g.HomePlayer != null).Select(g => g.HomePlayerId).ToList();
+            var awayPlayers = match.Games.Where(g => g.HomePlayer != null).Select(g => g.AwayPlayerId).ToList();
+
+            ViewBag.HomeStudents = await _context.Player.Where(p => p.PlayerSchoolId == match.HomeSchoolId && !homePlayers.Contains(p.PlayerId))
+                                                    .OrderByDescending(p => p.Rating)
+                                                    .ToListAsync();
+
+            ViewBag.AwayStudents = await _context.Player.Where(p => p.PlayerSchoolId == match.AwaySchoolId && !awayPlayers.Contains(p.PlayerId))
+                                                    .OrderByDescending(p => p.Rating)
+                                                    .ToListAsync();
+
+            return View(match);
+        }
+
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<String> UpdateRoster(IFormCollection forms)
         {

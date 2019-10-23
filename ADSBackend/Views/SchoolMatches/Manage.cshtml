@@ -5,107 +5,31 @@
 
 }
 
-<style>
-    #sortable1, #sortable2 {
-        border: 1px solid #eee;
-        width: 142px;
-        min-height: 20px;
-        list-style-type: none;
-        margin: 0;
-        padding: 5px 0 0 0;
-        float: left;
-        margin-right: 10px;
-    }
-
-        #sortable1 li, #sortable2 li {
-            margin: 0 5px 5px 5px;
-            padding: 5px;
-            font-size: 1.2em;
-            width: 120px;
-        }
-</style>
-
 
 <div class="ibox">
+    <div class="ibox-title"><h4>Chess Match: @Model.HomeSchool.ShortName vs @Model.AwaySchool.ShortName</h4></div>
     <div class="ibox-content">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th style="width: 1%; white-space: nowrap">
-                        Match Roster
-                    </th>
-                    <th>
-                        Available Players
-                    </th>
-                </tr>
-                <tr>
-                    <td>
-                        <ul id="sortable1" class="connectedSortable">
-                            <li id="p_1" class="ui-state-default">Item 1</li>
-                            <li id="p_2" class="ui-state-default">Item 2</li>
-                            <li id="p_3" class="ui-state-default">Item 3</li>
-                            <li id="p_4" class="ui-state-default">Item 4</li>
-                            <li id="p_5" class="ui-state-default">Item 5</li>
-                        </ul>
-                    </td>
-                    <td>
-                        <ul id="sortable2" class="connectedSortable">
-                            <li id="p_6" class="ui-state-highlight">Item 1</li>
-                            <li id="p_7" class="ui-state-highlight">Item 2</li>
-                            <li id="p_8" class="ui-state-highlight">Item 3</li>
-                            <li id="p_9" class="ui-state-highlight">Item 4</li>
-                            <li id="p_10" class="ui-state-highlight">Item 5</li>
-                        </ul>
-                    </td>
+        @if (!Model.MatchStarted && (!Model.AwayRosterLocked && !Model.HomeRosterLocked))
+        {
+            <div class="alert alert-danger text-center">
+                This match cannot begin until both home and away rosters are set up and locked. <br /><br />
+                <a class="btn btn-w-m btn-danger" asp-controller="SchoolMatches" asp-action="MatchSetup" asp-route-id="@Model.MatchId">Set Up Match Roster</a>
+            </div>
+        }
+        else if (!Model.MatchStarted)
+        {
+            <div class="alert alert-warning">
+                Both home and away rosters have been locked for this match.  Changes can still be made to rosters up until the match is officially started by clicking the "Start Match" button below.
+                <a class="btn btn-w-m btn-danger" asp-controller="SchoolMatches" asp-action="MatchSetup" asp-route-id="@Model.MatchId">Set Up Match Roster</a>
+            </div>
 
-                </tr>
-        </table>
+            <button class="btn btn-primary dim" type="button"><i class="fa fa-play"></i> Begin Match</button>
+
+        }
+        else
+        {
+
+        }
+        <button class="btn btn-primary" type="button"><i class="fa fa-play"></i> Begin Match</button>
     </div>
 </div>
-
-@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
-{
-    @Html.AntiForgeryToken()
-}
-
-@section Scripts {
-
-    <script>
-        $(function () {
-            $("#sortable1").sortable({
-                connectWith: ".connectedSortable",
-                update: function (event, ui) {
-                    var rosterData = $(this).sortable('serialize');
-
-                    var ids = $(this).children().get().map(function(el) {
-                        return el.id.replace("p_", "");
-                    }).join(",");
-
-                    alert(ids);
-                    
-                    // POST to server using $.post or $.ajax
-
-                    var form = $('#__AjaxAntiForgeryForm');
-                    var token = $('input[name="__RequestVerificationToken"]', form).val();
-
-                    alert(rosterData);
-
-                    $.ajax({
-                        data: { 
-                            __RequestVerificationToken: token, 
-                            id: @Model.MatchId,
-                            roster: ids
-                        },
-                        type: 'POST',
-                        url: '/SchoolMatches/UpdateRoster'
-                    });
-
-                }
-            }).disableSelection();
-            $("#sortable2").sortable({
-                connectWith: ".connectedSortable"
-            }).disableSelection();
-        });
-    </script>
-
-}
