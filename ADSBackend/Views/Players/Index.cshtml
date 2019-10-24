@@ -4,6 +4,15 @@
     ViewData["Title"] = "Index";
 }
 
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a asp-controller="Admin" asp-action="Index">Home</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong>Players</strong>
+    </li>
+</ol>
+
 <h2>@ViewBag.School.Name Players</h2>
 
 <p>
