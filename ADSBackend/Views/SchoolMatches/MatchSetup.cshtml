@@ -15,7 +15,7 @@
     var homeMatch = new ADSBackend.Models.MatchSetupViewModels.MatchSetupViewModel
     {
         Prefix = "home",
-        RosterLocked = Model.AwayRosterLocked,
+        RosterLocked = Model.HomeRosterLocked,
         AssignedPlayers = homeAssignedPlayers,
         RemainingPlayers = ViewBag.HomeStudents,
         School = Model.HomeSchool,
@@ -25,13 +25,28 @@
     var awayMatch = new ADSBackend.Models.MatchSetupViewModels.MatchSetupViewModel
     {
         Prefix = "away",
-        RosterLocked = Model.HomeRosterLocked,
+        RosterLocked = Model.AwayRosterLocked,
         AssignedPlayers = awayAssignedPlayers,
-        RemainingPlayers = ViewBag.HomeStudents,
+        RemainingPlayers = ViewBag.AwayStudents,
         School = Model.AwaySchool,
         Match = Model
     };
 }
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a asp-controller="Admin" asp-action="Index">Home</a>
+    </li>
+    <li>
+        <a asp-controller="SchoolMatches" asp-action="Index">Matches</a>
+    </li>
+    <li>
+        <a asp-controller="SchoolMatches" asp-action="Manage" asp-route-id="@Model.MatchId">@Model.HomeSchool.ShortName vs @Model.AwaySchool.ShortName</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong>Match Setup</strong>
+    </li>
+</ol>
 
 <h2>Match Setup</h2>
 
@@ -44,38 +59,36 @@
         margin: 0;
         padding: 5px 0 0 0;
         float: left;
-
     }
 
-    #homeRoster li, #homeAvailable li, #awayRoster li, #awayAvailable li {
-        margin: 0 5px 5px 5px;
-        padding: 5px;
-        font-size: 1.0em;
-        overflow: hidden;
+        #homeRoster li, #homeAvailable li, #awayRoster li, #awayAvailable li {
+            margin: 0 5px 5px 5px;
+            padding: 5px;
+            font-size: 1.0em;
+            overflow: hidden;
+        }
 
-    }
-
-     @@media (max-width : 360px) {
+    @@media (max-width : 360px) {
         #homeRoster, #homeAvailable, #awayRoster, #awayAvailable {
             width: 125px;
         }
 
-        #homeRoster li, #homeAvailable li, #awayRoster li, #awayAvailable li {
-            font-size: 0.85em;
-            padding: 5px;
-        }
-      }
+            #homeRoster li, #homeAvailable li, #awayRoster li, #awayAvailable li {
+                font-size: 0.85em;
+                padding: 5px;
+            }
+    }
 
-     @@media (max-width : 599px) {
+    @@media (max-width : 599px) {
         #homeRoster, #homeAvailable, #awayRoster, #awayAvailable {
             width: 130px;
         }
 
-        #homeRoster li, #homeAvailable li, #awayRoster li, #awayAvailable li {
-            font-size: 0.85em;
-            padding: 5px;
-        }
-      }
+            #homeRoster li, #homeAvailable li, #awayRoster li, #awayAvailable li {
+                font-size: 0.85em;
+                padding: 5px;
+            }
+    }
 </style>
 
 
@@ -118,10 +131,20 @@
 @section Scripts {
 
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
     <script>
 
-        function setupRoster(fkey) {
+        function setupRoster(fkey, isLocked) {
+
+            if (isLocked)
+            {
+                $("#" + fkey + "Available").fadeTo(1, 0.5);
+            }
+            else
+                $("#" + fkey + "Available").fadeTo(1, 1);
+
+
             $("#"+fkey+"Lock").change(function () {
 
                 var Locked = $(this).prop('checked');
@@ -130,12 +153,48 @@
                 $("#"+fkey+"Available").sortable("option", "disabled", Locked);
 
                 if (Locked)
-                    $("#"+fkey+"Available").fadeTo(1, 0.5);
+                {
+                    $("#" + fkey + "Available").fadeTo(1, 0.5);
+
+
+                }
                 else
-                    $("#"+fkey+"Available").fadeTo(1, 1);
+                    $("#" + fkey + "Available").fadeTo(1, 1);
+
+
+                var form = $('#__AjaxAntiForgeryForm');
+                var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+                $.ajax({
+                    data: {
+                        __RequestVerificationToken: token,
+                        id: @Model.MatchId,
+                        side: fkey,
+                        lockState: Locked
+                    },
+                    success: function (response) {
+                        if (response == "LOCKED") {
+                            swal({
+                                title: fkey.charAt(0).toUpperCase() + fkey.slice(1) + " Roster Locked",
+                                text: "This roster is now locked and consists of the players you expect to play in this match.  Once both rosters are locked you can begin the match.  Please be aware that once the match is started, no further roster changes can be made!",
+                                icon: "success",
+                            });
+                        }
+                        else if (response != "UNLOCKED") {
+                            swal({
+                                title: "An Error Occurred",
+                                text: response,
+                                icon: "error",
+                            });
+                        }
+                    },
+                    type: 'POST',
+                    url: '/SchoolMatches/LockRoster'
+                });
             })
 
-            $("#"+fkey+"Roster").sortable({
+            $("#" + fkey + "Roster").sortable({
+                disabled: isLocked,
                 connectWith: "."+fkey+"connectedSortable",
                 update: function (event, ui) {
                     var rosterData = $(this).sortable('serialize');
@@ -153,6 +212,7 @@
                         data: {
                             __RequestVerificationToken: token,
                             id: @Model.MatchId,
+                            side: fkey,
                             roster: ids
                         },
                         type: 'POST',
@@ -169,8 +229,8 @@
 
 
         $(function () {
-            setupRoster("home");
-            setupRoster("away");
+            setupRoster("home", @Model.HomeRosterLocked.ToString().ToLower());
+            setupRoster("away", @Model.AwayRosterLocked.ToString().ToLower());
         });
     </script>
 

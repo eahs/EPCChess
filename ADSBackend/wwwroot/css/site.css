@@ -28,3 +28,23 @@ body {
         display: none;
     }
 }
+
+.breadcrumb {
+    background-color: transparent;
+    margin-bottom: 20px; 
+}
+
+.table-bordered > thead > tr > th,
+.table-bordered > tbody > tr > th,
+.table-bordered > tfoot > tr > th,
+.table-bordered > thead > tr > td,
+.table-bordered > tbody > tr > td,
+.table-bordered > tfoot > tr > td {
+    padding: 4px;
+}
+
+
+.chessrating {
+    font-size: 9px;
+    font-color: #999999
+}
