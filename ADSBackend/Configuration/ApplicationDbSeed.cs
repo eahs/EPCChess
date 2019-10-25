@@ -23,7 +23,8 @@ namespace ADSBackend.Configuration
 
         public string GetJson (string seedFile)
         {
-            var file = System.IO.File.ReadAllText(@"Configuration\SeedData\" + seedFile);
+            var file = System.IO.File.ReadAllText(Path.Combine("Configuration", "SeedData", seedFile));
+
             return file;
         }
 
