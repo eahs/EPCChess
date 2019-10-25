@@ -59,16 +59,28 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            var match = await _context.Match.Include(m => m.HomeSchool).ThenInclude(m => m.Season)
-                                                          .Include(m => m.AwaySchool).ThenInclude(m => m.Season)
-                                                          .Include(m => m.Games).ThenInclude(g => g.HomePlayer)
-                                                          .Include(m => m.Games).ThenInclude(g => g.AwayPlayer)
-                                                          .Where(m => m.MatchId == id && m.HomeSchool.SeasonId == currentSeason && (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId))
-                                                          .FirstOrDefaultAsync();
+            var match = await GetMatchAsync(id, currentSeason, schoolId);
 
             if (match == null)
             {
                 return NotFound();
+            }
+
+            if (match.Games == null || match.Games.Count == 0)
+            {
+                for (int board = 1; board <= 10; board++)
+                {
+                    Game g = new Game
+                    {
+                        MatchId = (int) id,
+                        BoardPosition = board
+                    };
+                    _context.Add(g);
+
+                }
+                await _context.SaveChangesAsync();
+
+                match = await GetMatchAsync(id, currentSeason, schoolId);
             }
 
             return View(match);
@@ -87,12 +99,7 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            var match = await _context.Match.Include(m => m.HomeSchool).ThenInclude(m => m.Season)
-                                                          .Include(m => m.AwaySchool).ThenInclude(m => m.Season)
-                                                          .Include(m => m.Games).ThenInclude(g => g.HomePlayer)
-                                                          .Include(m => m.Games).ThenInclude(g => g.AwayPlayer)
-                                                          .Where(m => m.MatchId == id && m.HomeSchool.SeasonId == currentSeason && (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId))
-                                                          .FirstOrDefaultAsync();
+            var match = await GetMatchAsync(id, currentSeason, schoolId);
 
             if (match == null)
             {
@@ -259,6 +266,21 @@ namespace ADSBackend.Controllers
                 return -1;
 
             return user.SchoolId;
+        }
+
+        private async Task<Match> GetMatchAsync(int? id, int seasonId, int schoolId)
+        {
+            if (id == null)
+                return null;
+
+            var match = await _context.Match.Include(m => m.HomeSchool).ThenInclude(m => m.Season)
+                .Include(m => m.AwaySchool).ThenInclude(m => m.Season)
+                .Include(m => m.Games).ThenInclude(g => g.HomePlayer)
+                .Include(m => m.Games).ThenInclude(g => g.AwayPlayer)
+                .Where(m => m.MatchId == id && m.HomeSchool.SeasonId == seasonId && (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId))
+                .FirstOrDefaultAsync();
+
+            return match;
         }
     }
 }
