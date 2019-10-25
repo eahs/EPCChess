@@ -26,7 +26,8 @@ namespace ADSBackend
         {
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("ADSBackendContext"));
+                string conn = Configuration.GetConnectionString("ADSBackendContext"); //Configuration["DefaultConnection"];
+                options.UseSqlServer(conn);
             });
 
             services.AddIdentity<ApplicationUser, ApplicationRole>()
@@ -89,6 +90,7 @@ namespace ADSBackend
                 var dbSeed = new ApplicationDbSeed(dbContext);
                 dbSeed.CreateSeasons();
                 dbSeed.CreateSchools();
+                dbSeed.CreateMatches();
 
                 // seed the AspNetRoles table
                 var roleSeed = new ApplicationRoleSeed(roleManager);
