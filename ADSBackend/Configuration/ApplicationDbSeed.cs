@@ -57,5 +57,15 @@ namespace ADSBackend.Configuration
                 SeedDatabase<School>("schools.json", _context.School);
             }
         }
+
+        public void CreateMatches()
+        {
+            var match = _context.Match.FirstOrDefault();
+            if (match == null)
+            {
+                SeedDatabase<Match>("matches.json", _context.Match);
+            }
+        }
+
     }
 }
