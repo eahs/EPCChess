@@ -8,9 +8,10 @@ namespace ADSBackend.Util
 {
     public enum GameResult
     {
-        Draw,
-        Player1Wins,
-        Player2Wins
+        Draw = 0,
+        Player1Wins = 1,
+        Player2Wins = 2,
+        Reset = 3
     }
 
     public class RatingLookupEntry
