@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
+using Newtonsoft.Json;
 
 namespace ADSBackend.Controllers
 {
@@ -86,6 +87,7 @@ namespace ADSBackend.Controllers
             return View(match);
         }
 
+
         public async Task<IActionResult> MatchSetup(int? id)
         {
             var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
@@ -120,6 +122,27 @@ namespace ADSBackend.Controllers
             return View(match);
         }
 
+        private string JsonStatus(string message)
+        {
+            return JsonConvert.SerializeObject(new {Status = message});
+        }
+
+        public double ConvertPointsWon(GameResult result, int playerNumber)
+        {
+            if (result == GameResult.Draw) return 0.5;
+
+            if (playerNumber == 1)
+            {
+                if (result == GameResult.Player1Wins) return 1;
+            }
+            else
+            {
+                if (result == GameResult.Player2Wins) return 1;
+            }
+
+            return 0;
+        }
+
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<String> ReportResult(IFormCollection forms)
         {
@@ -127,39 +150,75 @@ namespace ADSBackend.Controllers
             var schoolId = await GetSchoolIdAsync();
 
             if (schoolId == -1)
-                return "SCHOOL NOT FOUND";
+                return JsonStatus("SCHOOL NOT FOUND");
 
-            string _gameid = "", _matchid = "";
-            int gameid = -1, matchid = -1;
+            string _gameid = "", _matchid = "", _result = "";
+            int gameid = -1, matchid = -1, result = -1;
+            GameResult gameResult = (GameResult) result;
 
             if (!forms.ContainsKey("gameid") &&
                 !forms.ContainsKey("matchid") &&
                 !forms.ContainsKey("result"))
-                return "INVALID FORM";
+                return JsonStatus("INVALID FORM");
 
             // Read in form data
             _gameid = forms["gameid"];
             _matchid = forms["matchid"];
+            _result = forms["result"];
 
             // Validate form data
             Int32.TryParse(_gameid, out gameid);
             Int32.TryParse(_matchid, out matchid);
+            Int32.TryParse(_result, out result);
+
+            if (result < 0 || result > 3) return JsonStatus("Invalid result code");
 
             var match = await _context.Match.FirstOrDefaultAsync(m => m.MatchId == matchid && (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId));
 
-            if (match == null)
-            {
-                return "MATCH NOT FOUND";
-            }
+            if (match == null) return JsonStatus("MATCH NOT FOUND");
+            if (!match.MatchStarted) return JsonStatus("MATCH NOT STARTED");
+
 
             var game = await _context.Game.FirstOrDefaultAsync(g => g.MatchId == matchid && g.GameId == gameid);
 
-            if (game == null)
+            if (game == null) return JsonStatus("GAME NOT FOUND");
+
+            // Result: 0 = Draw, 1 = Home Win, 2 = Away Win, 3 = Reset
+
+            if (gameResult == GameResult.Reset)
             {
-                return "GAME NOT FOUND";
+                game.HomePoints = 0;
+                game.AwayPoints = 0;
+                game.HomePlayerRatingAfter = 0;
+                game.AwayPlayerRatingAfter = 0;
+                game.Completed = false;
+            }
+            else
+            {
+                int homeRating, awayRating;
+
+                RatingCalculator.Current.CalculateNewRating(game.HomePlayerRatingBefore, game.AwayPlayerRatingBefore,
+                    gameResult, out homeRating, out awayRating);
+
+                game.HomePoints = ConvertPointsWon(gameResult, 1);
+                game.AwayPoints = ConvertPointsWon(gameResult, 2); ;
+                game.HomePlayerRatingAfter = homeRating;
+                game.AwayPlayerRatingAfter = awayRating;
             }
 
-            return "OK";
+            var returnStatus = new
+            {
+                Status = "OK",
+                game.GameId,
+                game.HomePoints,
+                game.AwayPoints,
+                game.HomePlayerFullName,
+                game.AwayPlayerFullName,
+                game.HomePlayerGameRating,
+                game.AwayPlayerGameRating
+            };
+
+            return JsonConvert.SerializeObject(returnStatus);
         }
 
 
