@@ -20,6 +20,7 @@
 
         // League Setup
         case "Seasons": setupClass = "active"; break;
+        case "Divisions": setupClass = "active"; break;
         case "Schools": setupClass = "active"; break;
         case "Matches": setupClass = "active"; break;
 
@@ -87,6 +88,9 @@
                         <ul class="nav nav-second-level collapse">
                             <li is-active-route asp-controller="Seasons">
                                 <a asp-controller="Seasons" asp-action="Index">Seasons</a>
+                            </li>
+                            <li is-active-route asp-controller="Divisions">
+                                <a asp-controller="Divisions" asp-action="Index">Divisions</a>
                             </li>
                             <li is-active-route asp-controller="Schools">
                                 <a asp-controller="Schools" asp-action="Index">Schools</a>

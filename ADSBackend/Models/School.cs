@@ -13,6 +13,9 @@ namespace ADSBackend.Models
         [Key]
         public int SchoolId { get; set; }
 
+        public int? DivisionId { get; set; }
+        public Division Division { get; set; }
+
         [DisplayName("School Name")]
         public String Name { get; set; }
 

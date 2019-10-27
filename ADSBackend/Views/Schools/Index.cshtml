@@ -4,14 +4,24 @@
     ViewData["Title"] = "Schools";
 }
 
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a asp-controller="Admin" asp-action="Index">Home</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong>Schools</strong>
+    </li>
+</ol>
+
 <h2>Schools</h2>
 
 <p>
     <a asp-action="Create" class="btn btn-w-m btn-primary">Create New</a>
 </p>
 <div class="ibox-content">
-    <table class="table table-hover">
-        <thead>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
             <tr>
                 <th>
                     @Html.DisplayNameFor(model => model.Name)
@@ -19,10 +29,16 @@
                 <th>
                     @Html.DisplayNameFor(model => model.Season.Name)
                 </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Division.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Division.Name)
+                </th>
                 <th></th>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             @foreach (var item in Model)
             {
                 <tr>
@@ -32,12 +48,16 @@
                     <td style="vertical-align: middle">
                         @Html.DisplayFor(modelItem => item.Season.Name)
                     </td>
-
+                    <td style="vertical-align: middle">
+                        @Html.DisplayFor(modelItem => item.Division.Name)
+                    </td>
                     <td style="vertical-align: middle">
                         @await Html.PartialAsync("_CrudOptions", item.SchoolId)
                     </td>
                 </tr>
             }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
+
 </div>

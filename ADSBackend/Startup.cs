@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using System;
 
 namespace ADSBackend
@@ -26,7 +25,8 @@ namespace ADSBackend
         {
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                string conn = Configuration.GetConnectionString("ADSBackendContext"); //Configuration["DefaultConnection"];
+                //string conn = Configuration.GetConnectionString("ADSBackendProductionContext");
+                string conn = Configuration.GetConnectionString("ADSBackendLocalContext");
                 options.UseSqlServer(conn);
             });
 
@@ -89,6 +89,7 @@ namespace ADSBackend
 
                 var dbSeed = new ApplicationDbSeed(dbContext);
                 dbSeed.CreateSeasons();
+                dbSeed.CreateDivisions();
                 dbSeed.CreateSchools();
                 dbSeed.CreateMatches();
 

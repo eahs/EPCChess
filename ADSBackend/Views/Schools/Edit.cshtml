@@ -4,6 +4,17 @@
     ViewData["Title"] = "Edit";
 }
 
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a asp-controller="Admin" asp-action="Index">Home</a>
+    </li>
+    <li>
+        <a asp-controller="Schools" asp-action="Index">Schools</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong>@Model.Name</strong>
+    </li>
+</ol>
 
 <h2>Edit</h2>
 
@@ -18,6 +29,9 @@
                         <input type="hidden" asp-for="SchoolId" />
                         <div class="form-group">
                             <select asp-for="SeasonId" asp-items="ViewBag.Seasons" class="form-control"></select>
+                        </div>
+                        <div class="form-group">
+                            <select asp-for="DivisionId" asp-items="ViewBag.Divisions" class="form-control"></select>
                         </div>
                         <div class="form-group">
                             <label asp-for="Name" class="control-label"></label>

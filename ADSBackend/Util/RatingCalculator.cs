@@ -29,6 +29,7 @@ namespace ADSBackend.Util
 
         private RatingCalculator ()
         {
+            RatingLookup = new List<RatingLookupEntry>();
             RatingLookup.Add(new RatingLookupEntry { Low = 0, High = 12, HighBoardGains = 16, LowBoardGains = 16, DrawHighLosesLowGains = 0 });
 
             for (int i = 1; i <= 14; i++)
