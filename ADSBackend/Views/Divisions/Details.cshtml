@@ -1,0 +1,39 @@
+﻿@model ADSBackend.Models.Division
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a asp-controller="Admin" asp-action="Index">Home</a>
+    </li>
+    <li>
+        <a asp-controller="Divisions" asp-action="Index">Divisions</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong>@Model.Name Details</strong>
+    </li>
+</ol>
+
+<h2>Details</h2>
+
+<div class="row">
+    <div class="ibox">
+        <div class="ibox-content">
+            <dl class="dl-horizontal">
+                <dt>
+                    @Html.DisplayNameFor(model => model.Name)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Name)
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.DivisionId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

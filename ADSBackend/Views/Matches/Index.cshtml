@@ -21,10 +21,7 @@
                         @Html.DisplayNameFor(model => model.Completed)
                     </th>
                     <th>
-                        Home School
-                    </th>
-                    <th>
-                        Away School
+                        Matchup (Home vs Away)
                     </th>
                     <th class="text-center">
                         Match Result
@@ -46,11 +43,9 @@
                                 </label>
                             </div>
                         </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.HomeSchool.ShortName)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.AwaySchool.ShortName)
+                        <td style="vertical-align: middle">
+                            @Html.DisplayFor(modelItem => item.HomeSchool.ShortName) vs
+                            @Html.DisplayFor(modelItem => item.AwaySchool.ShortName) 
                         </td>
                         <td class="text-center">
                             @Html.DisplayFor(modelItem => item.HomePoints) - @Html.DisplayFor(modelItem => item.AwayPoints)

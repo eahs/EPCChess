@@ -50,6 +50,16 @@ namespace ADSBackend.Configuration
 
         }
 
+        public void CreateDivisions()
+        {
+            var season = _context.Division.FirstOrDefault(m => m.DivisionId == 1);
+            if (season == null)
+            {
+                SeedDatabase<Division>("divisions.json", _context.Division);
+            }
+
+        }
+
         public void CreateSchools ()
         {
             var school = _context.School.FirstOrDefault(m => m.SchoolId == 1);

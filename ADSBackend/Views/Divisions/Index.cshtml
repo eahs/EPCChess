@@ -1,0 +1,46 @@
+﻿@model IEnumerable<ADSBackend.Models.Division>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a asp-controller="Admin" asp-action="Index">Home</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong>Divisions</strong>
+    </li>
+</ol>
+
+<h2>Divisions</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-w-m btn-primary">Create New</a>
+</p>
+<div class="ibox">
+    <div class="ibox-content">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model) {
+                <tr>
+                    <td style="vertical-align: middle">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td style="vertical-align: middle">
+                        @await Html.PartialAsync("_CrudOptions", item.DivisionId)
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

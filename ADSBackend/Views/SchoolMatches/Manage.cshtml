@@ -38,7 +38,7 @@
 
         }
         
-
+<!--
     <table class="table-bordered table-hover">
         <thead>
         <th colspan="1"></th>
@@ -81,7 +81,83 @@
                 </td>
             </tr>
         }
-    </table>
+</table>
+-->
+    @foreach (var game in Model.Games)
+    {
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span class="boardcardheader">Board @game.BoardPosition</span> 
+                @if (Model.MatchStarted)
+                { 
+                    <div class="btn-group">
+                        <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle">Report Results <b class="caret"></b></button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">@game.HomePlayer?.FirstName @game.HomePlayer?.LastName (@Model.HomeSchool.Abbreviation) Won</a></li>
+                            <li><a class="dropdown-item" href="#">@game.AwayPlayer?.FirstName @game.AwayPlayer?.LastName (@Model.AwaySchool.Abbreviation) Won</a></li>
+                            <li><a class="dropdown-item" href="#">Draw</a></li>
+                            <li><a class="dropdown-item" href="#">Reset Winner</a></li>
+                        </ul>
+                    </div>
+                }
+            </div>
+            <div class="panel-body">
+                
+                <table>
+                    <tr>
+                        <td width="190" style="vertical-align: middle; text-align: center">
+                            @if (game.HomePlayer != null && Model.MatchStarted)
+                            {
+                                @(game.HomePlayerFullName)
+                                <span class="chessrating">@(game.HomePlayerGameRating)</span>
+                            }
+                            else if (game.HomePlayer != null)
+                            {
+                                @(game.HomePlayerFullName) 
+                                <span class="chessrating">(@(game.HomePlayer.Rating))</span>
+                            }
+                            else
+                            {
+                                <span>Unassigned</span>
+                            }
+                        </td>
+                        <td class="boardcardresult">
+                            @game.HomePoints
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center">vs</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td width="190" style="vertical-align: middle; text-align: center">
+                            @if (game.AwayPlayer != null && Model.MatchStarted)
+                            {
+                                @(game.AwayPlayerFullName) 
+                                <span class="chessrating">@(game.AwayPlayerGameRating)</span>
+                            }
+                            else if (game.AwayPlayer != null)
+                            {
+                                @(game.AwayPlayerFullName) 
+                                <span class="chessrating">(@(game.AwayPlayer.Rating))</span>
+                            }
+                            else
+                            {
+                                <span>Unassigned</span>
+                            }
+                        </td>
+                        <td class="boardcardresult">
+                            @game.AwayPoints
+                        </td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
     </div>
 </div>
 

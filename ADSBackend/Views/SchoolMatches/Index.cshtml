@@ -6,65 +6,63 @@
 
     ViewData["Title"] = "Scheduled Matches for " + school?.Name;
 
+
 }
+
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-controller="Admin" asp-action="Index">Home</a>
+        </li>
+        <li class="breadcrumb-item active">
+            <strong>Matches</strong>
+        </li>
+    </ol>
 
 <h2>@ViewData["Title"]</h2>
 
 
 <div class="ibox">
     <div class="ibox-content">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th style="width: 1%; white-space: nowrap">
-                        @Html.DisplayNameFor(model => model.MatchDate)
-                    </th>
-                    <th style="width: 1%; white-space: nowrap" class="text-center">
-                        @Html.DisplayNameFor(model => model.Completed)
-                    </th>
-                    <th>
-                        Home School
-                    </th>
-                    <th>
-                        Away School
-                    </th>
-                    <th class="text-center">
-                        Match Result
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td style="vertical-align: middle">
-                            @Html.DisplayFor(modelItem => item.MatchDate)
-                        </td>
-                        <td style="vertical-align: middle" class="text-center">
-                            <div class="i-checks">
-                                <label>
-                                    @Html.DisplayFor(modelItem => item.Completed)
-                                </label>
-                            </div>
-                        </td>
-                        <td style="vertical-align: middle">
-                            @Html.DisplayFor(modelItem => item.HomeSchool.ShortName)
-                        </td>
-                        <td style="vertical-align: middle">
-                            @Html.DisplayFor(modelItem => item.AwaySchool.ShortName)
-                        </td>
-                        <td style="vertical-align: middle" class="text-center">
-                            @Html.DisplayFor(modelItem => item.HomePoints) - @Html.DisplayFor(modelItem => item.AwayPoints)
-                        </td>
-                        <td style="vertical-align: middle">
-                            <a class="btn btn-white btn-bitbucket" asp-action="Manage" asp-route-id="@item.MatchId"><i class="fa fa-eye"></i> Manage Match</a>
+        <div class="table-responsive">
 
-                        </td>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>
+                            Matchup (Home vs Away)
+                        </th>
+                        <th></th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td style="vertical-align: middle">
+                                <strong>@Html.DisplayFor(modelItem => item.MatchDate)</strong><br/>
+                                @Html.DisplayFor(modelItem => item.HomeSchool.ShortName)
+                                @if (item.Completed)
+                                {
+                                    <i>(@Html.DisplayFor(modelItem => item.HomePoints)</i>
+                                }
+                                vs
+                                @Html.DisplayFor(modelItem => item.AwaySchool.ShortName)
+
+                                @if (item.Completed)
+                                {
+                                    <i>(@Html.DisplayFor(modelItem => item.AwayPoints)</i>
+                                }
+                            </td>
+                            <td style="vertical-align: middle">
+                                <a class="btn btn-white btn-bitbucket" asp-action="Manage" asp-route-id="@item.MatchId"><i class="fa fa-eye"></i> Manage</a>
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
     </div>
 </div>
 

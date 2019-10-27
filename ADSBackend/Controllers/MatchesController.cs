@@ -120,6 +120,9 @@ namespace ADSBackend.Controllers
 
             var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
 
+
+
+
             var schools = await _context.School.Select(x => x)
                                                .Where(s => s.SeasonId == currentSeason)
                                                .OrderBy(x => x.Name)

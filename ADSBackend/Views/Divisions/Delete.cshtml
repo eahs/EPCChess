@@ -1,0 +1,41 @@
+﻿@model ADSBackend.Models.Division
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a asp-controller="Admin" asp-action="Index">Home</a>
+    </li>
+    <li>
+        <a asp-controller="Divisions" asp-action="Index">Divisions</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong>Delete @Model.Name</strong>
+    </li>
+</ol>
+
+<h2>Delete</h2>
+
+<div class="ibox">
+    <div class="ibox-title"><h4>Are you sure you want to delete this?</h4></div>
+    <div class="ibox-content">
+        <h4>Division</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.Name)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.Name)
+            </dd>
+        </dl>
+    
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="DivisionId" />
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            <a asp-action="Index">Back to List</a>
+        </form>
+    </div>
+</div>

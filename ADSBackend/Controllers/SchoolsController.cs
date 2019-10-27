@@ -26,7 +26,10 @@ namespace ADSBackend.Controllers
         {
             var schools = await _context.School.Where(m => m.SchoolId != 1)
                                                .Include(m => m.Season)
+                                               .Include(m => m.Division)
                                                .OrderBy(m => m.Season.StartDate)
+                                               .ThenBy(m => m.DivisionId)
+                                               .ThenBy(m => m.Name)
                                                .ToListAsync();
 
             return View(schools);
@@ -68,6 +71,10 @@ namespace ADSBackend.Controllers
                                                                   .OrderByDescending(x => x.StartDate)
                                                                   .ToListAsync(), "SeasonId", "Name");
 
+            ViewBag.Divisions = new SelectList(await _context.Division.Select(x => x)
+                .OrderByDescending(x => x.Name)
+                .ToListAsync(), "DivisionId", "Name");
+
             return View();
         }
 
@@ -76,7 +83,7 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("SeasonId,SchoolId,Name,ShortName,Abbreviation,AdivisorName,AdvisorEmail,AdvisorPhoneNumber")] School school)
+        public async Task<IActionResult> Create([Bind("SeasonId,DivisionId,SchoolId,Name,ShortName,Abbreviation,AdivisorName,AdvisorEmail,AdvisorPhoneNumber")] School school)
         {
             if (ModelState.IsValid)
             {
@@ -112,6 +119,10 @@ namespace ADSBackend.Controllers
                                                                   .OrderByDescending(x => x.StartDate)
                                                                   .ToListAsync(), "SeasonId", "Name");
 
+            ViewBag.Divisions = new SelectList(await _context.Division.Select(x => x)
+                .OrderByDescending(x => x.Name)
+                .ToListAsync(), "DivisionId", "Name");
+
             return View(school);
         }
 
@@ -120,7 +131,7 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("SeasonId,SchoolId,Name,ShortName,Abbreviation,AdivisorName,AdvisorEmail,AdvisorPhoneNumber")] School school)
+        public async Task<IActionResult> Edit(int id, [Bind("SeasonId,DivisionId,SchoolId,Name,ShortName,Abbreviation,AdivisorName,AdvisorEmail,AdvisorPhoneNumber")] School school)
         {
             if (id != school.SchoolId)
             {

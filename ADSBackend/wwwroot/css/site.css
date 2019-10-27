@@ -46,5 +46,18 @@ body {
 
 .chessrating {
     font-size: 9px;
-    font-color: #999999
+    font-color: #999999;
+}
+
+.boardcardheader {
+    font-size: 1.3em;
+    font-weight: bolder;
+    margin-right: 20px;
+    vertical-align: middle;
+}
+
+.boardcardresult {
+    font-size: 1.8em;
+    font-weight: bolder;
+    vertical-align: middle;
 }

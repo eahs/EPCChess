@@ -1,59 +1,66 @@
 [
-    {
-        "Name": "Unassigned School",
-        "SeasonId": 1,
-        "Abbreviation": "UN",
-        "ShortName": "Unassigned"
-    },
-    {
-        "Name": "Easton Area High School",
-        "SeasonId": 2,
-        "AdvisorEmail": "tanczosm@eastonsd.org",
-        "AdvisorName": "Michael Tanzcos",
-        "AdvisorPhoneNumber": "610-442-3943",
-        "Abbreviation": "EA",
-        "ShortName": "Easton"
-    },
-    {
-        "Name": "William Allen High School",
-        "SeasonId": 2,
-        "Abbreviation": "WA",
-        "ShortName": "Allen"
-    },
-    {
-        "Name": "Liberty High School",
-        "SeasonId": 2,
-        "Abbreviation": "LB",
-        "ShortName": "Liberty"
-    },
-    {
-        "Name": "Freedom High School",
-        "SeasonId": 2,
-        "Abbreviation": "FR",
-        "ShortName": "Freedom"
-    },
-    {
-        "Name": "Allentown Central Catholic High School",
-        "SeasonId": 2,
-        "Abbreviation": "AC",
-        "ShortName": "ACC"
-    },
-    {
-        "Name": "Nazareth High School",
-        "SeasonId": 2,
-        "Abbreviation": "NZ",
-        "ShortName": "Nazareth"
-    },
-    {
-        "Name": "Parkland High School",
-        "SeasonId": 2,
-        "Abbreviation": "PL",
-        "ShortName": "Parkland"
-    },
-    {
-        "Name": "Northampton High School",
-        "SeasonId": 2,
-        "Abbreviation": "NH",
-        "ShortName": "Northampton"
-    }
+  {
+    "Name": "Unassigned School",
+    "SeasonId": 1,
+    "Abbreviation": "UN",
+    "ShortName": "Unassigned"
+  },
+  {
+    "Name": "Easton Area High School",
+    "SeasonId": 2,
+    "AdvisorEmail": "tanczosm@eastonsd.org",
+    "AdvisorPhoneNumber": "(610) 442-3943",
+    "Abbreviation": "EA",
+    "ShortName": "Easton",
+    "DivisionId": 2
+  },
+  {
+    "Name": "William Allen High School",
+    "SeasonId": 2,
+    "Abbreviation": "WA",
+    "ShortName": "Allen",
+    "DivisionId": 2
+  },
+  {
+    "Name": "Liberty High School",
+    "SeasonId": 2,
+    "Abbreviation": "LB",
+    "ShortName": "Liberty",
+    "DivisionId": 2
+  },
+  {
+    "Name": "Freedom High School",
+    "SeasonId": 2,
+    "Abbreviation": "FR",
+    "ShortName": "Freedom",
+    "DivisionId": 2
+  },
+  {
+    "Name": "Allentown Central Catholic High School",
+    "SeasonId": 2,
+    "Abbreviation": "AC",
+    "ShortName": "ACC",
+    "DivisionId": 1
+  },
+  {
+    "Name": "Nazareth High School",
+    "SeasonId": 2,
+    "Abbreviation": "NZ",
+    "ShortName": "Nazareth",
+    "DivisionId": 1
+  },
+  {
+    "Name": "Parkland High School",
+    "SeasonId": 2,
+    "Abbreviation": "PL",
+    "ShortName": "Parkland",
+    "DivisionId": 1
+  },
+  {
+    "Name": "Northampton High School",
+    "SeasonId": 2,
+    "Abbreviation": "NH",
+    "ShortName": "Northampton",
+    "DivisionId": 1
+  }
 ]

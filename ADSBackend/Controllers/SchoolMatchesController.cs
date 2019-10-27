@@ -121,6 +121,49 @@ namespace ADSBackend.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
+        public async Task<String> ReportResult(IFormCollection forms)
+        {
+            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
+            var schoolId = await GetSchoolIdAsync();
+
+            if (schoolId == -1)
+                return "SCHOOL NOT FOUND";
+
+            string _gameid = "", _matchid = "";
+            int gameid = -1, matchid = -1;
+
+            if (!forms.ContainsKey("gameid") &&
+                !forms.ContainsKey("matchid") &&
+                !forms.ContainsKey("result"))
+                return "INVALID FORM";
+
+            // Read in form data
+            _gameid = forms["gameid"];
+            _matchid = forms["matchid"];
+
+            // Validate form data
+            Int32.TryParse(_gameid, out gameid);
+            Int32.TryParse(_matchid, out matchid);
+
+            var match = await _context.Match.FirstOrDefaultAsync(m => m.MatchId == matchid && (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId));
+
+            if (match == null)
+            {
+                return "MATCH NOT FOUND";
+            }
+
+            var game = await _context.Game.FirstOrDefaultAsync(g => g.MatchId == matchid && g.GameId == gameid);
+
+            if (game == null)
+            {
+                return "GAME NOT FOUND";
+            }
+
+            return "OK";
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<String> LockRoster(IFormCollection forms)
         {
             var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
