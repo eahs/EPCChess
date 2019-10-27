@@ -198,6 +198,13 @@
                         $("#AwayRating_" + gameId).html(response.AwayPlayerGameRating);
                         $("#HomePoints_" + gameId).html(response.HomePoints);
                         $("#AwayPoints_" + gameId).html(response.AwayPoints);
+
+                        swal({
+                            title: "Game Reported",
+                            text: "Thank you for reporting the game result!",
+                            icon: "success",
+                        });
+
                     }
                 },
                 type: 'POST',
