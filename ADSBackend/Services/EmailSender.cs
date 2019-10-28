@@ -29,7 +29,7 @@ namespace ADSBackend.Services
             MailMessage mailMessage = new MailMessage
             {
                 IsBodyHtml = true,
-                From = new MailAddress(Configuration["SMTP_USER"], "ADS Backend"),
+                From = new MailAddress(Configuration["SMTP_USER"], "EPC Chess Admin"),
                 Body = message,
                 Subject = subject,
             };

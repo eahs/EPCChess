@@ -143,6 +143,142 @@ namespace ADSBackend.Controllers
             return 0;
         }
 
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<String> BeginMatch(IFormCollection forms)
+        {
+            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
+            var schoolId = await GetSchoolIdAsync();
+
+            if (schoolId == -1)
+                return "SCHOOL NOT FOUND";
+
+            string _id = "";
+            int id = -1;
+
+            if (!forms.ContainsKey("id"))
+                return "INVALID FORM";
+
+
+            // Read in form data
+            _id = forms["id"];
+
+            // Validate form data
+            Int32.TryParse(_id, out id);
+
+            var match = await GetMatchAsync(id, currentSeason, schoolId);
+
+            if (match == null)
+            {
+                return "NOT FOUND";
+            }
+
+            if (!match.HomeRosterLocked || !match.AwayRosterLocked)
+            {
+                return "BOTH ROSTERS NOT YET LOCKED";
+            }
+
+            if (match.MatchStarted)
+            {
+                return "RELOAD";
+            }
+
+            match.MatchStarted = true;
+            match.MatchStartTime = DateTime.Now;
+            
+            foreach (Game g in match.Games)
+            {
+                if (g.HomePlayer != null && g.AwayPlayer != null)
+                {
+                    g.HomePlayerRatingBefore = g.HomePlayer.Rating;
+                    g.AwayPlayerRatingBefore = g.AwayPlayer.Rating;
+                    _context.Update(g);
+
+                }
+            }
+
+            _context.Update(match);
+            await _context.SaveChangesAsync();
+
+            return "OK";
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<String> EndMatch(IFormCollection forms)
+        {
+            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
+            var schoolId = await GetSchoolIdAsync();
+
+            if (schoolId == -1)
+                return "SCHOOL NOT FOUND";
+
+            string _id = "";
+            int id = -1;
+
+            if (!forms.ContainsKey("id"))
+                return "INVALID FORM";
+
+
+            // Read in form data
+            _id = forms["id"];
+
+            // Validate form data
+            Int32.TryParse(_id, out id);
+
+            var match = await GetMatchAsync(id, currentSeason, schoolId);
+
+            if (match == null)
+            {
+                return "NOT FOUND";
+            }
+
+            if (!match.HomeRosterLocked || !match.AwayRosterLocked)
+            {
+                return "BOTH ROSTERS NOT YET LOCKED";
+            }
+
+            if (!match.MatchStarted)
+            {
+                return "MATCH NOT STARTED";
+            }
+
+            if (match.Completed)
+            {
+                return "MATCH ALREADY COMPLETED";
+            }
+
+            int gamesScheduled = 0, gamesPlayed = 0;
+            double homePoints = 0, awayPoints = 0;
+
+            foreach (Game g in match.Games)
+            {
+                if (g.HomePlayer != null && g.AwayPlayer != null)
+                {
+                    gamesScheduled++;
+                    if (g.HomePoints + g.AwayPoints != 0)
+                    {
+                        gamesPlayed++;
+                        homePoints += g.HomePoints;
+                        awayPoints += g.AwayPoints;
+                    }
+                }
+            }
+
+            if (gamesPlayed != gamesScheduled)
+            {
+                return $"Only {gamesPlayed} out of {gamesScheduled} games have had results submitted.  Please submit all game results before concluding match.";
+            }
+
+            match.Completed = true;
+            match.HomePoints = homePoints;
+            match.AwayPoints = awayPoints;
+
+            _context.Update(match);
+            await _context.SaveChangesAsync();
+
+            return "OK";
+        }
+
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<String> ReportResult(IFormCollection forms)
         {
@@ -154,7 +290,7 @@ namespace ADSBackend.Controllers
 
             string _gameid = "", _matchid = "", _result = "";
             int gameid = -1, matchid = -1, result = -1;
-            GameResult gameResult = (GameResult) result;
+            GameResult gameResult;
 
             if (!forms.ContainsKey("gameid") &&
                 !forms.ContainsKey("matchid") &&
@@ -179,11 +315,15 @@ namespace ADSBackend.Controllers
             if (!match.MatchStarted) return JsonStatus("MATCH NOT STARTED");
 
 
-            var game = await _context.Game.FirstOrDefaultAsync(g => g.MatchId == matchid && g.GameId == gameid);
+            var game = await _context.Game.Include(g => g.HomePlayer)
+                                          .Include(g => g.AwayPlayer)
+                                          .FirstOrDefaultAsync(g => g.MatchId == matchid && g.GameId == gameid);
 
             if (game == null) return JsonStatus("GAME NOT FOUND");
 
             // Result: 0 = Draw, 1 = Home Win, 2 = Away Win, 3 = Reset
+
+            gameResult = (GameResult)result;
 
             if (gameResult == GameResult.Reset)
             {
@@ -192,10 +332,29 @@ namespace ADSBackend.Controllers
                 game.HomePlayerRatingAfter = 0;
                 game.AwayPlayerRatingAfter = 0;
                 game.Completed = false;
+
+                if (game.HomePoints + game.AwayPoints != 0)
+                {
+                    game.HomePlayer.Rating = game.HomePlayerRatingBefore;
+                    game.AwayPlayer.Rating = game.AwayPlayerRatingBefore;
+
+                    _context.Update(game.HomePlayer);
+                    _context.Update(game.AwayPlayer);
+
+                }
+
             }
             else
             {
                 int homeRating, awayRating;
+
+                // Update player's rating in case it was adjusted before this game was submitted
+                // This only happens if there are two matches running at the same time 
+                if (game.HomePoints + game.AwayPoints == 0)
+                {
+                    game.HomePlayerRatingBefore = game.HomePlayer.Rating;
+                    game.AwayPlayerRatingBefore = game.AwayPlayer.Rating;
+                }
 
                 RatingCalculator.Current.CalculateNewRating(game.HomePlayerRatingBefore, game.AwayPlayerRatingBefore,
                     gameResult, out homeRating, out awayRating);
@@ -204,7 +363,18 @@ namespace ADSBackend.Controllers
                 game.AwayPoints = ConvertPointsWon(gameResult, 2); ;
                 game.HomePlayerRatingAfter = homeRating;
                 game.AwayPlayerRatingAfter = awayRating;
+
+                game.HomePlayer.Rating = homeRating;
+                game.AwayPlayer.Rating = awayRating;
+
+                game.CompletedDate = DateTime.Now;
+
+                _context.Update(game.HomePlayer);
+                _context.Update(game.AwayPlayer);
             }
+
+            _context.Update(game);
+            await _context.SaveChangesAsync();
 
             var returnStatus = new
             {

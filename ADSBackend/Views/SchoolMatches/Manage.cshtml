@@ -21,141 +21,158 @@
     <div class="ibox-content">
         @if (!Model.MatchStarted && (!Model.AwayRosterLocked || !Model.HomeRosterLocked))
         {
-            <div class="alert alert-danger text-center">
+            <div class="alert alert-danger" id="MatchNotification">
                 This match cannot begin until both home and away rosters are set up and locked. <br /><br />
                 <a class="btn btn-w-m btn-danger" asp-controller="SchoolMatches" asp-action="MatchSetup" asp-route-id="@Model.MatchId">Set Up Match Roster</a>
             </div>
         }
         else if (!Model.MatchStarted)
         {
-            <div class="alert alert-warning">
+            <div class="alert alert-warning" id="MatchNotification">
                 Both home and away rosters have been locked for this match.  Changes can still be made to rosters up until the match is officially started.  Start the match by clicking the "Begin Match" button below. <br /><br />
                 <a class="btn btn-w-m btn-danger" asp-controller="SchoolMatches" asp-action="MatchSetup" asp-route-id="@Model.MatchId">Set Up Match Roster</a>
 
-                <button class="btn btn-primary" type="button" style="margin-left: 20px" onclick="confirmMatchStart()"><i class="fa fa-play"></i> Begin Match</button>
+                <button class="btn btn-primary" type="button" style="margin-left: 20px" onclick="confirmMatchStart(@Model.MatchId)"><i class="fa fa-play"></i> Begin Match</button>
 
             </div>
 
         }
 
+        @if (!Model.Completed)
+        { 
+            <div class="alert alert-info" id="MatchEnding" style="@(!Model.MatchStarted && !Model.Completed ? "display:none" : "")">
+                When all games are completed, be sure to press the end match button to submit your match results.<br/><br/>
+
+                <button class="btn btn-success" type="button" style="margin-left: 20px" onclick="confirmMatchEnd(@Model.MatchId)"><i class="fa fa-stop"></i> End Match</button>
+
+            </div>
+        }
+
+
         <!--
-        <table class="table-bordered table-hover">
-            <thead>
-            <th colspan="1"></th>
-            <th colspan="1">@Model.HomeSchool.ShortName</th>
-            <th></th>
-            <th colspan="1">@Model.AwaySchool.ShortName</th>
-            </thead>
-            <tr>
-                <td style="width:1%">Brd</td>
-                <td>Home</td>
-                <td style="width:1%">Result</td>
-                <td>Away</td>
-            </tr>
-            @foreach (var game in Model.Games)
-            {
-                <tr>
-                    <td class="text-center" style="width:1%">@game.BoardPosition</td>
-                    <td>
-                        @(game.HomePlayerFullName)<br />
-                        @if (game.HomePlayer != null && Model.MatchStarted)
-                        {
-                            <span class="chessrating">@(game.HomePlayerGameRating)</span>
-                        }
-                        else if (game.HomePlayer != null)
-                        {
-                            <span class="chessrating">(@(game.HomePlayer.Rating))</span>
-                        }
-                    </td>
-                    <td class="text-center">@game.HomePoints-@game.AwayPoints</td>
-                    <td>
-                        @(game.AwayPlayerFullName)<br />
-                        @if (game.AwayPlayer != null && Model.MatchStarted)
-                        {
-                            <span class="chessrating">@(game.AwayPlayerGameRating)</span>
-                        }
-                        else if (game.AwayPlayer != null)
-                        {
-                            <span class="chessrating">(@(game.AwayPlayer.Rating))</span>
-                        }
-                    </td>
-                </tr>
-            }
-        </table>
-        -->
+    <table class="table-bordered table-hover">
+        <thead>
+        <th colspan="1"></th>
+        <th colspan="1">@Model.HomeSchool.ShortName</th>
+        <th></th>
+        <th colspan="1">@Model.AwaySchool.ShortName</th>
+        </thead>
+        <tr>
+            <td style="width:1%">Brd</td>
+            <td>Home</td>
+            <td style="width:1%">Result</td>
+            <td>Away</td>
+        </tr>
         @foreach (var game in Model.Games)
         {
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <span class="boardcardheader">Board @game.BoardPosition</span>
-                    @if (Model.MatchStarted)
+            <tr>
+                <td class="text-center" style="width:1%">@game.BoardPosition</td>
+                <td>
+                    @(game.HomePlayerFullName)<br />
+                    @if (game.HomePlayer != null && Model.MatchStarted)
                     {
-                        <div class="btn-group">
+                        <span class="chessrating">@(game.HomePlayerGameRating)</span>
+                    }
+                    else if (game.HomePlayer != null)
+                    {
+                        <span class="chessrating">(@(game.HomePlayer.Rating))</span>
+                    }
+                </td>
+                <td class="text-center">@game.HomePoints-@game.AwayPoints</td>
+                <td>
+                    @(game.AwayPlayerFullName)<br />
+                    @if (game.AwayPlayer != null && Model.MatchStarted)
+                    {
+                        <span class="chessrating">@(game.AwayPlayerGameRating)</span>
+                    }
+                    else if (game.AwayPlayer != null)
+                    {
+                        <span class="chessrating">(@(game.AwayPlayer.Rating))</span>
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+    -->
+        @foreach (var game in Model.Games)
+        {
+            @if (!@Model.MatchStarted || (@Model.MatchStarted && (game.HomePlayer != null && game.AwayPlayer != null)))
+            {
+                <div class="panel panel-default" data-seated="@(game.HomePlayer != null && game.AwayPlayer != null)">
+                    <div class="panel-heading">
+                        <span class="boardcardheader">Board @game.BoardPosition</span>
+
+                        <div class="btn-group" data-report="toggle" style="display: none">
+
                             <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle">Report Results <b class="caret"></b></button>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 1)">@game.HomePlayer?.FirstName @game.HomePlayer?.LastName (@Model.HomeSchool.Abbreviation) Won</a></li>
                                 <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 2)">@game.AwayPlayer?.FirstName @game.AwayPlayer?.LastName (@Model.AwaySchool.Abbreviation) Won</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 3)">Draw</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 4)">Reset Winner</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 0)">Draw</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 3)">Reset Winner</a></li>
                             </ul>
+
+
                         </div>
-                    }
+
+                    </div>
+
+                    <div class="panel-body">
+
+                        <table>
+                            <tr>
+                                <td width="190" style="vertical-align: middle; text-align: center">
+                                    @if (game.HomePlayer != null && Model.MatchStarted)
+                                    {
+                                        @(game.HomePlayerFullName)
+                                        <span class="chessrating" id="HomeRating_@game.GameId">@(game.HomePlayerGameRating)</span>
+                                    }
+                                    else if (game.HomePlayer != null)
+                                    {
+                                        @(game.HomePlayerFullName)
+                                        <span class="chessrating" id="HomeRating_@game.GameId">(@(game.HomePlayer.Rating))</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Unassigned</span>
+                                    }
+                                </td>
+                                <td class="boardcardresult">
+                                    <div id="HomePoints_@game.GameId">@game.HomePoints</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center">vs</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td width="190" style="vertical-align: middle; text-align: center">
+                                    @if (game.AwayPlayer != null && Model.MatchStarted)
+                                    {
+                                        @(game.AwayPlayerFullName)
+                                        <span class="chessrating" id="AwayRating_@game.GameId">@(game.AwayPlayerGameRating)</span>
+                                    }
+                                    else if (game.AwayPlayer != null)
+                                    {
+                                        @(game.AwayPlayerFullName)
+                                        <span class="chessrating" id="AwayRating_@game.GameId">(@(game.AwayPlayer.Rating))</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Unassigned</span>
+                                    }
+                                </td>
+                                <td class="boardcardresult">
+                                    <div id="AwayPoints_@game.GameId">@game.AwayPoints</div>
+                                </td>
+                            </tr>
+
+                        </table>
+
+                    </div>
+
                 </div>
-                <div class="panel-body">
-
-                    <table>
-                        <tr>
-                            <td width="190" style="vertical-align: middle; text-align: center">
-                                @if (game.HomePlayer != null && Model.MatchStarted)
-                                {
-                                    @(game.HomePlayerFullName)
-                                    <span class="chessrating" id="HomeRating_@game.GameId">@(game.HomePlayerGameRating)</span>
-                                }
-                                else if (game.HomePlayer != null)
-                                {
-                                    @(game.HomePlayerFullName)
-                                    <span class="chessrating" id="AwayRating_@game.GameId">(@(game.HomePlayer.Rating))</span>
-                                }
-                                else
-                                {
-                                    <span>Unassigned</span>
-                                }
-                            </td>
-                            <td class="boardcardresult">
-                                <div id="HomePoints_@game.GameId">@game.HomePoints</div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="text-align: center">vs</td>
-                            <td>&nbsp;</td>
-                        </tr>
-                        <tr>
-                            <td width="190" style="vertical-align: middle; text-align: center">
-                                @if (game.AwayPlayer != null && Model.MatchStarted)
-                                {
-                                    @(game.AwayPlayerFullName)
-                                    <span class="chessrating">@(game.AwayPlayerGameRating)</span>
-                                }
-                                else if (game.AwayPlayer != null)
-                                {
-                                    @(game.AwayPlayerFullName)
-                                    <span class="chessrating">(@(game.AwayPlayer.Rating))</span>
-                                }
-                                else
-                                {
-                                    <span>Unassigned</span>
-                                }
-                            </td>
-                            <td class="boardcardresult">
-                                <div id="AwayPoints_@game.GameId">@game.AwayPoints</div>
-                            </td>
-                        </tr>
-
-                    </table>
-
-                </div>
-
-            </div>
+            }
         }
 
     </div>
@@ -171,6 +188,98 @@
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
     <script type="text/javascript">
+
+        var reportButtons = $('div[data-report="toggle"]');
+
+        @if (Model.Completed)
+        {
+            @Html.Raw("reportButtons.hide();");
+        }
+        else if (Model.MatchStarted)
+        {
+            @Html.Raw("reportButtons.show();");
+        }
+
+        function endMatch(matchId) {
+
+            var form = $('#__AjaxAntiForgeryForm');
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+            $.ajax({
+                data: {
+                    __RequestVerificationToken: token,
+                    id: matchId
+                },
+                success: function (response) {
+
+                    if (response === "RELOAD")
+                        location.reload();
+                    else if (response !== "OK") {
+                        swal({
+                            title: "An Error Occurred",
+                            text: response,
+                            icon: "error",
+                        });
+                    }
+                    else
+                    {
+                        $('#MatchEnding').slideUp();
+
+                        swal("The match is now complete.  You will not be able to make any further changes.", {
+                            icon: "success",
+                        })
+                            .then((choice) => {
+                                $('div[data-report="toggle"]').hide();
+                                
+                        });
+
+                    }
+                },
+                type: 'POST',
+                url: '/SchoolMatches/EndMatch'
+            });
+        }
+
+        function beginMatch(matchId) {
+
+            var form = $('#__AjaxAntiForgeryForm');
+            var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+            $.ajax({
+                data: {
+                    __RequestVerificationToken: token,
+                    id: matchId
+                },
+                success: function (response) {
+
+                    if (response === "RELOAD")
+                        location.reload();
+                    else if (response !== "OK") {
+                        swal({
+                            title: "An Error Occurred",
+                            text: response,
+                            icon: "error",
+                        });
+                    }
+                    else
+                    {
+                        $("#MatchNotification").slideUp();
+
+                        swal("The match is now underway.  Be sure to record your results after each game concludes.", {
+                            icon: "success",
+                        })
+                            .then((choice) => {
+                                $('#MatchEnding').slideDown();
+                                $('div[data-report="toggle"]').fadeIn(1000).fadeOut(250).fadeIn(250).fadeOut(250).fadeIn(250);
+                                $('div[data-seated="False"]').hide();
+                        });
+
+                    }
+                },
+                type: 'POST',
+                url: '/SchoolMatches/BeginMatch'
+            });
+        }
 
         function reportResult(matchId, gameId, result) {
 
@@ -194,10 +303,10 @@
                             icon: "error",
                         });
                     } else {
-                        $("#HomeRating_" + gameId).html(response.HomePlayerGameRating);
-                        $("#AwayRating_" + gameId).html(response.AwayPlayerGameRating);
-                        $("#HomePoints_" + gameId).html(response.HomePoints);
-                        $("#AwayPoints_" + gameId).html(response.AwayPoints);
+                        $("#HomeRating_" + response.GameId).html(response.HomePlayerGameRating);
+                        $("#AwayRating_" + response.GameId).html(response.AwayPlayerGameRating);
+                        $("#HomePoints_" + response.GameId).html(response.HomePoints);
+                        $("#AwayPoints_" + response.GameId).html(response.AwayPoints);
 
                         swal({
                             title: "Game Reported",
@@ -212,7 +321,25 @@
             });
         }
 
-        function confirmMatchStart() {
+        function confirmMatchEnd(matchId) {
+            swal({
+                    title: "Are you sure you want to end the match?",
+                    text: "Once you end the match you will no longer be able to make changes to game results.",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                })
+                .then((choice) => {
+                    if (choice) {
+                        endMatch(matchId);
+
+                    } else {
+                        swal("End match aborted.  You may continue to make game changes.");
+                    }
+                });
+        }
+
+        function confirmMatchStart(matchId) {
             swal({
                     title: "Are you sure you want to begin the match?",
                     text: "Once begun, you will not be able to make any roster changes.",
@@ -222,9 +349,8 @@
                 })
                 .then((choice) => {
                     if (choice) {
-                        swal("The match is now underway.  Be sure to record your results after each game concludes.", {
-                            icon: "success",
-                        });
+                        beginMatch(matchId);
+
                     } else {
                         swal("Begin match aborted.  You may continue to make roster changes.");
                     }
