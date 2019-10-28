@@ -258,8 +258,12 @@ namespace ADSBackend.Controllers
                     if (g.HomePoints + g.AwayPoints != 0)
                     {
                         gamesPlayed++;
-                        homePoints += g.HomePoints;
-                        awayPoints += g.AwayPoints;
+
+                        if (g.BoardPosition <= 7)
+                        {
+                            homePoints += g.HomePoints;
+                            awayPoints += g.AwayPoints;
+                        }
                     }
                 }
             }
