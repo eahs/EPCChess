@@ -29,6 +29,7 @@ namespace ADSBackend.Models
         public int AwayPlayerRatingAfter { get; set; }
 
         public bool Completed { get; set; }
+        public DateTime CompletedDate { get; set; }
 
         public double HomePoints { get; set; }
         public double AwayPoints { get; set; }

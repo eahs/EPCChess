@@ -39,18 +39,18 @@
                     {
                         <tr>
                             <td style="vertical-align: middle">
-                                <strong>@Html.DisplayFor(modelItem => item.MatchDate)</strong><br/>
+                                <strong>@Html.DisplayFor(modelItem => item.MatchDate)</strong><br />
                                 @Html.DisplayFor(modelItem => item.HomeSchool.ShortName)
                                 @if (item.Completed)
                                 {
-                                    <i>(@Html.DisplayFor(modelItem => item.HomePoints)</i>
+                                    <i>(@Html.DisplayFor(modelItem => item.HomePoints))</i>
                                 }
-                                vs
+                                &nbsp;vs&nbsp;
                                 @Html.DisplayFor(modelItem => item.AwaySchool.ShortName)
 
                                 @if (item.Completed)
                                 {
-                                    <i>(@Html.DisplayFor(modelItem => item.AwayPoints)</i>
+                                    <i>(@Html.DisplayFor(modelItem => item.AwayPoints))</i>
                                 }
                             </td>
                             <td style="vertical-align: middle">

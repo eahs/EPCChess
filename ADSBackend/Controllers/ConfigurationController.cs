@@ -25,9 +25,10 @@ namespace ADSBackend.Controllers
             {
                 RSSFeedUrl = Configuration.Get("RSSFeedUrl"),
                 PrivacyPolicyUrl = Configuration.Get("PrivacyPolicyUrl"),
-                AzureHubListenConnectionString = Configuration.Get("AzureHubListenConnectionString"),
-                AzureHubFullConnectionString = Configuration.Get("AzureHubFullConnectionString"),
-                AzureHubName = Configuration.Get("AzureHubName")
+                SMTP_HOST = Configuration.Get("SMTP_HOST"),
+                SMTP_PORT = Configuration.Get("SMTP_PORT"),
+                SMTP_USER = Configuration.Get("SMTP_USER"),
+                SMTP_PASSWORD = Configuration.Get("SMTP_PASSWORD")
             };
 
             return View(viewModel);
@@ -42,9 +43,10 @@ namespace ADSBackend.Controllers
             {
                 Configuration.Set("RSSFeedUrl", viewModel.RSSFeedUrl);
                 Configuration.Set("PrivacyPolicyUrl", viewModel.PrivacyPolicyUrl);
-                Configuration.Set("AzureHubListenConnectionString", viewModel.AzureHubListenConnectionString);
-                Configuration.Set("AzureHubFullConnectionString", viewModel.AzureHubFullConnectionString);
-                Configuration.Set("AzureHubName", viewModel.AzureHubName);
+                Configuration.Set("SMTP_HOST", viewModel.SMTP_HOST);
+                Configuration.Set("SMTP_PORT", viewModel.SMTP_PORT);
+                Configuration.Set("SMTP_USER", viewModel.SMTP_USER);
+                Configuration.Set("SMTP_PASSWORD", viewModel.SMTP_PASSWORD);
 
                 await Configuration.SaveChangesAsync();
 

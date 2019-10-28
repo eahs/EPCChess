@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -41,5 +42,20 @@ namespace ADSBackend.Models
         public Season Season { get; set; }
 
         public List<Player> Players { get; set; }
+
+        [NotMapped]
+        public int Wins { get; set; } = 0;
+        [NotMapped] 
+        public int Losses { get; set; } = 0;
+        [NotMapped] 
+        public int Ties { get; set; } = 0;
+        [NotMapped]
+        public double Points
+        {
+            get
+            {
+                return Wins + (Ties * 0.5);
+            }
+        }
     }
 }
