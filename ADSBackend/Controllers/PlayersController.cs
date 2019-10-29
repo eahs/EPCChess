@@ -114,6 +114,7 @@ namespace ADSBackend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("PlayerId,FirstName,LastName,Rating")] Player player)
         {
+            bool logRating = false;
             int schoolId = await _dataService.GetSchoolIdAsync(User);
 
             var _player = _context.Player.Find(id);
@@ -122,6 +123,8 @@ namespace ADSBackend.Controllers
             {
                 return NotFound();
             }
+
+            if (_player.Rating != player.Rating) logRating = true;
 
             _player.FirstName = player.FirstName;
             _player.LastName = player.LastName;
@@ -132,7 +135,14 @@ namespace ADSBackend.Controllers
                 try
                 {
                     _context.Update(_player);
+
+                    if (logRating)
+                    {
+                        await _dataService.LogRatingEvent(_player.PlayerId, _player.Rating, "admin", "Updated rating through backend", false);
+                    }
+
                     await _context.SaveChangesAsync();
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {

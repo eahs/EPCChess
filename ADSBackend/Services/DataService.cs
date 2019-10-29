@@ -28,6 +28,25 @@ namespace ADSBackend.Services
             
         }
 
+        public async Task<RatingEvent> LogRatingEvent (int playerId, int rating, string type = "game", string message = "", bool saveChanges = true, int? gameId = null)
+        {
+            RatingEvent entry = new RatingEvent
+            {
+                PlayerId = playerId,
+                Rating = rating,
+                Type = type,
+                Message = message,
+                GameId = gameId
+            };
+
+            _context.RatingEvent.Add(entry);
+
+            if (saveChanges)
+                await _context.SaveChangesAsync();
+
+            return entry;
+        }
+
         public async Task<int> GetCurrentSeasonId()
         {
             var season = await _context.Season.FirstOrDefaultAsync(x => x.StartDate <= DateTime.Now && x.EndDate >= DateTime.Now);
@@ -63,7 +82,7 @@ namespace ADSBackend.Services
         }
 
         // Returns Match matching matchid id and seasonId and optionally matches a schoolId
-        public async Task<Match> GetMatchAsync(int? id, int seasonId, int? schoolId = null)
+        public async Task<Match> GetMatchAsync(int? id, int seasonId, int schoolId)
         {
             if (id == null)
                 return null;
@@ -73,8 +92,7 @@ namespace ADSBackend.Services
                 .Include(m => m.Games).ThenInclude(g => g.HomePlayer)
                 .Include(m => m.Games).ThenInclude(g => g.AwayPlayer)
                 .Where(m => m.MatchId == id && m.HomeSchool.SeasonId == seasonId && 
-                            schoolId != null ?
-                            (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId) : true)
+                            (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId) )
                 .FirstOrDefaultAsync();
 
             return match;

@@ -348,6 +348,9 @@ namespace ADSBackend.Controllers
                     _context.Update(game.HomePlayer);
                     _context.Update(game.AwayPlayer);
 
+                    await _dataService.LogRatingEvent(game.HomePlayer.PlayerId, game.HomePlayer.Rating, "adjustment", "Game reset by advisor", false, game.GameId);
+                    await _dataService.LogRatingEvent(game.AwayPlayer.PlayerId, game.AwayPlayer.Rating, "adjustment", "Game reset by advisor", false, game.GameId);
+
                 }
 
             }
@@ -359,6 +362,12 @@ namespace ADSBackend.Controllers
                 // This only happens if there are two matches running at the same time 
                 if (game.HomePoints + game.AwayPoints == 0)
                 {
+                    if (game.HomePlayerRatingBefore != game.HomePlayer.Rating)
+                        await _dataService.LogRatingEvent(game.HomePlayer.PlayerId, game.HomePlayer.Rating, "adjustment", "Player rating changed after match started", false, game.GameId);
+                    
+                    if (game.AwayPlayerRatingBefore != game.AwayPlayer.Rating)
+                        await _dataService.LogRatingEvent(game.AwayPlayer.PlayerId, game.AwayPlayer.Rating, "adjustment", "Player rating changed after match started", false, game.GameId);
+
                     game.HomePlayerRatingBefore = game.HomePlayer.Rating;
                     game.AwayPlayerRatingBefore = game.AwayPlayer.Rating;
                 }
@@ -378,6 +387,10 @@ namespace ADSBackend.Controllers
 
                 _context.Update(game.HomePlayer);
                 _context.Update(game.AwayPlayer);
+
+                await _dataService.LogRatingEvent(game.HomePlayer.PlayerId, game.HomePlayer.Rating, "game", "End of game result", false, game.GameId);
+                await _dataService.LogRatingEvent(game.AwayPlayer.PlayerId, game.AwayPlayer.Rating, "game", "End of game result", false, game.GameId);
+
             }
 
             _context.Update(game);
