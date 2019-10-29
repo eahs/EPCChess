@@ -1,9 +1,11 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Http
 @using ADSBackend.Util
+@using ADSBackend.Services
 
 @inject ADSBackend.Data.ApplicationDbContext  _context
 @inject IHttpContextAccessor HttpContextAccessor
+@inject DataService _dataService
 
 @{
     /*
@@ -18,8 +20,8 @@
 
     HttpContextAccessor.HttpContext.Session.SetInt32("SeasonId", seasonId);
     */
-    var seasonId = await SeasonSelector.GetCurrentSeasonId(_context, HttpContextAccessor.HttpContext);
-    var seasonsSelect = await SeasonSelector.GetSeasonSelectList(_context, seasonId);
+    var seasonId = await _dataService.GetCurrentSeasonId();
+    var seasonsSelect = await _dataService.GetSeasonSelectList(seasonId);
 }
 <form asp-controller="SeasonSwitcher" asp-action="Switch" method="post" id="seasonSwitch" class="navbar-right">
     <ul class="nav navbar-top-links navbar-left">

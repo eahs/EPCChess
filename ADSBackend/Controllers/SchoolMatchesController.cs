@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ADSBackend.Data;
 using ADSBackend.Models;
 using ADSBackend.Models.Identity;
+using ADSBackend.Services;
 using ADSBackend.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,17 +22,19 @@ namespace ADSBackend.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly DataService _dataService;
 
-        public SchoolMatchesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public SchoolMatchesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, DataService dataService)
         {
             _context = context;
             _userManager = userManager;
+            _dataService = dataService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
-            var schoolId = await GetSchoolIdAsync();
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+            var schoolId = await _dataService.GetSchoolIdAsync(User);
 
             if (schoolId == -1)
                 return NotFound();
@@ -49,8 +52,8 @@ namespace ADSBackend.Controllers
 
         public async Task<IActionResult> Manage(int? id)
         {
-            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
-            var schoolId = await GetSchoolIdAsync();
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+            var schoolId = await _dataService.GetSchoolIdAsync(User);
 
             if (schoolId == -1)
                 return NotFound();
@@ -60,7 +63,7 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            var match = await GetMatchAsync(id, currentSeason, schoolId);
+            var match = await _dataService.GetMatchAsync(id, currentSeason, schoolId);
 
             if (match == null)
             {
@@ -81,7 +84,7 @@ namespace ADSBackend.Controllers
                 }
                 await _context.SaveChangesAsync();
 
-                match = await GetMatchAsync(id, currentSeason, schoolId);
+                match = await _dataService.GetMatchAsync(id, currentSeason, schoolId);
             }
 
             return View(match);
@@ -90,8 +93,8 @@ namespace ADSBackend.Controllers
 
         public async Task<IActionResult> MatchSetup(int? id)
         {
-            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
-            var schoolId = await GetSchoolIdAsync();
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+            var schoolId = await _dataService.GetSchoolIdAsync(User);
 
             if (schoolId == -1)
                 return NotFound();
@@ -101,7 +104,7 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            var match = await GetMatchAsync(id, currentSeason, schoolId);
+            var match = await _dataService.GetMatchAsync(id, currentSeason, schoolId);
 
             if (match == null)
             {
@@ -147,8 +150,8 @@ namespace ADSBackend.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<String> BeginMatch(IFormCollection forms)
         {
-            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
-            var schoolId = await GetSchoolIdAsync();
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+            var schoolId = await _dataService.GetSchoolIdAsync(User);
 
             if (schoolId == -1)
                 return "SCHOOL NOT FOUND";
@@ -166,7 +169,7 @@ namespace ADSBackend.Controllers
             // Validate form data
             Int32.TryParse(_id, out id);
 
-            var match = await GetMatchAsync(id, currentSeason, schoolId);
+            var match = await _dataService.GetMatchAsync(id, currentSeason, schoolId);
 
             if (match == null)
             {
@@ -206,8 +209,8 @@ namespace ADSBackend.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<String> EndMatch(IFormCollection forms)
         {
-            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
-            var schoolId = await GetSchoolIdAsync();
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+            var schoolId = await _dataService.GetSchoolIdAsync(User);
 
             if (schoolId == -1)
                 return "SCHOOL NOT FOUND";
@@ -225,7 +228,7 @@ namespace ADSBackend.Controllers
             // Validate form data
             Int32.TryParse(_id, out id);
 
-            var match = await GetMatchAsync(id, currentSeason, schoolId);
+            var match = await _dataService.GetMatchAsync(id, currentSeason, schoolId);
 
             if (match == null)
             {
@@ -286,8 +289,8 @@ namespace ADSBackend.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<String> ReportResult(IFormCollection forms)
         {
-            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
-            var schoolId = await GetSchoolIdAsync();
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+            var schoolId = await _dataService.GetSchoolIdAsync(User);
 
             if (schoolId == -1)
                 return JsonStatus("SCHOOL NOT FOUND");
@@ -399,8 +402,8 @@ namespace ADSBackend.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<String> LockRoster(IFormCollection forms)
         {
-            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
-            var schoolId = await GetSchoolIdAsync();
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+            var schoolId = await _dataService.GetSchoolIdAsync(User);
 
             if (schoolId == -1)
                 return "SCHOOL NOT FOUND";
@@ -448,8 +451,8 @@ namespace ADSBackend.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<String> UpdateRoster(IFormCollection forms)
         {
-            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
-            var schoolId = await GetSchoolIdAsync();
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+            var schoolId = await _dataService.GetSchoolIdAsync(User);
 
             if (schoolId == -1)
                 return "SCHOOL NOT FOUND";
@@ -534,29 +537,5 @@ namespace ADSBackend.Controllers
             return "OK";
         }
 
-        private async Task<int> GetSchoolIdAsync()
-        {
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
-                return -1;
-
-            return user.SchoolId;
-        }
-
-        private async Task<Match> GetMatchAsync(int? id, int seasonId, int schoolId)
-        {
-            if (id == null)
-                return null;
-
-            var match = await _context.Match.Include(m => m.HomeSchool).ThenInclude(m => m.Season)
-                .Include(m => m.AwaySchool).ThenInclude(m => m.Season)
-                .Include(m => m.Games).ThenInclude(g => g.HomePlayer)
-                .Include(m => m.Games).ThenInclude(g => g.AwayPlayer)
-                .Where(m => m.MatchId == id && m.HomeSchool.SeasonId == seasonId && (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId))
-                .FirstOrDefaultAsync();
-
-            return match;
-        }
     }
 }

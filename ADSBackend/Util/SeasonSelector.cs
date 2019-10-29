@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace ADSBackend.Util
 {
+    /*
     public class SeasonSelector
     {
         public static async Task<int> GetCurrentSeasonId(ApplicationDbContext _context, HttpContext _httpcontext)
@@ -35,4 +36,5 @@ namespace ADSBackend.Util
             return new SelectList(seasons, "SeasonId", "Name", currentSeasonId);
         }
     }
+    */
 }

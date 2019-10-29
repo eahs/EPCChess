@@ -4,33 +4,51 @@
     ViewData["Title"] = "Details";
 }
 
-<h2>Details</h2>
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a asp-controller="Admin" asp-action="Index">Home</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a asp-controller="Players" asp-action="Index">Players</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong>Player Details</strong>
+    </li>
+</ol>
 
-<div>
-    <h4>Player</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.FirstName)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.FirstName)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.LastName)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.LastName)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Rating)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Rating)
-        </dd>
-    </dl>
+<h2>Player Details</h2>
+
+<div class="ibox">
+    <div class="ibox-title">
+        <h4>Details for @Model.FirstName @Model.LastName</h4>
+    </div>
+    <div class="ibox-content">
+        <div>
+            <dl class="dl-horizontal">
+                <dt>
+                    @Html.DisplayNameFor(model => model.FirstName)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.FirstName)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.LastName)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.LastName)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Rating)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Rating)
+                </dd>
+            </dl>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.PlayerId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.PlayerId">Edit</a> |
+            <a asp-action="Index">Back to List</a>
+        </div>

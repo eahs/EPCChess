@@ -1,0 +1,24 @@
+﻿@model IEnumerable<ADSBackend.Models.Player>
+
+<div class="ibox">
+    <div class="ibox-title">
+        <h5>Top School Players</h5>
+    </div>
+    <div class="ibox-content">
+
+        <table class="table table-striped">
+            <thead>
+            <th>Name</th>
+            <th>Rating</th>
+            </thead>
+            @foreach (var player in Model)
+            {
+                <tr>
+                    <td>@player.FirstName  @player.LastName</td>
+                    <td>@player.Rating</td>
+                </tr>
+            }
+        </table>
+
+    </div>
+</div>

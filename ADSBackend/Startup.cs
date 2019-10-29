@@ -1,9 +1,13 @@
 using ADSBackend.Configuration;
 using ADSBackend.Data;
 using ADSBackend.Models.Identity;
+using ADSBackend.Services;
+using ADSBackend.Util;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,6 +40,7 @@ namespace ADSBackend
 
             // Add application services.
             services.AddTransient<Services.IEmailSender, Services.EmailSender>();
+            services.AddTransient<Services.DataService>();
 
             // caching
             services.AddMemoryCache();
@@ -53,6 +58,10 @@ namespace ADSBackend
                 // Make the session cookie essential
                 options.Cookie.IsEssential = true;
             });
+
+
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -103,6 +112,7 @@ namespace ADSBackend
 
                 
             }
+
         }
     }
 }

@@ -2,6 +2,7 @@
 using ADSBackend.Models;
 using ADSBackend.Models.HomeViewModels;
 using ADSBackend.Models.Identity;
+using ADSBackend.Services;
 using ADSBackend.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -19,16 +20,18 @@ namespace ADSBackend.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
+        private readonly DataService _dataService;
 
-        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, DataService dataService)
         {
             _context = context;
             _userManager = userManager;
+            _dataService = dataService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
+            var currentSeason = await _dataService.GetCurrentSeasonId();
             int schoolId = await GetSchoolIdAsync();
 
             var viewModel = new HomeViewModel
@@ -36,56 +39,25 @@ namespace ADSBackend.Controllers
                 User = await _userManager.GetUserAsync(User)
             };
 
-            viewModel.Upcoming = await _context.Match.Where(m => m.MatchDate >= DateTime.Now && (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId))
-                                                     .OrderBy(m => m.MatchDate)
-                                                     .Take(4)
-                                                     .ToListAsync();
+            viewModel.Upcoming = await _dataService.GetUpcomingMatchesAsync(currentSeason, schoolId, 4);
 
-            //viewModel.HomeSchool = await _context.School.Where(s => s.SchoolId == schoolId).FirstOrDefaultAsync();
-
-            viewModel.Divisions = await _context.Division.OrderBy(d => d.Name).ToListAsync();
             viewModel.TopSchoolPlayers = await _context.Player.Where(p => p.PlayerSchoolId == schoolId)
                                                               .OrderByDescending(p => p.Rating)
                                                               .ThenBy(p => p.LastName)
                                                               .ThenBy(p => p.FirstName)
                                                               .ToListAsync();
 
-            Dictionary<int, School> scores = new Dictionary<int, School>();  // Maps schoolId to School
-
-            var schools = await _context.School.Where(s => s.SeasonId == currentSeason)
-                                               .OrderBy(s => s.Name)
-                                               .ToListAsync();
-
-            foreach (var school in schools)
-            {
-                scores.Add(school.SchoolId, school);
-            }
-
-            var matches = await _context.Match.Include(m => m.HomeSchool)
-                                              .Include(m => m.AwaySchool)
-                                              .Where(m => m.HomeSchool.SeasonId == currentSeason && m.AwaySchool.SeasonId == currentSeason && m.Completed)
-                                              .ToListAsync();
-
-            foreach (var match in matches)
-            {
-                scores[match.HomeSchoolId].Wins += match.HomePoints > match.AwayPoints ? 1 : 0;
-                scores[match.HomeSchoolId].Losses += match.HomePoints < match.AwayPoints ? 1 : 0;
-                scores[match.HomeSchoolId].Ties += match.HomePoints == match.AwayPoints ? 1 : 0;
-
-                scores[match.AwaySchoolId].Wins += match.AwayPoints > match.HomePoints ? 1 : 0;
-                scores[match.AwaySchoolId].Losses += match.AwayPoints < match.HomePoints ? 1 : 0;
-                scores[match.AwaySchoolId].Ties += match.AwayPoints == match.HomePoints ? 1 : 0;
-
-            }
-
-            viewModel.HomeSchool = scores[schoolId];
+            viewModel.Divisions = await _dataService.GetDivisionStandingsAsync(currentSeason);
 
             foreach (Division d in viewModel.Divisions)
             {
-                d.Schools = schools.Where(s => s.DivisionId == d.DivisionId)
-                                   .OrderByDescending(s => s.Points)
-                                   .ThenBy(s => s.Name)
-                                   .ToList();
+                var homeschool = d.Schools.FirstOrDefault(s => s.SchoolId == schoolId);
+
+                if (homeschool != null)
+                {
+                    viewModel.HomeSchool = homeschool;
+                    break;
+                }
             }
 
             return View(viewModel);

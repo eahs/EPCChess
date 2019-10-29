@@ -38,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Views\Shared\NewFolder\" />
     <Folder Include="wwwroot\lib\inspinia\plugins\NewFolder\" />
   </ItemGroup>
 

@@ -9,6 +9,7 @@ using ADSBackend.Data;
 using ADSBackend.Models;
 using Microsoft.AspNetCore.Authorization;
 using ADSBackend.Util;
+using ADSBackend.Services;
 
 namespace ADSBackend.Controllers
 {
@@ -16,16 +17,18 @@ namespace ADSBackend.Controllers
     public class MatchesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly DataService _dataService;
 
-        public MatchesController(ApplicationDbContext context)
+        public MatchesController(ApplicationDbContext context, DataService dataService)
         {
             _context = context;
+            _dataService = dataService;
         }
 
         // GET: Matches
         public async Task<IActionResult> Index()
         {
-            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
+            var currentSeason = await _dataService.GetCurrentSeasonId();
 
             var matches = await _context.Match.Include(m => m.HomeSchool).ThenInclude(m => m.Season)
                                               .Include(m => m.AwaySchool).ThenInclude(m => m.Season)
@@ -57,7 +60,7 @@ namespace ADSBackend.Controllers
         // GET: Matches/Create
         public async Task<IActionResult> Create()
         {
-            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
+            var currentSeason = await _dataService.GetCurrentSeasonId();
 
             var schools = await _context.School.Select(x => x)
                                                .Where (s => s.SeasonId == currentSeason)
@@ -118,7 +121,7 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            var currentSeason = await SeasonSelector.GetCurrentSeasonId(_context, HttpContext);
+            var currentSeason = await _dataService.GetCurrentSeasonId();
 
 
 

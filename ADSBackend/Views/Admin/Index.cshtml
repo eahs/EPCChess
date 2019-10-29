@@ -41,114 +41,15 @@
 <div class="row">
 
     <div class="col-lg-4">
-        <div class="ibox">
-            <div class="ibox-title">
-                <h5>Standings</h5>
-            </div>
-            <div class="ibox-content">
-                <table>
-
-
-                    @foreach (var division in Model.Divisions)
-                    {
-                        {
-                            <tr>
-                                <td colspan="3" style="padding-top: 10px; border-bottom: solid 1px #808080">@division.Name</td>
-                            </tr>
-                            <tr>
-                                <td style="width: 10px"></td>
-                                <td>&nbsp;</td>
-                                <td style="font-family: monospace">W-L-T</td>
-                            </tr>
-
-                        }
-
-                        foreach (var school in division.Schools)
-                        {
-
-                            <tr>
-                                <td style="width: 10px"></td>
-                                <td>@school.ShortName&nbsp;&nbsp;</td>
-                                <td style="font-family: monospace">@school.Wins-@school.Losses-@school.Ties&nbsp;&nbsp;@school.Points</td>
-
-                            </tr>
-
-                        }
-                    }
-
-                </table>
-            </div>
-        </div>
+        @await Html.PartialAsync("~/Views/Shared/Dashboard/_StandingsPanelPartial.cshtml", Model.Divisions)
     </div>
 
     <div class="col-lg-4">
-        <div class="ibox">
-            <div class="ibox-title">
-                <h5>Top School Players</h5>
-            </div>
-            <div class="ibox-content">
-               
-            <table class="table table-striped">
-                <thead>
-                    <th>Name</th><th>Rating</th>
-                </thead>
-                @foreach (var player in Model.TopSchoolPlayers)
-                {
-                    <tr>
-                        <td>@player.FirstName  @player.LastName</td><td>@player.Rating</td>
-                    </tr>
-                }
-            </table>
-
-            </div>
-        </div>
+        @await Html.PartialAsync("~/Views/Shared/Dashboard/_TopPlayersPanelPartial.cshtml", Model.TopSchoolPlayers)
     </div>
 
     <div class="col-lg-4">
-        <div class="ibox">
-            <div class="ibox-title">
-                <h5>Upcoming Matches</h5>
-            </div>
-            <div class="ibox-content">
-                <table class="table table-striped">
-                    @foreach (var item in Model.Upcoming)
-                    {
-                        <tr>
-                            <td style="vertical-align: middle">
-                                <strong>@Html.DisplayFor(modelItem => item.MatchDate)</strong><br />
-                                @if (item.HomeSchool.SchoolId == Model.HomeSchool.SchoolId)
-                                {
-                                    <span>
-                                        <strong>@Html.DisplayFor(modelItem => item.HomeSchool.ShortName)</strong>
-                                        (Home)
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span>
-                                        @Html.DisplayFor(modelItem => item.HomeSchool.ShortName)
-                                    </span>
-                                }
-                                &nbsp;vs&nbsp;
-                                @if (item.AwaySchool.SchoolId == Model.HomeSchool.SchoolId)
-                                {
-                                    <span>
-                                        <strong>@Html.DisplayFor(modelItem => item.AwaySchool.ShortName)</strong>
-                                        (Away)
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span>
-                                        @Html.DisplayFor(modelItem => item.AwaySchool.ShortName)
-                                    </span>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </table>
-            </div>
-        </div>
+        @await Html.PartialAsync("~/Views/Shared/Dashboard/_UpcomingMatchesPanelPartial.cshtml", Model.Upcoming)
     </div>
 
 </div>
