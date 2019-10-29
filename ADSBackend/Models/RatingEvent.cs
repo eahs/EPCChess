@@ -19,7 +19,7 @@ namespace ADSBackend.Models
         public int? GameId { get; set; }  // Nullable to allow non game-related events
         public Game Game { get; set; }
 
-        public string Type { get; set; }  // "game", "adjustment", "administrative change", etc.
+        public string Type { get; set; }  // "game", "adjustment", "admin" (administrative change), etc.
 
         public string Message { get; set; }  // Any extra message that needs to be logged
 

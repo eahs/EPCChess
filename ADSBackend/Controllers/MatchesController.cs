@@ -152,7 +152,16 @@ namespace ADSBackend.Controllers
             {
                 try
                 {
-                    _context.Update(match);
+                    var _match = _context.Match.Find(id);
+
+                    _match.MatchDate = match.MatchDate;
+                    _match.HomeSchoolId = match.HomeSchoolId;
+                    _match.AwaySchoolId = match.AwaySchoolId;
+                    _match.Completed = match.Completed;
+                    _match.HomePoints = match.HomePoints;
+                    _match.AwayPoints = match.AwayPoints;
+
+                    _context.Update(_match);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
