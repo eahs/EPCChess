@@ -36,5 +36,8 @@ namespace ADSBackend.Data
         public DbSet<ADSBackend.Models.Game> Game { get; set; }
 
         public DbSet<ADSBackend.Models.Division> Division { get; set; }
+
+        public DbSet<ADSBackend.Models.RatingEvent> RatingEvent { get; set; }
+
     }
 }

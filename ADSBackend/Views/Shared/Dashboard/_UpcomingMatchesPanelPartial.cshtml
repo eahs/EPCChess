@@ -1,0 +1,26 @@
+﻿@model IEnumerable<ADSBackend.Models.Match>
+
+<div class="ibox">
+    <div class="ibox-title">
+        <h5>Upcoming Matches</h5>
+    </div>
+    <div class="ibox-content">
+        <table class="table table-striped">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td style="vertical-align: middle">
+                        <strong>@Html.DisplayFor(modelItem => item.MatchDate)</strong><br />
+                        <span>
+                            @Html.DisplayFor(modelItem => item.HomeSchool.ShortName)
+                        </span>
+                        &nbsp;vs&nbsp;
+                        <span>
+                            @Html.DisplayFor(modelItem => item.AwaySchool.ShortName)
+                        </span>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>

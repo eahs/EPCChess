@@ -1,0 +1,40 @@
+﻿@model IEnumerable<ADSBackend.Models.Division>
+
+<div class="ibox">
+    <div class="ibox-title">
+        <h5>Standings</h5>
+    </div>
+    <div class="ibox-content">
+        <table>
+
+
+            @foreach (var division in Model)
+            {
+                {
+                    <tr>
+                        <td colspan="3" style="padding-top: 10px; border-bottom: solid 1px #808080">@division.Name</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 10px"></td>
+                        <td>&nbsp;</td>
+                        <td style="font-family: monospace">W-L-T</td>
+                    </tr>
+
+                }
+
+                foreach (var school in division.Schools)
+                {
+
+                    <tr>
+                        <td style="width: 10px"></td>
+                        <td>@school.ShortName&nbsp;&nbsp;</td>
+                        <td style="font-family: monospace">@school.Wins-@school.Losses-@school.Ties&nbsp;&nbsp;@school.Points</td>
+
+                    </tr>
+
+                }
+            }
+
+        </table>
+    </div>
+</div>

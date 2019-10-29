@@ -4,20 +4,54 @@
     ViewData["Title"] = "Details";
 }
 
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a asp-controller="Admin" asp-action="Index">Home</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a asp-controller="Schools" asp-action="Index">Schools</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong>School Details</strong>
+    </li>
+</ol>
+
 <h2>Details</h2>
 
-<div>
-    <h4>School</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-    </dl>
+<div class="ibox">
+    <div class="ibox-title">
+        <h4>@Model.Name</h4>
+    </div>
+    <div class="ibox-content">
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.Name)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.Name)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.ShortName)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.ShortName)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.Abbreviation)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.Abbreviation)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.AdvisorName)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.AdvisorName)
+            </dd>
+        </dl>
+    </div>
 </div>
+
 <div>
     <a asp-action="Edit" asp-route-id="@Model.SchoolId">Edit</a> |
     <a asp-action="Index">Back to List</a>
