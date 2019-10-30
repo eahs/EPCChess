@@ -62,8 +62,7 @@ namespace ADSBackend
                 options.Cookie.IsEssential = true;
             });
 
-            services.AddMvc()
-                    .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc();
 
         }
 
