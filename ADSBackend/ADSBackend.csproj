@@ -10,12 +10,16 @@
   <ItemGroup>
     <Compile Remove="Configuration\Data\**" />
     <Compile Remove="Data\Migrations\**" />
+    <Compile Remove="Views\Shared\NewFolder\**" />
     <Content Remove="Configuration\Data\**" />
     <Content Remove="Data\Migrations\**" />
+    <Content Remove="Views\Shared\NewFolder\**" />
     <EmbeddedResource Remove="Configuration\Data\**" />
     <EmbeddedResource Remove="Data\Migrations\**" />
+    <EmbeddedResource Remove="Views\Shared\NewFolder\**" />
     <None Remove="Configuration\Data\**" />
     <None Remove="Data\Migrations\**" />
+    <None Remove="Views\Shared\NewFolder\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,7 +42,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\Shared\NewFolder\" />
     <Folder Include="wwwroot\lib\inspinia\plugins\NewFolder\" />
   </ItemGroup>
 
