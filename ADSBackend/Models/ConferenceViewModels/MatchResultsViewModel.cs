@@ -7,7 +7,7 @@ namespace ADSBackend.Models.ConferenceViewModels
 {
     public class MatchResultsViewModel
     {
-        public List<Division> Divisions { get; set; };
+        public List<Division> Divisions { get; set; }
         public List<Match> Matches { get; set; }
     }
 }
