@@ -6,8 +6,10 @@ using ADSBackend.Util;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,8 +31,11 @@ namespace ADSBackend
         {
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                //string conn = Configuration.GetConnectionString("ADSBackendProductionContext");
+#if DEBUG
                 string conn = Configuration.GetConnectionString("ADSBackendLocalContext");
+#else
+                string conn = Configuration.GetConnectionString("ADSBackendProductionContext");
+#endif
                 options.UseSqlServer(conn);
             });
 
@@ -48,8 +53,6 @@ namespace ADSBackend
 
             services.AddTransient<Services.Configuration>();
 
-            services.AddMvc();
-
             services.AddSession(options =>
             {
                 // Set a short timeout for easy testing.
@@ -59,8 +62,8 @@ namespace ADSBackend
                 options.Cookie.IsEssential = true;
             });
 
-
-
+            services.AddMvc()
+                    .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
         }
 
@@ -80,6 +83,10 @@ namespace ADSBackend
 
             app.UseStaticFiles();
 
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
             app.UseAuthentication();
             app.UseSession();
 

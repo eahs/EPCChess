@@ -23,9 +23,9 @@ namespace ADSBackend.Controllers
 
 
         // Show match results by default
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return await MatchResults();
+            return RedirectToAction("MatchResults", "Conference");
         }
 
         // If schoolId is set it shows results just for that school
@@ -37,7 +37,7 @@ namespace ADSBackend.Controllers
 
             var matches = await _context.Match.Include(m => m.HomeSchool).ThenInclude(m => m.Season)
                                               .Include(m => m.AwaySchool).ThenInclude(m => m.Season)
-                                              .Where(m => m.HomeSchool.SeasonId == currentSeason && m.Completed)
+                                              .Where(m => m.HomeSchool.SeasonId == currentSeason)
                                               .OrderBy(m => m.MatchDate)
                                               .ToListAsync();
 
@@ -46,9 +46,15 @@ namespace ADSBackend.Controllers
 
         public async Task<IActionResult> Players()
         {
-            await Task.Delay(1);
+            int currentSeason = await _dataService.GetCurrentSeasonId();
 
-            return View();
+            var players = await _context.Player.Include(p => p.PlayerSchool)
+                                               .Where(x => x.PlayerSchool.SeasonId == currentSeason)
+                                               .OrderByDescending(x => x.Rating)
+                                               .ToListAsync();
+
+
+            return View(players);
         }
 
         public async Task<IActionResult> Profile(int? id)

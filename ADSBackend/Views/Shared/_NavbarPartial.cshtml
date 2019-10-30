@@ -10,10 +10,14 @@
     var setupClass = "";
     var teamClass = "";
     var adminClass = "";
+    var conferenceClass = "";
 
 
     switch (handlingController)
     {
+        // Conference Updates
+        case "Conference": conferenceClass = "active"; break;
+
         // Team Management
         case "Players": teamClass = "active"; break;
         case "SchoolMatches": teamClass = "active"; break;
@@ -67,6 +71,17 @@
                 <li is-active-route asp-controller="Admin">
                     <a asp-controller="Admin" asp-action="Index"><i class="fa fa-dashboard"></i><span class="nav-label">Dashboard</span></a>
                 </li>
+                <li id="nav_team" class="@conferenceClass">
+                    <a href="#"><i class="fa fa-newspaper-o"></i> <span class="nav-label">Conference Updates </span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li is-active-route asp-controller="Conference" asp-action="MatchResults">
+                            <a asp-controller="Conference" asp-action="MatchResults">Match Results</a>
+                        </li>
+                        <li is-active-route asp-controller="Conference" asp-action="Players">
+                            <a asp-controller="Conference" asp-action="Players">Top Players</a>
+                        </li>
+                    </ul>
+                </li>
                 @if (User.IsInRole("Admin") || User.IsInRole("Advisor"))
                 {
                     <li id="nav_team" class="@teamClass">
@@ -118,6 +133,6 @@
             {
                 // not signed in
             }
-            </ul>
+        </ul>
 </div>
 </nav>
