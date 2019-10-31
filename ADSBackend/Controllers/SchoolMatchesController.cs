@@ -70,10 +70,18 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            if (match.Games == null || match.Games.Count == 0)
+            if (match.Games == null || match.Games.Count != 10)
             {
                 for (int board = 1; board <= 10; board++)
                 {
+                    if (match.Games != null)
+                    {
+                        // Is there a game with this boardposition already?
+                        var gm = match.Games.Where(gp => gp.BoardPosition == board).FirstOrDefault();
+                        if (gm != null) 
+                            continue;
+                    }
+
                     Game g = new Game
                     {
                         MatchId = (int) id,
@@ -109,6 +117,11 @@ namespace ADSBackend.Controllers
             if (match == null)
             {
                 return NotFound();
+            }
+
+            if (match.MatchStarted)
+            {
+                return RedirectToAction("Manage", "SchoolMatches", new { id }); 
             }
 
             var homePlayers = match.Games.Where(g => g.HomePlayer != null).Select(g => g.HomePlayerId).ToList();

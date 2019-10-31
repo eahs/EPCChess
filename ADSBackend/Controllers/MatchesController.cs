@@ -204,6 +204,22 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var match = await _context.Match.FindAsync(id);
+
+            if (match == null)
+                return RedirectToAction(nameof(Index));
+
+            var ratingEvents = await _context.RatingEvent.Include(re => re.Game)
+                                                         .Where(re => re.Game != null && re.Game.MatchId == match.MatchId)
+                                                         .ToListAsync();
+
+            foreach (var re in ratingEvents)
+            {
+                re.GameId = null;
+                re.Type = "adjustment";
+                re.Message = "Original game removed from history";
+                _context.RatingEvent.Update(re);
+            }
+
             _context.Match.Remove(match);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
