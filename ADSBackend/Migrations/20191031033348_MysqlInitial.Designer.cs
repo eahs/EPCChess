@@ -3,23 +3,21 @@ using System;
 using ADSBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ADSBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20191011180944_AddedMatchGameRelations")]
-    partial class AddedMatchGameRelations
+    [Migration("20191031033348_MysqlInitial")]
+    partial class MysqlInitial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("ADSBackend.Models.ConfigurationItem", b =>
                 {
@@ -33,21 +31,46 @@ namespace ADSBackend.Migrations
                     b.ToTable("ConfigurationItem");
                 });
 
+            modelBuilder.Entity("ADSBackend.Models.Division", b =>
+                {
+                    b.Property<int>("DivisionId")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Name");
+
+                    b.HasKey("DivisionId");
+
+                    b.ToTable("Division");
+                });
+
             modelBuilder.Entity("ADSBackend.Models.Game", b =>
                 {
                     b.Property<int>("GameId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
-                    b.Property<int>("AwayPlayerId");
+                    b.Property<int?>("AwayPlayerId");
+
+                    b.Property<int>("AwayPlayerRatingAfter");
+
+                    b.Property<int>("AwayPlayerRatingBefore");
+
+                    b.Property<double>("AwayPoints");
+
+                    b.Property<int>("BoardPosition");
 
                     b.Property<bool>("Completed");
 
-                    b.Property<int>("HomePlayerId");
+                    b.Property<DateTime>("CompletedDate");
+
+                    b.Property<int?>("HomePlayerId");
+
+                    b.Property<int>("HomePlayerRatingAfter");
+
+                    b.Property<int>("HomePlayerRatingBefore");
+
+                    b.Property<double>("HomePoints");
 
                     b.Property<int>("MatchId");
-
-                    b.Property<int>("Result");
 
                     b.HasKey("GameId");
 
@@ -63,8 +86,7 @@ namespace ADSBackend.Migrations
             modelBuilder.Entity("ADSBackend.Models.Identity.ApplicationRole", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
@@ -79,8 +101,7 @@ namespace ADSBackend.Migrations
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
+                        .HasName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles");
                 });
@@ -88,8 +109,7 @@ namespace ADSBackend.Migrations
             modelBuilder.Entity("ADSBackend.Models.Identity.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<int>("AccessFailedCount");
 
@@ -139,8 +159,7 @@ namespace ADSBackend.Migrations
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+                        .HasName("UserNameIndex");
 
                     b.HasIndex("SchoolId");
 
@@ -150,10 +169,11 @@ namespace ADSBackend.Migrations
             modelBuilder.Entity("ADSBackend.Models.Match", b =>
                 {
                     b.Property<int>("MatchId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<double>("AwayPoints");
+
+                    b.Property<bool>("AwayRosterLocked");
 
                     b.Property<int>("AwaySchoolId");
 
@@ -161,11 +181,15 @@ namespace ADSBackend.Migrations
 
                     b.Property<double>("HomePoints");
 
+                    b.Property<bool>("HomeRosterLocked");
+
                     b.Property<int>("HomeSchoolId");
 
                     b.Property<DateTime>("MatchDate");
 
                     b.Property<DateTime>("MatchStartTime");
+
+                    b.Property<bool>("MatchStarted");
 
                     b.HasKey("MatchId");
 
@@ -199,29 +223,53 @@ namespace ADSBackend.Migrations
             modelBuilder.Entity("ADSBackend.Models.Player", b =>
                 {
                     b.Property<int>("PlayerId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("FirstName");
 
                     b.Property<string>("LastName");
 
-                    b.Property<int>("Rating");
+                    b.Property<int>("PlayerSchoolId");
 
-                    b.Property<int>("SchoolId");
+                    b.Property<int>("Rating");
 
                     b.HasKey("PlayerId");
 
-                    b.HasIndex("SchoolId");
+                    b.HasIndex("PlayerSchoolId");
 
                     b.ToTable("Player");
+                });
+
+            modelBuilder.Entity("ADSBackend.Models.RatingEvent", b =>
+                {
+                    b.Property<int>("RatingEventId")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Date");
+
+                    b.Property<int?>("GameId");
+
+                    b.Property<string>("Message");
+
+                    b.Property<int>("PlayerId");
+
+                    b.Property<int>("Rating");
+
+                    b.Property<string>("Type");
+
+                    b.HasKey("RatingEventId");
+
+                    b.HasIndex("GameId");
+
+                    b.HasIndex("PlayerId");
+
+                    b.ToTable("RatingEvent");
                 });
 
             modelBuilder.Entity("ADSBackend.Models.School", b =>
                 {
                     b.Property<int>("SchoolId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("Abbreviation")
                         .HasMaxLength(2);
@@ -232,6 +280,8 @@ namespace ADSBackend.Migrations
 
                     b.Property<string>("AdvisorPhoneNumber");
 
+                    b.Property<int?>("DivisionId");
+
                     b.Property<string>("Name");
 
                     b.Property<int>("SeasonId");
@@ -241,6 +291,8 @@ namespace ADSBackend.Migrations
 
                     b.HasKey("SchoolId");
 
+                    b.HasIndex("DivisionId");
+
                     b.HasIndex("SeasonId");
 
                     b.ToTable("School");
@@ -249,8 +301,7 @@ namespace ADSBackend.Migrations
             modelBuilder.Entity("ADSBackend.Models.Season", b =>
                 {
                     b.Property<int>("SeasonId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<DateTime>("EndDate");
 
@@ -266,8 +317,7 @@ namespace ADSBackend.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("ClaimType");
 
@@ -285,8 +335,7 @@ namespace ADSBackend.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("ClaimType");
 
@@ -350,13 +399,11 @@ namespace ADSBackend.Migrations
                 {
                     b.HasOne("ADSBackend.Models.Player", "AwayPlayer")
                         .WithMany()
-                        .HasForeignKey("AwayPlayerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("AwayPlayerId");
 
                     b.HasOne("ADSBackend.Models.Player", "HomePlayer")
                         .WithMany()
-                        .HasForeignKey("HomePlayerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("HomePlayerId");
 
                     b.HasOne("ADSBackend.Models.Match", "Match")
                         .WithMany("Games")
@@ -389,12 +436,28 @@ namespace ADSBackend.Migrations
                 {
                     b.HasOne("ADSBackend.Models.School", "PlayerSchool")
                         .WithMany("Players")
-                        .HasForeignKey("SchoolId")
+                        .HasForeignKey("PlayerSchoolId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("ADSBackend.Models.RatingEvent", b =>
+                {
+                    b.HasOne("ADSBackend.Models.Game", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameId");
+
+                    b.HasOne("ADSBackend.Models.Player", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("ADSBackend.Models.School", b =>
                 {
+                    b.HasOne("ADSBackend.Models.Division", "Division")
+                        .WithMany("Schools")
+                        .HasForeignKey("DivisionId");
+
                     b.HasOne("ADSBackend.Models.Season", "Season")
                         .WithMany("Schools")
                         .HasForeignKey("SeasonId")

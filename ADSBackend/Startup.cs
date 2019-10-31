@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using System;
 
 namespace ADSBackend
@@ -37,6 +38,14 @@ namespace ADSBackend
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
+                options.UseMySql(
+                    Configuration.GetConnectionString("ADSMysqlProductionContext"), // replace with your Connection String
+                    mySqlOptions =>
+                    {
+                        mySqlOptions.ServerVersion(new Version(10, 1, 41),
+                            ServerType.MariaDb); // replace with your Server Version and Type
+                    });
+                /*
                 options.UseSqlServer(conn,
                     sqlServerOptionsAction: sqlOptions =>
                     {
@@ -45,6 +54,7 @@ namespace ADSBackend
                             maxRetryDelay: TimeSpan.FromSeconds(30),
                             errorNumbersToAdd: null);
                     });
+                */
             });
 
             services.AddIdentity<ApplicationUser, ApplicationRole>()
