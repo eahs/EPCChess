@@ -1,3 +1,5 @@
+extern alias signed;
+
 using ADSBackend.Configuration;
 using ADSBackend.Data;
 using ADSBackend.Models.Identity;
@@ -13,8 +15,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.DataProtection;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using System;
+using Microsoft.AspNetCore.DataProtection.StackExchangeRedis;
+using StackExchange.Redis;
 
 namespace ADSBackend
 {
@@ -31,19 +36,19 @@ namespace ADSBackend
         public void ConfigureServices(IServiceCollection services)
         {
 #if DEBUG
-            string conn = Configuration.GetConnectionString("ADSBackendLocalContext");
+            string conn = Configuration.GetConnectionString("ADSMysqlProductionContext");
 #else
-                string conn = Configuration.GetConnectionString("ADSBackendProductionContext");
+            string conn = Configuration.GetConnectionString("ADSMysqlProductionContext");           
 #endif
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseMySql(
-                    Configuration.GetConnectionString("ADSMysqlProductionContext"), // replace with your Connection String
+                    conn, 
                     mySqlOptions =>
                     {
                         mySqlOptions.ServerVersion(new Version(10, 1, 41),
-                            ServerType.MariaDb); // replace with your Server Version and Type
+                            Pomelo.EntityFrameworkCore.MySql.Infrastructure.ServerType.MariaDb); // replace with your Server Version and Type
                     });
                 /*
                 options.UseSqlServer(conn,
@@ -56,6 +61,14 @@ namespace ADSBackend
                     });
                 */
             });
+
+            // https://stackexchange.github.io/StackExchange.Redis/Configuration.html
+            ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(Configuration.GetConnectionString("Redis"));
+            
+            if (redis.IsConnected)
+            {
+                services.AddDataProtection().PersistKeysToStackExchangeRedis(redis, "DataProtection-Keys");
+            }
 
             services.AddIdentity<ApplicationUser, ApplicationRole>()
                     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -79,6 +92,14 @@ namespace ADSBackend
                 // Make the session cookie essential
                 options.Cookie.IsEssential = true;
             });
+
+            if (redis.IsConnected)
+            {
+                services.AddDistributedRedisCache(o =>
+                {
+                    o.Configuration = Configuration.GetConnectionString("Redis");
+                });
+            }
 
             services.AddMvc();
 
