@@ -60,6 +60,19 @@ namespace ADSBackend.Controllers
                 }
             }
 
+            if (viewModel.HomeSchool == null)
+            {
+                viewModel.HomeSchool = new School
+                {
+                    Name = "Unassigned",
+                    ShortName = "Unassigned",
+                    Abbreviation = "Unassigned",
+                    AdvisorName = "",
+                    AdvisorEmail = "",
+                    AdvisorPhoneNumber = ""
+                };
+            }
+
             return View(viewModel);
         }
 
