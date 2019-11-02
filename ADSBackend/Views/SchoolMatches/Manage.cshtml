@@ -96,25 +96,27 @@
     -->
         @foreach (var game in Model.Games)
         {
-            @if (!@Model.MatchStarted || (@Model.MatchStarted && (game.HomePlayer != null && game.AwayPlayer != null)))
+            @if (!Model.MatchStarted || (Model.MatchStarted && (game.HomePlayer != null || game.AwayPlayer != null)))
             {
-                <div class="panel panel-default" data-seated="@(game.HomePlayer != null && game.AwayPlayer != null)">
+                <div class="panel panel-default" data-seated="@((game.HomePlayer != null && game.AwayPlayer != null) || (game.HomePlayer != null && game.BoardPosition <= 7) || (game.AwayPlayer != null && game.BoardPosition <= 7))">
                     <div class="panel-heading">
                         <span class="boardcardheader">Board @game.BoardPosition</span>
+                        
+                        @if (Model.MatchStarted && (game.HomePlayer != null && game.AwayPlayer != null))
+                        {
+                            <div class="btn-group" data-report="toggle" style="display: none">
 
-                        <div class="btn-group" data-report="toggle" style="display: none">
-
-                            <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle">Report Results <b class="caret"></b></button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 1)">@game.HomePlayer?.FirstName @game.HomePlayer?.LastName (@Model.HomeSchool.Abbreviation) Won</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 2)">@game.AwayPlayer?.FirstName @game.AwayPlayer?.LastName (@Model.AwaySchool.Abbreviation) Won</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 0)">Draw</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 3)">Reset Winner</a></li>
-                            </ul>
+                                <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle">Report Results <b class="caret"></b></button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 1)">@game.HomePlayer?.FirstName @game.HomePlayer?.LastName (@Model.HomeSchool.Abbreviation) Won</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 2)">@game.AwayPlayer?.FirstName @game.AwayPlayer?.LastName (@Model.AwaySchool.Abbreviation) Won</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 0)">Draw</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 3)">Reset Winner</a></li>
+                                </ul>
 
 
-                        </div>
-
+                            </div>
+                        }
                     </div>
 
                     <div class="panel-body">
@@ -194,10 +196,12 @@
         @if (Model.Completed)
         {
             @Html.Raw("reportButtons.hide();");
+            @Html.Raw("$('div[data-seated=\"False\"]').hide();");
         }
         else if (Model.MatchStarted)
         {
             @Html.Raw("reportButtons.show();");
+            @Html.Raw("$('div[data-seated=\"False\"]').hide();");
         }
 
         function endMatch(matchId) {
@@ -230,7 +234,7 @@
                         })
                             .then((choice) => {
                                 $('div[data-report="toggle"]').hide();
-                                
+
                         });
 
                     }

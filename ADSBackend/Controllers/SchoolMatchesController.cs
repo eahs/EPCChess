@@ -204,12 +204,27 @@ namespace ADSBackend.Controllers
             
             foreach (Game g in match.Games)
             {
-                if (g.HomePlayer != null && g.AwayPlayer != null)
+                bool update = false;
+
+                if (g.HomePlayer != null)
                 {
                     g.HomePlayerRatingBefore = g.HomePlayer.Rating;
-                    g.AwayPlayerRatingBefore = g.AwayPlayer.Rating;
-                    _context.Update(g);
+                    update = true;
+                }
 
+                if (g.AwayPlayer != null)
+                {
+                    g.AwayPlayerRatingBefore = g.AwayPlayer.Rating;
+                    update = true;
+                }
+
+                // Quick sanity check because we can't count boards past 7 in a match if either isn't seated
+                if ((g.HomePlayer == null || g.AwayPlayer == null) && g.BoardPosition > 7)
+                    update = false;
+
+                if (update)
+                {
+                    _context.Update(g);
                 }
             }
 
@@ -281,6 +296,38 @@ namespace ADSBackend.Controllers
                             awayPoints += g.AwayPoints;
                         }
                     }
+                }
+                else if (g.HomePlayer != null && g.BoardPosition <= 7)
+                {
+                // Forfeit by awayplayer
+                    homePoints += 1;
+                    g.Completed = true;
+                    g.CompletedDate = DateTime.Now;
+                    g.HomePoints = 1;
+                    g.AwayPoints = 0;
+                    g.HomePlayerRatingAfter = g.HomePlayerRatingBefore + 16;
+                    g.HomePlayer.Rating += 16;
+
+                    await _dataService.LogRatingEvent(g.HomePlayer.PlayerId, g.HomePlayer.Rating, "game", "Win by forfeit", false, g.GameId);
+
+                    _context.Update(g);
+                    _context.Update(g.HomePlayer);
+                }
+                else if (g.AwayPlayer != null && g.BoardPosition <= 7)
+                {
+                    // Forfeit by homeplayer
+                    awayPoints += 1;
+                    g.Completed = true;
+                    g.CompletedDate = DateTime.Now;
+                    g.HomePoints = 0;
+                    g.AwayPoints = 1;
+                    g.AwayPlayerRatingAfter = g.AwayPlayerRatingBefore + 16;
+                    g.AwayPlayer.Rating += 16;
+
+                    await _dataService.LogRatingEvent(g.AwayPlayer.PlayerId, g.AwayPlayer.Rating, "game", "Win by forfeit", false, g.GameId);
+
+                    _context.Update(g);
+                    _context.Update(g.AwayPlayer);
                 }
             }
 
