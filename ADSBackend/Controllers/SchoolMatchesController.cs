@@ -299,7 +299,7 @@ namespace ADSBackend.Controllers
                 }
                 else if (g.HomePlayer != null && g.BoardPosition <= 7)
                 {
-                // Forfeit by awayplayer
+                    // Forfeit by awayplayer
                     homePoints += 1;
                     g.Completed = true;
                     g.CompletedDate = DateTime.Now;

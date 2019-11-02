@@ -5,11 +5,14 @@ using System.Threading.Tasks;
 using ADSBackend.Data;
 using ADSBackend.Models.ConferenceViewModels;
 using ADSBackend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace ADSBackend.Controllers
 {
+    [Authorize(Roles = "Admin")]
+
     public class ConferenceController : Controller
     {
         private readonly ApplicationDbContext _context;
