@@ -125,7 +125,7 @@ namespace ADSBackend.Controllers
             }
 
             var homePlayers = match.Games.Where(g => g.HomePlayer != null).Select(g => g.HomePlayerId).ToList();
-            var awayPlayers = match.Games.Where(g => g.HomePlayer != null).Select(g => g.AwayPlayerId).ToList();
+            var awayPlayers = match.Games.Where(g => g.AwayPlayer != null).Select(g => g.AwayPlayerId).ToList();
 
             ViewBag.HomeStudents = await _context.Player.Where(p => p.PlayerSchoolId == match.HomeSchoolId && !homePlayers.Contains(p.PlayerId))
                                                     .OrderByDescending(p => p.Rating)
