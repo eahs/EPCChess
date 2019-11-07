@@ -380,6 +380,7 @@ namespace ADSBackend.Controllers
 
             if (match == null) return JsonStatus("MATCH NOT FOUND");
             if (!match.MatchStarted) return JsonStatus("MATCH NOT STARTED");
+            if (match.Completed) return JsonStatus("MATCH HAS BEEN COMPLETED");
 
 
             var game = await _context.Game.Include(g => g.HomePlayer)
