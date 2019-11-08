@@ -162,7 +162,10 @@ namespace ADSBackend.Services
 
         public async Task<List<Match>> GetUpcomingMatchesAsync (int seasonId, int schoolId, int count = 4)
         {
-            return await _context.Match.Where(m => m.MatchDate >= DateTime.Now && (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId))
+            return await _context.Match.Include(m => m.HomeSchool)
+                                                     .Where(m => m.HomeSchool.SeasonId == seasonId && 
+                                                                 m.MatchDate >= DateTime.Now &&
+                                                                 (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId))
                                                      .OrderBy(m => m.MatchDate)
                                                      .Take(count)
                                                      .ToListAsync();
