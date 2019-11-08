@@ -16,6 +16,13 @@ namespace ADSBackend.Services
 {
     public class DataService : IDataService
     {
+        internal class PlayerRecord
+        {
+            public int Wins { get; set; } = 0;
+            public int Losses { get; set; } = 0;
+            public int Draws { get; set; } = 0;
+        }
+
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly HttpContext _httpcontext;
@@ -26,6 +33,61 @@ namespace ADSBackend.Services
             _userManager = userManager;
             _httpcontext = httpContextAccessor.HttpContext;
             
+        }
+
+        public async Task UpdatePlayerRecords ()
+        {
+            var currentSeason = await GetCurrentSeasonId();
+            var games = await _context.Game.Include(g => g.Match).ThenInclude(m => m.HomeSchool)
+                                           .Where(g => g.Completed && g.Match.HomeSchool.SeasonId == currentSeason)
+                                           .ToListAsync();
+
+            Dictionary<int, PlayerRecord> records = new Dictionary<int, PlayerRecord>();
+
+            foreach (var game in games)
+            {
+                if (game.HomePlayerId != null)
+                {
+                    int playerId = (int)game.HomePlayerId;
+                    if (!records.ContainsKey(playerId))
+                    {
+                        records.Add(playerId, new PlayerRecord());
+                    }
+                    if (game.HomePoints == 1) records[playerId].Wins++;
+                    if (game.HomePoints == 0) records[playerId].Losses++;
+                    if (game.HomePoints == 0.5) records[playerId].Draws++;
+                }
+
+                if (game.AwayPlayerId != null)
+                {
+                    int playerId = (int)game.AwayPlayerId;
+                    if (!records.ContainsKey(playerId))
+                    {
+                        records.Add(playerId, new PlayerRecord());
+                    }
+                    if (game.AwayPoints == 1) records[playerId].Wins++;
+                    if (game.AwayPoints == 0) records[playerId].Losses++;
+                    if (game.AwayPoints == 0.5) records[playerId].Draws++;
+                }
+
+            }
+
+            var players = await _context.Player.Include(p => p.PlayerSchool)
+                                               .Where(p => p.PlayerSchool.SeasonId == currentSeason)
+                                               .ToListAsync();
+
+            foreach (var player in players)
+            {
+                if (records.ContainsKey(player.PlayerId))
+                {
+                    player.Wins = records[player.PlayerId].Wins;
+                    player.Losses = records[player.PlayerId].Losses;
+                    player.Draws = records[player.PlayerId].Draws;
+
+                    _context.Player.Update(player);
+                }
+            }
+            await _context.SaveChangesAsync();
         }
 
         public async Task<RatingEvent> LogRatingEvent (int playerId, int rating, string type = "game", string message = "", bool saveChanges = true, int? gameId = null)

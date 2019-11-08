@@ -31,6 +31,13 @@ namespace ADSBackend.Controllers
             _dataService = dataService;
         }
 
+        public async Task<string> UpdatePlayers()
+        {
+            await _dataService.UpdatePlayerRecords();
+
+            return "OK";
+        }
+
         public async Task<IActionResult> Index()
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
@@ -343,6 +350,9 @@ namespace ADSBackend.Controllers
             _context.Update(match);
             await _context.SaveChangesAsync();
 
+            // Now update all the player win, loss, draw records
+            await _dataService.UpdatePlayerRecords();
+
             return "OK";
         }
 
@@ -444,6 +454,7 @@ namespace ADSBackend.Controllers
                 game.HomePlayer.Rating = homeRating;
                 game.AwayPlayer.Rating = awayRating;
 
+                game.Completed = true;
                 game.CompletedDate = DateTime.Now;
 
                 _context.Update(game.HomePlayer);
