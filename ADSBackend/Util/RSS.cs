@@ -14,7 +14,7 @@ namespace ADSBackend.Util
             var client = new RestClient(sourceUrl);
             var request = new RestRequest(endpoint);
 
-            var response = await client.ExecuteTaskAsync(request);
+            var response = await client.ExecuteAsync(request);
 
             if (response.IsSuccessful)
             {

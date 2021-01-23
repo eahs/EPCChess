@@ -3,10 +3,11 @@ using ADSBackend.Models.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ADSBackend.Models.MessagesModels;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 
 namespace ADSBackend.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, int>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, int>, IDataProtectionKeyContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -38,6 +39,8 @@ namespace ADSBackend.Data
         public DbSet<ADSBackend.Models.Division> Division { get; set; }
 
         public DbSet<ADSBackend.Models.RatingEvent> RatingEvent { get; set; }
+        // This maps to the table that stores keys.
+        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
     }
 }
