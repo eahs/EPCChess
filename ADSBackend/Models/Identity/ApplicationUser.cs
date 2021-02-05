@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
@@ -20,6 +21,10 @@ namespace ADSBackend.Models.Identity
         public School School { get; set; }
 
         public virtual string FullName => FirstName.Trim() + " " + LastName?.Trim();
+
+        public string AccessToken { get; set; } = "";
+        public string RefreshToken { get; set; } = "";
+        public DateTime ExpiresAt { get; set; } = DateTime.Now;
 
         public virtual string GravitarHash()
         {

@@ -8,18 +8,15 @@ namespace ADSBackend.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql(@"SET default_storage_engine=InnoDB;");
-            migrationBuilder.Sql(@"ALTER DATABASE CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
-
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(nullable: true)
+                    Name = table.Column<string>(type: "varchar(256) CHARACTER SET utf8mb4", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "varchar(256) CHARACTER SET utf8mb4", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -30,8 +27,8 @@ namespace ADSBackend.Migrations
                 name: "ConfigurationItem",
                 columns: table => new
                 {
-                    Key = table.Column<string>(nullable: false),
-                    Value = table.Column<string>(nullable: true)
+                    Key = table.Column<string>(type: "varchar(255) CHARACTER SET utf8mb4", nullable: false),
+                    Value = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -39,12 +36,26 @@ namespace ADSBackend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DataProtectionKeys",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    FriendlyName = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    Xml = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DataProtectionKeys", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Division",
                 columns: table => new
                 {
-                    DivisionId = table.Column<int>(nullable: false)
+                    DivisionId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(nullable: true)
+                    Name = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -55,12 +66,12 @@ namespace ADSBackend.Migrations
                 name: "Message",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
-                    Title = table.Column<string>(nullable: true),
-                    Link = table.Column<string>(nullable: true),
-                    PublishDate = table.Column<DateTime>(nullable: false),
-                    Author = table.Column<string>(nullable: true),
-                    Description = table.Column<string>(nullable: true)
+                    Id = table.Column<string>(type: "varchar(255) CHARACTER SET utf8mb4", nullable: false),
+                    Title = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    Link = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    PublishDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Author = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    Description = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -71,11 +82,11 @@ namespace ADSBackend.Migrations
                 name: "Season",
                 columns: table => new
                 {
-                    SeasonId = table.Column<int>(nullable: false)
+                    SeasonId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(nullable: true),
-                    StartDate = table.Column<DateTime>(nullable: false),
-                    EndDate = table.Column<DateTime>(nullable: false)
+                    Name = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -86,11 +97,11 @@ namespace ADSBackend.Migrations
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    RoleId = table.Column<int>(nullable: false),
-                    ClaimType = table.Column<string>(nullable: true),
-                    ClaimValue = table.Column<string>(nullable: true)
+                    RoleId = table.Column<int>(type: "int", nullable: false),
+                    ClaimType = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    ClaimValue = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -107,16 +118,16 @@ namespace ADSBackend.Migrations
                 name: "School",
                 columns: table => new
                 {
-                    SchoolId = table.Column<int>(nullable: false)
+                    SchoolId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    DivisionId = table.Column<int>(nullable: true),
-                    Name = table.Column<string>(nullable: true),
-                    ShortName = table.Column<string>(maxLength: 12, nullable: true),
-                    Abbreviation = table.Column<string>(maxLength: 2, nullable: true),
-                    AdvisorName = table.Column<string>(nullable: true),
-                    AdvisorEmail = table.Column<string>(nullable: true),
-                    AdvisorPhoneNumber = table.Column<string>(nullable: true),
-                    SeasonId = table.Column<int>(nullable: false)
+                    DivisionId = table.Column<int>(type: "int", nullable: true),
+                    Name = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    ShortName = table.Column<string>(type: "varchar(12) CHARACTER SET utf8mb4", maxLength: 12, nullable: true),
+                    Abbreviation = table.Column<string>(type: "varchar(2) CHARACTER SET utf8mb4", maxLength: 2, nullable: true),
+                    AdvisorName = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    AdvisorEmail = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    AdvisorPhoneNumber = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    SeasonId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -139,25 +150,25 @@ namespace ADSBackend.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    UserName = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
-                    Email = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(nullable: false),
-                    PasswordHash = table.Column<string>(nullable: true),
-                    SecurityStamp = table.Column<string>(nullable: true),
-                    ConcurrencyStamp = table.Column<string>(nullable: true),
-                    PhoneNumber = table.Column<string>(nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
-                    LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false),
-                    FirstName = table.Column<string>(maxLength: 50, nullable: false),
-                    LastName = table.Column<string>(nullable: true),
-                    SchoolId = table.Column<int>(nullable: false)
+                    FirstName = table.Column<string>(type: "varchar(50) CHARACTER SET utf8mb4", maxLength: 50, nullable: false),
+                    LastName = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    SchoolId = table.Column<int>(type: "int", nullable: false),
+                    UserName = table.Column<string>(type: "varchar(256) CHARACTER SET utf8mb4", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "varchar(256) CHARACTER SET utf8mb4", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "varchar(256) CHARACTER SET utf8mb4", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "varchar(256) CHARACTER SET utf8mb4", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PasswordHash = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -174,18 +185,18 @@ namespace ADSBackend.Migrations
                 name: "Match",
                 columns: table => new
                 {
-                    MatchId = table.Column<int>(nullable: false)
+                    MatchId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    MatchDate = table.Column<DateTime>(nullable: false),
-                    MatchStartTime = table.Column<DateTime>(nullable: false),
-                    MatchStarted = table.Column<bool>(nullable: false),
-                    HomeRosterLocked = table.Column<bool>(nullable: false),
-                    AwayRosterLocked = table.Column<bool>(nullable: false),
-                    HomeSchoolId = table.Column<int>(nullable: false),
-                    AwaySchoolId = table.Column<int>(nullable: false),
-                    Completed = table.Column<bool>(nullable: false),
-                    HomePoints = table.Column<double>(nullable: false),
-                    AwayPoints = table.Column<double>(nullable: false)
+                    MatchDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    MatchStartTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    MatchStarted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    HomeRosterLocked = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    AwayRosterLocked = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    HomeSchoolId = table.Column<int>(type: "int", nullable: false),
+                    AwaySchoolId = table.Column<int>(type: "int", nullable: false),
+                    Completed = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    HomePoints = table.Column<double>(type: "double", nullable: false),
+                    AwayPoints = table.Column<double>(type: "double", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -208,12 +219,15 @@ namespace ADSBackend.Migrations
                 name: "Player",
                 columns: table => new
                 {
-                    PlayerId = table.Column<int>(nullable: false)
+                    PlayerId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    PlayerSchoolId = table.Column<int>(nullable: false),
-                    FirstName = table.Column<string>(nullable: true),
-                    LastName = table.Column<string>(nullable: true),
-                    Rating = table.Column<int>(nullable: false)
+                    PlayerSchoolId = table.Column<int>(type: "int", nullable: false),
+                    FirstName = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    LastName = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    Wins = table.Column<int>(type: "int", nullable: false),
+                    Losses = table.Column<int>(type: "int", nullable: false),
+                    Draws = table.Column<int>(type: "int", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -230,11 +244,11 @@ namespace ADSBackend.Migrations
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    UserId = table.Column<int>(nullable: false),
-                    ClaimType = table.Column<string>(nullable: true),
-                    ClaimValue = table.Column<string>(nullable: true)
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    ClaimType = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    ClaimValue = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -251,10 +265,10 @@ namespace ADSBackend.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(nullable: false),
-                    ProviderKey = table.Column<string>(nullable: false),
-                    ProviderDisplayName = table.Column<string>(nullable: true),
-                    UserId = table.Column<int>(nullable: false)
+                    LoginProvider = table.Column<string>(type: "varchar(255) CHARACTER SET utf8mb4", nullable: false),
+                    ProviderKey = table.Column<string>(type: "varchar(255) CHARACTER SET utf8mb4", nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -271,8 +285,8 @@ namespace ADSBackend.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<int>(nullable: false),
-                    RoleId = table.Column<int>(nullable: false)
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    RoleId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -295,10 +309,10 @@ namespace ADSBackend.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<int>(nullable: false),
-                    LoginProvider = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(nullable: false),
-                    Value = table.Column<string>(nullable: true)
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    LoginProvider = table.Column<string>(type: "varchar(255) CHARACTER SET utf8mb4", nullable: false),
+                    Name = table.Column<string>(type: "varchar(255) CHARACTER SET utf8mb4", nullable: false),
+                    Value = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -315,24 +329,30 @@ namespace ADSBackend.Migrations
                 name: "Game",
                 columns: table => new
                 {
-                    GameId = table.Column<int>(nullable: false)
+                    GameId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    BoardPosition = table.Column<int>(nullable: false),
-                    MatchId = table.Column<int>(nullable: false),
-                    HomePlayerId = table.Column<int>(nullable: true),
-                    AwayPlayerId = table.Column<int>(nullable: true),
-                    HomePlayerRatingBefore = table.Column<int>(nullable: false),
-                    AwayPlayerRatingBefore = table.Column<int>(nullable: false),
-                    HomePlayerRatingAfter = table.Column<int>(nullable: false),
-                    AwayPlayerRatingAfter = table.Column<int>(nullable: false),
-                    Completed = table.Column<bool>(nullable: false),
-                    CompletedDate = table.Column<DateTime>(nullable: false),
-                    HomePoints = table.Column<double>(nullable: false),
-                    AwayPoints = table.Column<double>(nullable: false)
+                    BoardPosition = table.Column<int>(type: "int", nullable: false),
+                    MatchId = table.Column<int>(type: "int", nullable: false),
+                    HomePlayerId = table.Column<int>(type: "int", nullable: true),
+                    AwayPlayerId = table.Column<int>(type: "int", nullable: true),
+                    HomePlayerRatingBefore = table.Column<int>(type: "int", nullable: false),
+                    AwayPlayerRatingBefore = table.Column<int>(type: "int", nullable: false),
+                    HomePlayerRatingAfter = table.Column<int>(type: "int", nullable: false),
+                    AwayPlayerRatingAfter = table.Column<int>(type: "int", nullable: false),
+                    Completed = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CompletedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    HomePoints = table.Column<double>(type: "double", nullable: false),
+                    AwayPoints = table.Column<double>(type: "double", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Game", x => x.GameId);
+                    table.ForeignKey(
+                        name: "FK_Game_Match_MatchId",
+                        column: x => x.MatchId,
+                        principalTable: "Match",
+                        principalColumn: "MatchId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Game_Player_AwayPlayerId",
                         column: x => x.AwayPlayerId,
@@ -345,26 +365,20 @@ namespace ADSBackend.Migrations
                         principalTable: "Player",
                         principalColumn: "PlayerId",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Game_Match_MatchId",
-                        column: x => x.MatchId,
-                        principalTable: "Match",
-                        principalColumn: "MatchId",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "RatingEvent",
                 columns: table => new
                 {
-                    RatingEventId = table.Column<int>(nullable: false)
+                    RatingEventId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    PlayerId = table.Column<int>(nullable: false),
-                    Rating = table.Column<int>(nullable: false),
-                    GameId = table.Column<int>(nullable: true),
-                    Type = table.Column<string>(nullable: true),
-                    Message = table.Column<string>(nullable: true),
-                    Date = table.Column<DateTime>(nullable: false)
+                    PlayerId = table.Column<int>(type: "int", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    GameId = table.Column<int>(type: "int", nullable: true),
+                    Type = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    Message = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -415,15 +429,15 @@ namespace ADSBackend.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_SchoolId",
+                table: "AspNetUsers",
+                column: "SchoolId");
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_SchoolId",
-                table: "AspNetUsers",
-                column: "SchoolId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Game_AwayPlayerId",
@@ -497,6 +511,9 @@ namespace ADSBackend.Migrations
                 name: "ConfigurationItem");
 
             migrationBuilder.DropTable(
+                name: "DataProtectionKeys");
+
+            migrationBuilder.DropTable(
                 name: "Message");
 
             migrationBuilder.DropTable(
@@ -512,10 +529,10 @@ namespace ADSBackend.Migrations
                 name: "Game");
 
             migrationBuilder.DropTable(
-                name: "Player");
+                name: "Match");
 
             migrationBuilder.DropTable(
-                name: "Match");
+                name: "Player");
 
             migrationBuilder.DropTable(
                 name: "School");

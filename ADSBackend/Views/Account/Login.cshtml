@@ -9,46 +9,90 @@
     ViewData["CopyrightYear"] = DateTime.Now.Year;
 }
 
-<div class="middle-box text-center loginscreen animated fadeInDown">
-    <div>
-        <div>
-            <h1 class="logo-name">
-                <i class="fa fa-diamond"></i>
-            </h1>
+<div class="container">
+    <div class="animated fadeInDown">
+        <div class="row">
+            <div class="col-md-12">
+                <div style="text-align:center">
+                    <h1 class="logo-name">
+                        <i class="fa fa-diamond"></i>
+                    </h1>
+                </div>
+                <br />
+                <h2>EPC Chess Login</h2>
+                <p>
+                    Students must sign in using their Lichess.org accounts
+                </p>
+            </div>
         </div>
-        <br />
-        <h3>Welcome to EPC Chess League Manager!</h3>
-        <p>
-            Perfectly designed and precisely prepared to provide for your chess match needs.
-        </p>
-        <form asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-group">
-                <label>Email Address</label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Password"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <div class="checkbox">
-                    <label asp-for="RememberMe">
-                        <input asp-for="RememberMe" />
-                        @Html.DisplayNameFor(m => m.RememberMe)
-                    </label>
+        <div class="row">
+            <div class="col-md-6">
+
+                <div>
+
+                    <form asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input asp-for="Username" class="form-control" />
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Password"></label>
+                            <input asp-for="Password" class="form-control" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label asp-for="RememberMe">
+                                    <input asp-for="RememberMe" />
+                                    @Html.DisplayNameFor(m => m.RememberMe)
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary block full-width m-b">Login</button>
+                        <div class="form-group">
+                            <a asp-action="ForgotPassword">Forgot your password?</a>
+                        </div>
+                    </form>
+
+                    <p class="m-t"><small>Michael Tanczos &copy; @ViewData["CopyrightYear"]</small></p>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary block full-width m-b">Login</button>
-            <div class="form-group">
-                <a asp-action="ForgotPassword">Forgot your password?</a>
+            <div class="col-md-6" style="border-left: solid 1px #eee;">
+
+                <div class="form-group">
+                    <br />
+                    <label>Log in using your Lichess account:</label>
+                    @{
+                        var loginProviders = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+                        if (loginProviders.Count == 0)
+                        {
+                            <div>
+                                <p>
+                                    There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</a>
+                                    for details on setting up this ASP.NET application to support logging in via external services.
+                                </p>
+                            </div>
+                        }
+                        else
+                        {
+                            <form asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
+                                <div>
+                                    <p>
+                                        <button type="submit" class="btn btn-block btn-lg" style="background: #1a73b3; color: white" name="provider" value="Lichess" title="Log in using your Lichess account"><img src="/images/lichess.svg"/ style="height: 32px; margin-right: 10px"> Sign in with Lichess</button>
+                                    </p>
+                                </div>
+                            </form>
+                        }
+                    }
+                </div>
             </div>
-        </form>
-        <p class="m-t"><small>Easton Area School District &copy; @ViewData["CopyrightYear"]</small></p>
+        </div>
     </div>
 </div>
+
+
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")

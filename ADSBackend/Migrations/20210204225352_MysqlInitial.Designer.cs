@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ADSBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210122183101_AddingEfCoreDPK")]
-    partial class AddingEfCoreDPK
+    [Migration("20210204225352_MysqlInitial")]
+    partial class MysqlInitial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

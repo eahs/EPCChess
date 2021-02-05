@@ -19,13 +19,18 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
+using ADSBackend.Util;
+using AspNet.Security.OAuth.Lichess;
 
 namespace ADSBackend
 {
@@ -77,9 +82,10 @@ namespace ADSBackend
             // caching
             services.AddMemoryCache();
             services.AddTransient<Services.Cache>();
-
             services.AddTransient<Services.Configuration>();
 
+            services.AddTransient<Services.ITokenRefresher, Services.TokenRefresher>();
+            services.AddScoped<RefreshTokenFilter>();
 
             services.AddSession(options =>
             {
@@ -114,37 +120,53 @@ namespace ADSBackend
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
 
-            /*
+            // https://www.thinktecture.com/identity/samesite/prepare-your-identityserver/
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+                options.OnAppendCookie = cookieContext =>
+                    CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
+                options.OnDeleteCookie = cookieContext =>
+                    CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
+            });
+
             services.AddAuthentication(options =>
             {
+                /*
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = "LiChess";
+                */
+                options.DefaultScheme = "Cookies";
             })
-               .AddCookie()
-               .AddOAuth("LiChess", options =>
-               {
-                   options.ClientId = Configuration["LiChess:ClientId"];
-                   options.ClientSecret = Configuration["LiChess:ClientSecret"];
-                   options.CallbackPath = new PathString("/lichess-oauth");
-                   options.AuthorizationEndpoint = "https://oauth.lichess.org/oauth/authorize";
-                   options.TokenEndpoint = "https://oauth.lichess.org/oauth";
-                   options.SaveTokens = true;
-                   options.Events = new OAuthEvents
-                   {
-                       OnCreatingTicket = async context =>
-                       {
-                           var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
-                           request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                           request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
-                           var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
-                           response.EnsureSuccessStatusCode();
-                           var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-                           context.RunClaimActions(json.RootElement);
-                       }
-                   };
-               });
-            */
+            .AddCookie("Cookies")
+            .AddLichess(options =>
+            {
+                var lichessAuthNSection =
+                    Configuration.GetSection("Authentication:Lichess");
+
+                options.ClientId = lichessAuthNSection["ClientID"];
+                options.ClientSecret = lichessAuthNSection["ClientSecret"];
+
+                options.Scope.Clear();
+                options.Scope.Add(LichessAuthenticationConstants.Scopes.EmailRead);
+                options.SaveTokens = true;
+
+                options.Events.OnCreatingTicket = ctx =>
+                {
+                    List<AuthenticationToken> tokens = ctx.Properties.GetTokens().ToList();
+
+                    tokens.Add(new AuthenticationToken()
+                    {
+                        Name = "TicketCreated",
+                        Value = DateTime.UtcNow.ToString()
+                    });
+
+                    ctx.Properties.StoreTokens(tokens);
+
+                    return Task.CompletedTask;
+                };
+            });
 
             // configure DI for application services
         }
@@ -173,6 +195,7 @@ namespace ADSBackend
                 .AllowAnyMethod()
                 .AllowAnyHeader());
 
+            app.UseCookiePolicy();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSession();
@@ -220,5 +243,72 @@ namespace ADSBackend
                 // Log error
             }
         }
+
+        private void CheckSameSite(HttpContext httpContext, CookieOptions options)
+        {
+            if (options.SameSite == SameSiteMode.None)
+            {
+                var userAgent = httpContext.Request.Headers["User-Agent"].ToString();
+                if (DisallowsSameSiteNone(userAgent)) options.SameSite = SameSiteMode.Unspecified;
+            }
+        }
+
+        /// <summary>
+        ///     Checks if the UserAgent is known to interpret an unknown value as Strict.
+        ///     For those the <see cref="CookieOptions.SameSite" /> property should be
+        ///     set to <see cref="Unspecified" />.
+        /// </summary>
+        /// <remarks>
+        ///     This code is taken from Microsoft:
+        ///     https://devblogs.microsoft.com/aspnet/upcoming-samesite-cookie-changes-in-asp-net-and-asp-net-core/
+        /// </remarks>
+        /// <param name="userAgent">The user agent string to check.</param>
+        /// <returns>Whether the specified user agent (browser) accepts SameSite=None or not.</returns>
+        private static bool DisallowsSameSiteNone(string userAgent)
+        {
+            // Cover all iOS based browsers here. This includes:
+            //   - Safari on iOS 12 for iPhone, iPod Touch, iPad
+            //   - WkWebview on iOS 12 for iPhone, iPod Touch, iPad
+            //   - Chrome on iOS 12 for iPhone, iPod Touch, iPad
+            // All of which are broken by SameSite=None, because they use the
+            // iOS networking stack.
+            // Notes from Thinktecture:
+            // Regarding https://caniuse.com/#search=samesite iOS versions lower
+            // than 12 are not supporting SameSite at all. Starting with version 13
+            // unknown values are NOT treated as strict anymore. Therefore we only
+            // need to check version 12.
+            if (userAgent.Contains("CPU iPhone OS 12")
+                || userAgent.Contains("iPad; CPU OS 12"))
+                return true;
+
+            // Cover Mac OS X based browsers that use the Mac OS networking stack.
+            // This includes:
+            //   - Safari on Mac OS X.
+            // This does not include:
+            //   - Chrome on Mac OS X
+            // because they do not use the Mac OS networking stack.
+            // Notes from Thinktecture: 
+            // Regarding https://caniuse.com/#search=samesite MacOS X versions lower
+            // than 10.14 are not supporting SameSite at all. Starting with version
+            // 10.15 unknown values are NOT treated as strict anymore. Therefore we
+            // only need to check version 10.14.
+            if (userAgent.Contains("Safari")
+                && userAgent.Contains("Macintosh; Intel Mac OS X 10_14")
+                && userAgent.Contains("Version/"))
+                return true;
+
+            // Cover Chrome 50-69, because some versions are broken by SameSite=None
+            // and none in this range require it.
+            // Note: this covers some pre-Chromium Edge versions,
+            // but pre-Chromium Edge does not require SameSite=None.
+            // Notes from Thinktecture:
+            // We can not validate this assumption, but we trust Microsofts
+            // evaluation. And overall not sending a SameSite value equals to the same
+            // behavior as SameSite=None for these old versions anyways.
+            if (userAgent.Contains("Chrome/5") || userAgent.Contains("Chrome/6")) return true;
+
+            return false;
+        }
+
     }
 }

@@ -13,9 +13,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using System.Security.Claims;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Options;
+
 namespace ADSBackend.Controllers
 {
     [Authorize]
+    [ServiceFilter(typeof(RefreshTokenFilter))]
     public class AdminController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -31,6 +37,8 @@ namespace ADSBackend.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+
             var currentSeason = await _dataService.GetCurrentSeasonId();
             int schoolId = await GetSchoolIdAsync();
 
@@ -79,8 +87,9 @@ namespace ADSBackend.Controllers
 
         private async Task<int> GetSchoolIdAsync()
         {
+            
             var user = await _userManager.GetUserAsync(User);
-
+             
             if (user == null)
                 return -1;
 
