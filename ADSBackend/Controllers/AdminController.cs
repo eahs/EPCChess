@@ -37,8 +37,6 @@ namespace ADSBackend.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var accessToken = await HttpContext.GetTokenAsync("access_token");
-
             var currentSeason = await _dataService.GetCurrentSeasonId();
             int schoolId = await GetSchoolIdAsync();
 
@@ -46,6 +44,9 @@ namespace ADSBackend.Controllers
             {
                 User = await _userManager.GetUserAsync(User)
             };
+
+            await _dataService.SyncExternalPlayer(viewModel.User.Id);
+
 
             viewModel.Upcoming = await _dataService.GetUpcomingMatchesAsync(currentSeason, schoolId, 4);
 

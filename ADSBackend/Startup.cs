@@ -150,6 +150,9 @@ namespace ADSBackend
 
                 options.Scope.Clear();
                 options.Scope.Add(LichessAuthenticationConstants.Scopes.EmailRead);
+                options.Scope.Add(LichessAuthenticationConstants.Scopes.ChallengeRead);
+                options.Scope.Add(LichessAuthenticationConstants.Scopes.ChallengeWrite);
+                options.Scope.Add(LichessAuthenticationConstants.Scopes.MessageWrite);
                 options.SaveTokens = true;
 
                 options.Events.OnCreatingTicket = ctx =>

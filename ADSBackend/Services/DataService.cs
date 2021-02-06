@@ -35,6 +35,48 @@ namespace ADSBackend.Services
             
         }
 
+        public async Task SyncExternalPlayer(int userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            var player = await _context.Player.FirstOrDefaultAsync(p => p.UserId == userId);
+
+            bool isPlayer = await _userManager.IsInRoleAsync(user, "Player");
+
+            if (player == null && isPlayer)
+            {
+                player = new Player
+                {
+                    UserId = userId,
+                    FirstName = user.FirstName ?? "",
+                    LastName = user.LastName ?? "",
+                    PlayerSchoolId = user.SchoolId,
+                    Rating = 1000
+                };
+
+                _context.Player.Add(player);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                if (!isPlayer)
+                {
+                    if (player != null)
+                        _context.Player.Remove(player);
+                }
+                else
+                {
+                    player.FirstName = user.FirstName;
+                    player.LastName = user.LastName;
+                    player.PlayerSchoolId = user.SchoolId;
+
+                    _context.Player.Update(player);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+        }
+
         public async Task UpdatePlayerRecords ()
         {
             var currentSeason = await GetCurrentSeasonId();

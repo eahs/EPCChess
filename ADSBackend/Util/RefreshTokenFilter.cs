@@ -34,7 +34,7 @@ namespace ADSBackend.Util
         {
             var user = await _userManager.GetUserAsync(context.HttpContext.User);
 
-            if (user is not null)
+            if (user is not null && !String.IsNullOrEmpty(user.RefreshToken))
             {
                 if (user.ExpiresAt < DateTime.Now.AddMinutes(5)) //Check if the access token will expire in 5 minutes
                 {

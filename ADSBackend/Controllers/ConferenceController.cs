@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ADSBackend.Controllers
 {
-    [Authorize(Roles = "Admin,Coach,Player")]
+    [Authorize(Roles = "Admin,Advisor,Player")]
     public class ConferenceController : Controller
     {
         private readonly ApplicationDbContext _context;

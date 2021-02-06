@@ -11,12 +11,16 @@
     var teamClass = "";
     var adminClass = "";
     var conferenceClass = "";
+    var playClass = "";
 
 
     switch (handlingController)
     {
         // Conference Updates
         case "Conference": conferenceClass = "active"; break;
+
+        // Play
+        case "Play": playClass = "active"; break;
 
         // Team Management
         case "Players": teamClass = "active"; break;
@@ -70,6 +74,15 @@
                 </li>
                 <li is-active-route asp-controller="Admin">
                     <a asp-controller="Admin" asp-action="Index"><i class="fa fa-dashboard"></i><span class="nav-label">Dashboard</span></a>
+                </li>
+                <li id="nav_play" class="@playClass">
+                    <a href="#"><i class="fa fa-paper-plane"></i> <span class="nav-label">Play </span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li is-active-route asp-controller="Play" asp-action="Index">
+                            <a asp-controller="Play" asp-action="Index">My Team Matches</a>
+                        </li>
+                    </ul>
+
                 </li>
                 <li id="nav_team" class="@conferenceClass">
                     <a href="#"><i class="fa fa-newspaper-o"></i> <span class="nav-label">Conference Updates </span><span class="fa arrow"></span></a>
