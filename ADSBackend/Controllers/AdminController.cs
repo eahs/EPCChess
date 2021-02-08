@@ -116,7 +116,11 @@ namespace ADSBackend.Controllers
                         identity.RemoveClaim(guestClaim);
                     identity.AddClaim(new Claim(ClaimTypes.Role, "Player"));
 
-                    await _userManager.RemoveFromRoleAsync(appUser, "Guest");
+                    // reset user roles
+                    var roles = await _userManager.GetRolesAsync(appUser);
+                    await _userManager.RemoveFromRolesAsync(appUser, roles);
+
+                    // assign new role
                     await _userManager.AddToRoleAsync(appUser, "Player");
 
                     await _signInManager.SignInAsync(appUser, true);
