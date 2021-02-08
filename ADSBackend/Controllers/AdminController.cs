@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 
 using System.Security.Claims;
 using System.Security.Cryptography;
+using ADSBackend.Models.AdminViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
@@ -25,27 +26,33 @@ namespace ADSBackend.Controllers
     public class AdminController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
         private readonly DataService _dataService;
 
-        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, DataService dataService)
+        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, DataService dataService)
         {
             _context = context;
             _userManager = userManager;
             _dataService = dataService;
+            _signInManager = signInManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int err)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
             int schoolId = await GetSchoolIdAsync();
 
             var viewModel = new HomeViewModel
             {
-                User = await _userManager.GetUserAsync(User)
+                User = await _userManager.GetUserAsync(User),
+                JoinCodeError = err > 0
             };
 
-            await _dataService.SyncExternalPlayer(viewModel.User.Id);
+            bool isGuest = await _userManager.IsInRoleAsync(viewModel.User, "Guest");
+
+            if (!isGuest)
+                await _dataService.SyncExternalPlayer(viewModel.User.Id);
 
 
             viewModel.Upcoming = await _dataService.GetUpcomingMatchesAsync(currentSeason, schoolId, 4);
@@ -84,6 +91,43 @@ namespace ADSBackend.Controllers
             }
 
             return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Index(JoinViewModel model)
+        {
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
+            if (ModelState.IsValid)
+            {
+                model.JoinCode = model.JoinCode.ToUpper();
+
+                var school = await _context.School.FirstOrDefaultAsync(s =>
+                    s.SeasonId == currentSeason && s.JoinCode.Equals(model.JoinCode));
+
+                if (school is not null)
+                {
+                    var appUser = await _userManager.GetUserAsync(User);
+                    appUser.SchoolId = school.SchoolId;
+
+                    var identity = (User.Identity as ClaimsIdentity);
+                    var guestClaim = identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role && c.Value == "Guest");
+                    if (guestClaim != null)
+                        identity.RemoveClaim(guestClaim);
+                    identity.AddClaim(new Claim(ClaimTypes.Role, "Player"));
+
+                    await _userManager.RemoveFromRoleAsync(appUser, "Guest");
+                    await _userManager.AddToRoleAsync(appUser, "Player");
+
+                    await _signInManager.SignInAsync(appUser, true);
+
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return RedirectToAction(nameof(Index), new { err = 1 } );
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         private async Task<int> GetSchoolIdAsync()

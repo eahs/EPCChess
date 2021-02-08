@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using ADSBackend.Util;
 
 namespace ADSBackend.Models
 {
@@ -40,6 +41,8 @@ namespace ADSBackend.Models
         [DisplayName("Season")]
         public int SeasonId { get; set; }
         public Season Season { get; set; }
+
+        [DisplayName("Join Code")] public string JoinCode { get; set; } = RandomIdGenerator.Generate(8);
 
         public List<Player> Players { get; set; }
 

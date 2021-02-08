@@ -17,7 +17,8 @@ namespace ADSBackend.Configuration
             {
                 "Admin",
                 "Advisor",
-                "Player"
+                "Player",
+                "Guest"
             };
 
             foreach (var roleName in roles)

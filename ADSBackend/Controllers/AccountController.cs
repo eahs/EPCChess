@@ -333,6 +333,8 @@ namespace ADSBackend.Controllers
         {
             if (ModelState.IsValid)
             {
+                model.SchoolId = 1;  // Default to unassigned school (schoolId of 1)
+
                 // Get the information about the user from the external login provider
                 var info = await _signInManager.GetExternalLoginInfoAsync();
                 if (info == null)
@@ -358,16 +360,16 @@ namespace ADSBackend.Controllers
                             await _userManager.AddClaimAsync(user,
                                 info.Principal.FindFirst(ClaimTypes.GivenName));
                         }
-                        
+
+                        // assign new role
+                        await _userManager.AddToRoleAsync(user, "Guest");
+
                         // Include the access token in the properties
                         var props = new AuthenticationProperties();
                         props.StoreTokens(info.AuthenticationTokens);
                         props.IsPersistent = true;
 
                         await _signInManager.SignInAsync(user, props);
-
-                        // assign new role
-                        await _userManager.AddToRoleAsync(user, "Player");
 
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
                         return RedirectToLocal(returnUrl);

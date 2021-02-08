@@ -34,14 +34,13 @@ namespace ADSBackend.Models
         public double HomePoints { get; set; }
         public double AwayPoints { get; set; }
 
-        public bool IsVirtual { get; set; } = false;  // Is this a LiChess game?
         public bool IsStarted { get; set; } = false;
         public string ChallengeJson { get; set; } = "{}";  // Json response for challenge
-        public string ChallengeId { get; set; }
-        public string ChallengeUrl { get; set; }
+        public string ChallengeId { get; set; }  // Id of Game
+        public string ChallengeUrl { get; set; } // Url of Game on Lichess
         public string GameJson { get; set; } = "{}";
         public string CurrentFen { get; set; } = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-        public DateTime LastGameDownload { get; set; } = DateTime.Now.AddDays(-5);
+        public DateTime LastGameExportTime { get; set; } = DateTime.Now.AddDays(-5);
 
         [NotMapped]
         public string HomePlayerFullName => $"{HomePlayer?.FirstName} {HomePlayer?.LastName}";

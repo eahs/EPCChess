@@ -29,6 +29,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ADSBackend.Hubs;
 using ADSBackend.Util;
 using AspNet.Security.OAuth.Lichess;
 
@@ -102,7 +103,9 @@ namespace ADSBackend
             {
                 services.AddRazorPages().AddRazorRuntimeCompilation();
             }
-#endif 
+#endif
+
+            services.AddSignalR();
             services.AddMvc();
 
             services.AddSwaggerGen(c =>
@@ -208,7 +211,7 @@ namespace ADSBackend
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-
+                endpoints.MapHub<GameHub>("/gamehub");
             });
 
             app.UseSwagger();

@@ -18,10 +18,6 @@
         <form asp-action="ExternalLoginConfirmation" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="SchoolId" class="control-label"></label>
-                <select asp-for="SchoolId" asp-items="ViewBag.Schools" class="form-control"></select>
-            </div>
-            <div class="form-group">
                 <label asp-for="FirstName" class="control-label"></label>
                 <input asp-for="FirstName" class="form-control" />
                 <span asp-validation-for="FirstName" class="text-danger"></span>
