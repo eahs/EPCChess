@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using ADSBackend.Hubs;
 using ADSBackend.Util;
 using AspNet.Security.OAuth.Lichess;
+using Serilog;
 
 namespace ADSBackend
 {
@@ -247,6 +248,7 @@ namespace ADSBackend
             catch (Exception e)
             {
                 // Log error
+                Log.Error(e, "Error updating database");
             }
         }
 

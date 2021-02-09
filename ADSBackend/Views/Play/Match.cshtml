@@ -24,24 +24,33 @@
 
 @section Scripts {
 
-    <script src="~/lib/signalr/jquery.signalR.min.js"></script>
+    <script src="~/lib/signalr/signalr.min.js"></script>
     
     <script type="text/javascript">
 
         var connection = new signalR.HubConnectionBuilder().withUrl("/gamehub").build();
 
-//Disable send button until connection is established
-        document.getElementById("sendButton").disabled = true;
-
-        connection.on("ReceiveMessage", function (user, message) {
+        connection.on("UpdateMatches", function (gameJson) {
         });
 
-        connection.start().then(function () {
-            document.getElementById("sendButton").disabled = false;
-        }).catch(function (err) {
-            return console.error(err.toString());
-        });
+        async function start() {
+            try {
+                await connection.start();
+                //await connection.invoke("JoinMatch", 3);
 
+                console.log("SignalR Connected.");
+            } catch (err) {
+                console.log(err);
+                setTimeout(start, 5000);
+            }
+        };
+
+        connection.onclose(start);
+
+// Start the connection.
+        start();
+
+        /*
         document.getElementById("sendButton").addEventListener("click", function (event) {
             var user = document.getElementById("userInput").value;
             var message = document.getElementById("messageInput").value;
@@ -50,6 +59,6 @@
             });
             event.preventDefault();
         });
-
+        */
     </script>
 } 

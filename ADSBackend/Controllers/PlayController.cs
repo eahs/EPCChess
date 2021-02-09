@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ADSBackend.Data;
 using ADSBackend.Models.Identity;
+using ADSBackend.Models.PlayViewModels;
 using ADSBackend.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -63,7 +64,12 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            return View();
+            MatchViewModel viewmodel = new MatchViewModel
+            {
+                Match = match
+            };
+
+            return View(viewmodel);
         }
     }
 }

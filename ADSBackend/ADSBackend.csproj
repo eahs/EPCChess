@@ -53,7 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
+    <ProjectReference Include="..\..\LichessApi\LichessApi\LichessApi.Web\LichessApi.Web.csproj" />
   </ItemGroup>
 
 </Project>
