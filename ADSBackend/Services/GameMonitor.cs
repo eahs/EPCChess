@@ -253,6 +253,8 @@ namespace ADSBackend.Services
 
                                     }
 
+                                    throw new Exception("Finish dealing with aborted challenge requests");
+
                                     // Are there any games that we didn't get responses back for?
                                     if (gameIds.Count > 0)
                                     {
