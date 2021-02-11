@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using ADSBackend.Util;
 
 namespace ADSBackend.Services
 {
@@ -26,19 +27,99 @@ namespace ADSBackend.Services
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly HttpContext _httpcontext;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public DataService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor)
+        public DataService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _userManager = userManager;
             _httpcontext = httpContextAccessor.HttpContext;
-            
+            _signInManager = signInManager;
+        }
+
+        public async Task UpdateAndLogRatingCalculations(Game game, GameResult gameResult)
+        {
+            if (gameResult == GameResult.Reset)
+            {
+                game.HomePoints = 0;
+                game.AwayPoints = 0;
+                game.HomePlayerRatingAfter = 0;
+                game.AwayPlayerRatingAfter = 0;
+                game.Completed = false;
+
+                if (game.HomePoints + game.AwayPoints != 0)
+                {
+                    game.HomePlayer.Rating = game.HomePlayerRatingBefore;
+                    game.AwayPlayer.Rating = game.AwayPlayerRatingBefore;
+
+                    _context.Update(game.HomePlayer);
+                    _context.Update(game.AwayPlayer);
+
+                    await LogRatingEvent(game.HomePlayer.PlayerId, game.HomePlayer.Rating, "adjustment", "Game reset by advisor", false, game.GameId);
+                    await LogRatingEvent(game.AwayPlayer.PlayerId, game.AwayPlayer.Rating, "adjustment", "Game reset by advisor", false, game.GameId);
+
+                }
+
+            }
+            else
+            {
+                int homeRating, awayRating;
+
+                // Update player's rating in case it was adjusted before this game was submitted
+                // This only happens if there are two matches running at the same time 
+                if (game.HomePoints + game.AwayPoints == 0)
+                {
+                    if (game.HomePlayerRatingBefore != game.HomePlayer.Rating)
+                        await LogRatingEvent(game.HomePlayer.PlayerId, game.HomePlayer.Rating, "adjustment", "Player rating changed after match started", false, game.GameId);
+
+                    if (game.AwayPlayerRatingBefore != game.AwayPlayer.Rating)
+                        await LogRatingEvent(game.AwayPlayer.PlayerId, game.AwayPlayer.Rating, "adjustment", "Player rating changed after match started", false, game.GameId);
+
+                    game.HomePlayerRatingBefore = game.HomePlayer.Rating;
+                    game.AwayPlayerRatingBefore = game.AwayPlayer.Rating;
+                }
+
+                RatingCalculator.Current.CalculateNewRating(game.HomePlayerRatingBefore, game.AwayPlayerRatingBefore,
+                    gameResult, out homeRating, out awayRating);
+
+                game.HomePoints = ConvertPointsWon(gameResult, 1);
+                game.AwayPoints = ConvertPointsWon(gameResult, 2); ;
+                game.HomePlayerRatingAfter = homeRating;
+                game.AwayPlayerRatingAfter = awayRating;
+
+                game.HomePlayer.Rating = homeRating;
+                game.AwayPlayer.Rating = awayRating;
+
+                game.Completed = true;
+                game.CompletedDate = DateTime.Now;
+
+                _context.Update(game.HomePlayer);
+                _context.Update(game.AwayPlayer);
+
+                await LogRatingEvent(game.HomePlayer.PlayerId, game.HomePlayer.Rating, "game", "End of game result", false, game.GameId);
+                await LogRatingEvent(game.AwayPlayer.PlayerId, game.AwayPlayer.Rating, "game", "End of game result", false, game.GameId);
+
+            }
         }
 
         public async Task SyncExternalPlayer(int userId)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
             var player = await _context.Player.FirstOrDefaultAsync(p => p.UserId == userId);
+
+            var info = await _userManager.GetLoginsAsync(user);
+
+            if (info is not null)
+            {
+                var loginrec = info.Where(ul => ul.LoginProvider.Equals("Lichess")).FirstOrDefault();
+
+                if (loginrec is not null)
+                {
+                    user.LichessId = loginrec.ProviderKey;
+
+                    await _userManager.UpdateAsync(user);
+                }
+            }
 
             bool isPlayer = await _userManager.IsInRoleAsync(user, "Player");
 
@@ -193,8 +274,8 @@ namespace ADSBackend.Services
 
             var match = await _context.Match.Include(m => m.HomeSchool).ThenInclude(m => m.Season)
                 .Include(m => m.AwaySchool).ThenInclude(m => m.Season)
-                .Include(m => m.Games).ThenInclude(g => g.HomePlayer)
-                .Include(m => m.Games).ThenInclude(g => g.AwayPlayer)
+                .Include(m => m.Games).ThenInclude(g => g.HomePlayer).ThenInclude(p => p.User)
+                .Include(m => m.Games).ThenInclude(g => g.AwayPlayer).ThenInclude(p => p.User)
                 .Where(m => m.MatchId == id && m.HomeSchool.SeasonId == seasonId && 
                             (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId) )
                 .FirstOrDefaultAsync();
@@ -254,6 +335,23 @@ namespace ADSBackend.Services
             }
 
             return divisions;
+        }
+
+
+        public double ConvertPointsWon(GameResult result, int playerNumber)
+        {
+            if (result == GameResult.Draw) return 0.5;
+
+            if (playerNumber == 1)
+            {
+                if (result == GameResult.Player1Wins) return 1;
+            }
+            else
+            {
+                if (result == GameResult.Player2Wins) return 1;
+            }
+
+            return 0;
         }
     }
 }

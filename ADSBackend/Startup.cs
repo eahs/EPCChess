@@ -89,6 +89,9 @@ namespace ADSBackend
             services.AddTransient<Services.ITokenRefresher, Services.TokenRefresher>();
             services.AddScoped<RefreshTokenFilter>();
 
+            services.AddSingleton<IHostedService, GameMonitor>();
+
+
             services.AddSession(options =>
             {
                 // Set a short timeout for easy testing.

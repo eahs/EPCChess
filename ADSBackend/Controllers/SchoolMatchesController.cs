@@ -403,6 +403,9 @@ namespace ADSBackend.Controllers
 
             gameResult = (GameResult)result;
 
+            await _dataService.UpdateAndLogRatingCalculations(game, gameResult);
+
+            /*
             if (gameResult == GameResult.Reset)
             {
                 game.HomePoints = 0;
@@ -464,6 +467,7 @@ namespace ADSBackend.Controllers
                 await _dataService.LogRatingEvent(game.AwayPlayer.PlayerId, game.AwayPlayer.Rating, "game", "End of game result", false, game.GameId);
 
             }
+            */
 
             _context.Update(game);
             await _context.SaveChangesAsync();

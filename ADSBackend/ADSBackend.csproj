@@ -56,4 +56,8 @@
     <ProjectReference Include="..\..\LichessApi\LichessApi\LichessApi.Web\LichessApi.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\lib\chessboardjs\" />
+  </ItemGroup>
+
 </Project>

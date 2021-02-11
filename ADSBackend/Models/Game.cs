@@ -43,6 +43,9 @@ namespace ADSBackend.Models
         public string CurrentFen { get; set; } = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         public DateTime LastMove { get; set; }
         public DateTime LastGameExportTime { get; set; } = DateTime.Now.AddDays(-5);
+        public bool CheatingDetected { get; set; } = false;
+        public string ChallengeStatus { get; set; } = "";
+        public string ChallengeMoves { get; set; } = "";
 
         [NotMapped]
         public ChallengeResponse LiChallenge { get; set; }  // Lichess Api object representation of ChallengeJson

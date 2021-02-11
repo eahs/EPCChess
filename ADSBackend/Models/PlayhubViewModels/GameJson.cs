@@ -12,7 +12,8 @@ namespace ADSBackend.Models.PlayhubViewModels
         /// </summary>
         public int MatchId { get; set; }
         public string GameId { get; set; }
-        public string GameUrl { get; set; }
+        public string ChallengeId { get; set; }
+        public string ChallengeUrl { get; set; }
 
         /// <summary>
         /// Current board position in Fen notation
@@ -28,5 +29,11 @@ namespace ADSBackend.Models.PlayhubViewModels
         public DateTime LastMoveAt { get; set; }
         public string WhitePlayerId { get; set; }
         public string BlackPlayerId { get; set; }
+        public string HomePlayerRating { get; set; }
+        public string AwayPlayerRating { get; set; }
+        public string HomePoints { get; set; }
+        public string AwayPoints { get; set; }
+        public bool IsStarted { get; set; } = false;
+        public bool Completed { get; set; } = false;
     }
 }

@@ -25,6 +25,7 @@ namespace ADSBackend.Models.Identity
         public string AccessToken { get; set; } = "";
         public string RefreshToken { get; set; } = "";
         public DateTime ExpiresAt { get; set; } = DateTime.Now;
+        public String LichessId { get; set; } = "";
 
         public virtual string GravitarHash()
         {

@@ -32,8 +32,9 @@ namespace ADSBackend.Services
         /// Refreshes the Api tokens for the given ApplicationUser
         /// </summary>
         /// <param name="user"></param>
+        /// <param name="signInUser"></param>
         /// <returns></returns>
-        public async Task RefreshTokens(ApplicationUser user, bool signInUser = false)
+        public async Task<bool> RefreshTokens(ApplicationUser user, bool signInUser = false)
         {
             var lichessAuthNSection = _configuration.GetSection("Authentication:Lichess");
 
@@ -84,7 +85,10 @@ namespace ADSBackend.Services
 
                 await _userManager.UpdateAsync(user);
 
+                return true;
             }
+
+            return false;
         }
     }
 }

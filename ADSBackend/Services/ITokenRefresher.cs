@@ -8,6 +8,6 @@ namespace ADSBackend.Services
 {
     public interface ITokenRefresher
     {
-        Task RefreshTokens(ApplicationUser user, bool signInUser = false);
+        Task<bool> RefreshTokens(ApplicationUser user, bool signInUser = false);
     }
 }

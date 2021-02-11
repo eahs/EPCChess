@@ -3,14 +3,16 @@ using System;
 using ADSBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ADSBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210209211322_LichessId")]
+    partial class LichessId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,17 +73,8 @@ namespace ADSBackend.Migrations
                     b.Property<string>("ChallengeJson")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<string>("ChallengeMoves")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<string>("ChallengeStatus")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
                     b.Property<string>("ChallengeUrl")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<bool>("CheatingDetected")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("Completed")
                         .HasColumnType("tinyint(1)");

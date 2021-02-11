@@ -125,6 +125,8 @@ namespace ADSBackend.Controllers
 
                     await _signInManager.SignInAsync(appUser, true);
 
+                    await _dataService.SyncExternalPlayer(appUser.Id);
+
                     return RedirectToAction(nameof(Index));
                 }
 
