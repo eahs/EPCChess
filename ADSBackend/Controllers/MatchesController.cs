@@ -74,7 +74,7 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MatchDate,HomeSchoolId,AwaySchoolId")] Match match)
+        public async Task<IActionResult> Create([Bind("MatchDate,HomeSchoolId,AwaySchoolId,IsVirtual")] Match match)
         {
             if (ModelState.IsValid)
             {
@@ -138,7 +138,7 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MatchId,MatchDate,HomeSchoolId,AwaySchoolId,Completed,HomePoints,AwayPoints")] Match match)
+        public async Task<IActionResult> Edit(int id, [Bind("MatchId,MatchDate,HomeSchoolId,AwaySchoolId,Completed,HomePoints,AwayPoints,IsVirtual")] Match match)
         {
             if (id != match.MatchId)
             {
@@ -157,6 +157,7 @@ namespace ADSBackend.Controllers
                     _match.Completed = match.Completed;
                     _match.HomePoints = match.HomePoints;
                     _match.AwayPoints = match.AwayPoints;
+                    _match.IsVirtual = match.IsVirtual;
 
                     _context.Update(_match);
                     await _context.SaveChangesAsync();

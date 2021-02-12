@@ -10,6 +10,7 @@ using ADSBackend.Models;
 using ADSBackend.Models.PlayhubViewModels;
 using ADSBackend.Util;
 using LichessApi;
+using LichessApi.Web;
 using LichessApi.Web.Api.Challenges.Response;
 using LichessApi.Web.Api.Games.Request;
 using LichessApi.Web.Entities.Enum;
@@ -99,45 +100,13 @@ namespace ADSBackend.Services
 
                                 foreach (var game in match.Games)
                                 {
-                                    if (!game.Completed && game.ChallengeId is not null)
+                                    if (!game.Completed && !String.IsNullOrEmpty(game.ChallengeId))
                                     {
                                         gameIds.Add(game.ChallengeId);
-
-                                        // Not sure if this is needed
-                                        if (game.ChallengeStatus.Equals("aborted"))
-                                        {
-                                            game.ChallengeId = null;
-                                            game.IsStarted = false;
-                                            game.ChallengeStatus = "";
-                                            game.ChallengeUrl = "";
-
-                                            context.Game.Update(game);
-                                            await context.SaveChangesAsync();
-                                        }
                                     }
                                     else if (game.Completed)
                                     {
-                                        GameJson gameJson = new GameJson
-                                        {
-                                            GameId = game.GameId.ToString(),
-                                            ChallengeId = game.ChallengeId,
-                                            Fen = game.CurrentFen,
-                                            ChallengeUrl = game.ChallengeUrl,
-                                            MatchId = game.MatchId,
-                                            Moves = game.ChallengeMoves.Split(" ").ToList(),
-                                            Status = game.ChallengeStatus,
-                                            IsStarted = game.IsStarted,
-                                            Completed = game.Completed,
-                                            LastMoveAt = game.LastMove,
-                                            BlackPlayerId = game.BoardPosition % 2 == 1 ? game.HomePlayer.User.LichessId : game.AwayPlayer.User.LichessId,
-                                            WhitePlayerId = game.BoardPosition % 2 == 0 ? game.HomePlayer.User.LichessId : game.AwayPlayer.User.LichessId,
-                                            HomePlayerRating = game.Completed ? $"{game.HomePlayerRatingBefore} -> {game.HomePlayerRatingAfter}" : $"{game.HomePlayerRatingAfter}",
-                                            AwayPlayerRating = game.Completed ? $"{game.AwayPlayerRatingBefore} -> {game.AwayPlayerRatingAfter}" : $"{game.AwayPlayerRatingAfter}",
-                                            HomePoints = game.HomePoints.ToString(),
-                                            AwayPoints = game.AwayPoints.ToString()
-                                        };
-
-                                        vm.Games.Add(gameJson);
+                                        vm.Games.Add(MapGameToJson(game));
                                     }
                                 }
 
@@ -154,106 +123,108 @@ namespace ADSBackend.Services
                                         Opening = true
                                     };
 
-                                    await foreach (LichessApi.Web.Models.Game ligame in client.Games.ExportGamesByIds(request, gameIds, cts.Token))
+                                    try
                                     {
-                                        // Remove this from the list
-                                        gameIds.Remove(ligame.Id);
-
-                                        Chess chess = new Chess();
-
-                                        if (!String.IsNullOrEmpty(ligame.Moves))
+                                        await foreach (LichessApi.Web.Models.Game ligame in client.Games.ExportGamesByIds(request, gameIds, cts.Token))
                                         {
-                                            chess.loadSAN(ligame.Moves);
-                                        }
+                                            // Remove this from the list
+                                            gameIds.Remove(ligame.Id);
 
-                                        var game = match.Games.FirstOrDefault(g => g.ChallengeId.Equals(ligame.Id));
+                                            Chess chess = new Chess();
 
-                                        if (game != null)
-                                        {
-                                            string fen = chess.Fen();
-
-                                            game.CurrentFen = fen;
-                                            game.LastMove = ligame.LastMoveAt;
-                                            game.ChallengeStatus = ligame.Status.ToEnumString();
-                                            game.ChallengeMoves = ligame.Moves ?? "";
-
-                                            // Result: 0 = Draw, 1 = Home Win, 2 = Away Win, 3 = Reset
-
-                                            if (ligame.Status == GameStatus.Timeout ||
-                                                ligame.Status == GameStatus.Aborted)
+                                            if (!String.IsNullOrEmpty(ligame.Moves))
                                             {
-                                                game.IsStarted = false;
-                                                game.CurrentFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-                                                game.ChallengeUrl = "";
-                                                game.ChallengeId = null;
-                                                game.ChallengeStatus = null;
-                                                game.CheatingDetected = false;
-                                            }
-                                            else if (ligame.Status == GameStatus.Started)
-                                            {
-                                                game.IsStarted = true;
-                                            }
-                                            else if (ligame.Status == GameStatus.Draw ||
-                                                     ligame.Status == GameStatus.Stalemate)
-                                            {
-                                                GameResult result = GameResult.Draw;
-
-                                                await dataService.UpdateAndLogRatingCalculations(game, result);
-                                            }
-                                            else if (ligame.Status == GameStatus.OutOfTime ||
-                                                     ligame.Status == GameStatus.Resign ||
-                                                     ligame.Status == GameStatus.Mate)
-                                            {
-                                                GameResult result = GameResult.Draw;
-
-                                                if (game.BoardPosition % 2 == 1)
+                                                try
                                                 {
-                                                    // black player is home, white player is away
-                                                    result = ligame.Winner.Equals("black") ? GameResult.Player1Wins : GameResult.Player2Wins;
+                                                    chess.loadSAN(ligame.Moves);
                                                 }
-                                                else
+                                                catch (Exception e)
                                                 {
-                                                    // white player is home, black player is away 
-                                                    result = ligame.Winner.Equals("white") ? GameResult.Player1Wins : GameResult.Player2Wins;
+                                                    Log.Error(e, "Error loading SAN {0}", ligame.Moves);
+                                                }
+                                            }
+
+                                            var game = match.Games.FirstOrDefault(g => g.ChallengeId.Equals(ligame.Id));
+
+                                            if (game != null)
+                                            {
+                                                string fen = chess.Fen();
+
+                                                game.CurrentFen = fen;
+                                                game.LastMove = ligame.LastMoveAt;
+                                                game.ChallengeStatus = ligame.Status.ToEnumString();
+                                                game.ChallengeMoves = ligame.Moves ?? "";
+
+                                                if (ligame.Status == GameStatus.Timeout ||
+                                                    ligame.Status == GameStatus.Aborted)
+                                                {
+                                                    ResetGame(game);
+                                                }
+                                                else if (ligame.Status == GameStatus.Started)
+                                                {
+                                                    game.IsStarted = true;
+                                                }
+                                                else if (ligame.Status == GameStatus.Draw ||
+                                                         ligame.Status == GameStatus.Stalemate)
+                                                {
+                                                    // Result: 0 = Draw, 1 = Home Win, 2 = Away Win, 3 = Reset
+                                                    GameResult result = GameResult.Draw;
+
+                                                    await dataService.UpdateAndLogRatingCalculations(game, result);
+
+                                                    game.Completed = true;
+                                                    game.CompletedDate = DateTime.Now;
+                                                }
+                                                else if (ligame.Status == GameStatus.OutOfTime ||
+                                                         ligame.Status == GameStatus.Resign ||
+                                                         ligame.Status == GameStatus.Mate)
+                                                {
+                                                    GameResult result = GameResult.Draw;
+
+                                                    if (game.BoardPosition % 2 == 1)
+                                                    {
+                                                        // black player is home, white player is away
+                                                        result = ligame.Winner.Equals("black") ? GameResult.Player1Wins : GameResult.Player2Wins;
+                                                    }
+                                                    else
+                                                    {
+                                                        // white player is home, black player is away 
+                                                        result = ligame.Winner.Equals("white") ? GameResult.Player1Wins : GameResult.Player2Wins;
+                                                    }
+
+                                                    await dataService.UpdateAndLogRatingCalculations(game, result);
+
+                                                    game.Completed = true;
+                                                    game.CompletedDate = DateTime.Now;
+                                                }
+                                                else if (ligame.Status == GameStatus.Cheat)
+                                                {
+                                                    game.CheatingDetected = true;
                                                 }
 
-                                                await dataService.UpdateAndLogRatingCalculations(game, result);
+                                                context.Game.Update(game);
+                                                await context.SaveChangesAsync();
+
+                                                // Add game to json output
+                                                vm.Games.Add(MapGameToJson(game));
                                             }
-                                            else if (ligame.Status == GameStatus.Cheat)
-                                            {
-                                                game.CheatingDetected = true;
-                                            }
 
-                                            context.Game.Update(game);
-                                            await context.SaveChangesAsync();
-
-                                            GameJson gameJson = new GameJson
-                                            {
-                                                GameId = game.GameId.ToString(),
-                                                ChallengeId = game.ChallengeId,
-                                                Fen = fen,
-                                                ChallengeUrl = game.ChallengeUrl,
-                                                MatchId = game.MatchId,
-                                                Moves = ligame.Moves.Split(" ").ToList(),
-                                                Status = ligame.Status.ToEnumString(),
-                                                BlackPlayerId = game.BoardPosition % 2 == 1 ? game.HomePlayer.User.LichessId : game.AwayPlayer.User.LichessId,
-                                                WhitePlayerId = game.BoardPosition % 2 == 0 ? game.HomePlayer.User.LichessId : game.AwayPlayer.User.LichessId,
-                                                LastMoveAt = game.LastMove,
-                                                IsStarted = game.IsStarted,
-                                                Completed = game.Completed,
-                                                HomePlayerRating = game.Completed ? $"{game.HomePlayerRatingBefore} -> {game.HomePlayerRatingAfter}" : $"{game.HomePlayerRatingAfter}",
-                                                AwayPlayerRating = game.Completed ? $"{game.AwayPlayerRatingBefore} -> {game.AwayPlayerRatingAfter}" : $"{game.AwayPlayerRatingAfter}",
-                                                HomePoints = game.HomePoints.ToString(),
-                                                AwayPoints = game.AwayPoints.ToString()
-                                            };
-
-                                            // Add game to json output
-                                            vm.Games.Add(gameJson);
                                         }
 
                                     }
+                                    catch (ApiInvalidRequest e)
+                                    {
+                                        Log.Error(e, "GameMonitor : Invalid Api request");
+                                    }
+                                    catch (ApiUnauthorizedException e)
+                                    {
+                                        Log.Error(e, "GameMonitor : Unauthorized request");
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Log.Error(e, "GameMonitor : Error occurred");
+                                    }
 
-                                    throw new Exception("Finish dealing with aborted challenge requests");
 
                                     // Are there any games that we didn't get responses back for?
                                     if (gameIds.Count > 0)
@@ -266,49 +237,24 @@ namespace ADSBackend.Services
                                             {
                                                 // This is to check for challenge games that are created but we would normally have to monitor
                                                 // by streaming events for every user
-                                                if (game.ChallengeStatus.Equals("created"))
+
+                                                // Game is created but we aren't getting status updates on it
+                                                var response = await client.Connector.SendRawRequest(new Uri(game.ChallengeUrl), HttpMethod.Get);
+                                                var body = response.Body.ToString();
+
+                                                if (body.Contains("Challenge canceled") ||
+                                                    body.Contains("Challenge declined"))
                                                 {
-                                                    // Game is created but we aren't getting status updates on it
-                                                    var response = await client.Connector.SendRawRequest(new Uri(game.ChallengeUrl), HttpMethod.Get);
-                                                    var body = response.Body.ToString();
+                                                    ResetGame(game);
 
-                                                    if (body.Contains("Challenge canceled") ||
-                                                        body.Contains("Challenge declined"))
-                                                    {
-                                                        game.IsStarted = false;
-                                                        game.Completed = false;
-                                                        game.CurrentFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-                                                        game.ChallengeUrl = "";
-                                                        game.ChallengeId = null;
-                                                        game.ChallengeStatus = null;
-                                                        game.CheatingDetected = false;
+                                                    context.Game.Update(game);
 
-                                                        context.Game.Update(game);
+                                                    await context.SaveChangesAsync();
 
-                                                        GameJson gameJson = new GameJson
-                                                        {
-                                                            GameId = game.GameId.ToString(),
-                                                            ChallengeId = game.ChallengeId,
-                                                            Fen = game.CurrentFen,
-                                                            ChallengeUrl = game.ChallengeUrl,
-                                                            MatchId = game.MatchId,
-                                                            Moves = new List<string>(),
-                                                            Status = game.ChallengeStatus,
-                                                            BlackPlayerId = game.BoardPosition % 2 == 1 ? game.HomePlayer.User.LichessId : game.AwayPlayer.User.LichessId,
-                                                            WhitePlayerId = game.BoardPosition % 2 == 0 ? game.HomePlayer.User.LichessId : game.AwayPlayer.User.LichessId,
-                                                            LastMoveAt = game.LastMove,
-                                                            IsStarted = game.IsStarted,
-                                                            Completed = game.Completed,
-                                                            HomePlayerRating = game.Completed ? $"{game.HomePlayerRatingBefore} -> {game.HomePlayerRatingAfter}" : $"{game.HomePlayerRatingAfter}",
-                                                            AwayPlayerRating = game.Completed ? $"{game.AwayPlayerRatingBefore} -> {game.AwayPlayerRatingAfter}" : $"{game.AwayPlayerRatingAfter}",
-                                                            HomePoints = game.HomePoints.ToString(),
-                                                            AwayPoints = game.AwayPoints.ToString()
-                                                        };
-
-                                                        // Add game to json output
-                                                        vm.Games.Add(gameJson);
-                                                    }
+                                                    // Add game to json output
+                                                    vm.Games.Add(MapGameToJson(game));
                                                 }
+                                                
                                             }
                                         }
                                     }
@@ -345,6 +291,43 @@ namespace ADSBackend.Services
                     return;
                 }
             }
+        }
+
+        private void ResetGame(Game game)
+        {
+            game.IsStarted = false;
+            game.Completed = false;
+            game.CurrentFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+            game.ChallengeUrl = "";
+            game.ChallengeId = null;
+            game.ChallengeStatus = null;
+            game.CheatingDetected = false;
+            game.ChallengeMoves = "";
+        }
+
+        private GameJson MapGameToJson (Game game)
+        {
+            GameJson gameJson = new GameJson
+            {
+                GameId = game.GameId.ToString(),
+                MatchId = game.MatchId,
+                ChallengeId = game.ChallengeId,
+                Fen = game.CurrentFen,
+                ChallengeUrl = game.ChallengeUrl,
+                Moves = game.ChallengeMoves.Split(" ").ToList(),
+                Status = game.ChallengeStatus,
+                BlackPlayerId = game.BoardPosition % 2 == 1 ? game.HomePlayer.User.LichessId : game.AwayPlayer.User.LichessId,
+                WhitePlayerId = game.BoardPosition % 2 == 0 ? game.HomePlayer.User.LichessId : game.AwayPlayer.User.LichessId,
+                LastMoveAt = game.LastMove,
+                IsStarted = game.IsStarted,
+                Completed = game.Completed,
+                HomePlayerRating = game.Completed ? $"{game.HomePlayerRatingBefore} -> {game.HomePlayerRatingAfter}" : $"{game.HomePlayerRatingAfter}",
+                AwayPlayerRating = game.Completed ? $"{game.AwayPlayerRatingBefore} -> {game.AwayPlayerRatingAfter}" : $"{game.AwayPlayerRatingAfter}",
+                HomePoints = game.HomePoints.ToString(),
+                AwayPoints = game.AwayPoints.ToString()
+            };
+
+            return gameJson;
         }
 
     }

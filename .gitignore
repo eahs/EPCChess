@@ -298,6 +298,6 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 
-ADSBackend/Util/TwitterConfigSecrets\.cs
+ADSBackend/Logs/20*
 
 ADSBackend/appsettings.json

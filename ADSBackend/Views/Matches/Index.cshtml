@@ -20,6 +20,9 @@
                     <th style="width: 1%; white-space: nowrap" class="text-center">
                         @Html.DisplayNameFor(model => model.Completed)
                     </th>
+                    <th style="width: 1%; white-space: nowrap" class="text-center">
+                        @Html.DisplayNameFor(model => model.IsVirtual)
+                    </th>
                     <th>
                         Matchup (Home vs Away)
                     </th>
@@ -32,28 +35,35 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.MatchDate)
-                        </td>
-                        <td class="text-center">
-                            <div class="i-checks">
-                                <label>
-                                    @Html.DisplayFor(modelItem => item.Completed)
-                                </label>
-                            </div>
-                        </td>
-                        <td style="vertical-align: middle">
-                            @Html.DisplayFor(modelItem => item.HomeSchool.ShortName) vs
-                            @Html.DisplayFor(modelItem => item.AwaySchool.ShortName) 
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.HomePoints) - @Html.DisplayFor(modelItem => item.AwayPoints)
-                        </td>
-                        <td>
-                            @await Html.PartialAsync("_CrudOptions", item.MatchId)
-                        </td>
-                    </tr>
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.MatchDate)
+                    </td>
+                    <td class="text-center">
+                        <div class="i-checks">
+                            <label>
+                                @Html.DisplayFor(modelItem => item.Completed)
+                            </label>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <div class="i-checks">
+                            <label>
+                                @Html.DisplayFor(modelItem => item.IsVirtual)
+                            </label>
+                        </div>
+                    </td>
+                    <td style="vertical-align: middle">
+                        @Html.DisplayFor(modelItem => item.HomeSchool.ShortName) vs
+                        @Html.DisplayFor(modelItem => item.AwaySchool.ShortName)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.HomePoints) - @Html.DisplayFor(modelItem => item.AwayPoints)
+                    </td>
+                    <td>
+                        @await Html.PartialAsync("_CrudOptions", item.MatchId)
+                    </td>
+                </tr>
                 }
             </tbody>
         </table>

@@ -102,10 +102,10 @@ namespace ADSBackend.Util
 
         private static readonly int RANK_1 = 7;
         private static readonly int RANK_2 = 6;
-        private static int RANK_3 = 5;
-        private static int RANK_4 = 4;
-        private static int RANK_5 = 3;
-        private static int RANK_6 = 2;
+        //private static int RANK_3 = 5;
+        //private static int RANK_4 = 4;
+        //private static int RANK_5 = 3;
+        //private static int RANK_6 = 2;
         private static readonly int RANK_7 = 1;
         private static readonly int RANK_8 = 0;
 
@@ -177,7 +177,7 @@ namespace ADSBackend.Util
         /// Loads a game from SAN notation
         /// ex. d4 d5 c4 c6 Nc3 e6 e4 Nd7 exd5 cxd5 cxd5 exd5 Nxd5 Nb6 Bb5+ Bd7 Qe2+
         /// </summary>
-        /// <param name="san"></param>
+        /// <param name="notation"></param>
         public void loadSAN(string notation)
         {
             List<string> moves = notation.Split(' ').ToList();

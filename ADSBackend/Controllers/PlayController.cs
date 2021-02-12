@@ -26,14 +26,16 @@ namespace ADSBackend.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly DataService _dataService;
         private readonly ITokenRefresher _tokenRefresher;
         private readonly IHubContext<GameHub> _hubContext;
 
-        public PlayController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, DataService dataService, ITokenRefresher tokenRefresher, IHubContext<GameHub> hubContext)
+        public PlayController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, DataService dataService, ITokenRefresher tokenRefresher, IHubContext<GameHub> hubContext)
         {
             _context = context;
             _userManager = userManager;
+            _signInManager = signInManager;
             _dataService = dataService;
             _tokenRefresher = tokenRefresher;
             _hubContext = hubContext;
@@ -112,15 +114,14 @@ namespace ADSBackend.Controllers
 
             userRefreshed = await _tokenRefresher.RefreshTokens(user, false);
             awayRefreshed = await _tokenRefresher.RefreshTokens(awayUser, false);
-
+            
             if (!userRefreshed)
             {
                 Log.Information("User access token expired");
 
-                return RedirectToAction("Logout", "Account");
+                await _signInManager.SignOutAsync();
+                return RedirectToAction(nameof(AdminController.Index), "Home");
             }
-
-            awayRefreshed = false;
 
             GameJson gameJson = new GameJson
             {
@@ -232,7 +233,8 @@ namespace ADSBackend.Controllers
 
                 // This likely happens if the user AccessToken expires and Refresh fails
 
-                return RedirectToAction("Logout", "Account");
+                await _signInManager.SignOutAsync();
+                return RedirectToAction(nameof(AdminController.Index), "Home");
             }
 
             return Redirect(game.ChallengeUrl);

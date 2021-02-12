@@ -2,8 +2,22 @@
     ViewData["Title"] = "Home Page";
 }
 
+<div class="jumbotron">
+    <div class="row">
+        <div class="col-lg-2">
+            <img src="~/images/epclogo.png" class="img-responsive" style="padding: 10px; max-height: 250px;"/>
+        </div>
+        <div class="col-lg-7">
+            <h1 class="display-4">Eastern Pennsylvania Conference</h1>
+            <p class="lead">Welcome to the competition site for the EPC.  Logging in will require a Lichess account and a join code that was provided by your coach.</p>
+            <hr class="my-4">
+            <p class="lead">
+                <a asp-controller="Admin" asp-action="Index" class="btn btn-success btn-lg">Click Here to Login</a>
+            </p>
+        </div>
+    </div>
+</div>
+
 <div class="text-center">
-    <h1 class="display-4">EPC Chess Manager</h1>
-    
-    <a asp-controller="Admin" asp-action="Index" class="btn btn-success">Click Here to Login</a>
+    <a href="https://lichess.org/" style="font-size: 14px" target="_blank">Lichess</a>
 </div>

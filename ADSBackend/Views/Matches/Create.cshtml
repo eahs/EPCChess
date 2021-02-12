@@ -13,6 +13,15 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
+                <div class="checkbox">
+                    <div class="i-checks">
+                        <label>
+                            <input asp-for="IsVirtual" /> @Html.DisplayNameFor(model => model.IsVirtual)
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
                 <label asp-for="MatchDate" class="control-label"></label>
                 <input asp-for="MatchDate" class="form-control" />
                 <span asp-validation-for="MatchDate" class="text-danger"></span>
@@ -36,6 +45,27 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+@section Styles {
+    <link href="~/lib/inspinia/plugins/iCheck/custom.css" rel="stylesheet">
+
+    <style type="text/css">
+        .checkbox label {
+            font-size: 1.2em;
+            padding-left: 0px;
+        }
+    </style>
+
+}
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script src="~/lib/inspinia/plugins/iCheck/icheck.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green'
+            });
+        });
+    </script>
 }
