@@ -16,7 +16,7 @@
 <h2>@ViewBag.School.Name Players</h2>
 
 <p>
-    <a asp-action="Create" class="btn btn-w-m btn-primary">Create New</a>
+    <button type="button" id="createNew" class="btn btn-w-m btn-primary">Create New</button>
 </p>
 <div class="ibox">
     <div class="ibox-content">
@@ -57,3 +57,29 @@
         </table>
     </div>
 </div>
+
+@section Scripts {
+
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script type="text/javascript">
+
+        $("#createNew").click(createNewStudent);
+
+        function createNewStudent() {
+            swal({
+                    title: "Are you sure you want to create a player?",
+                    text: "Players created manually cannot participate in virtual matches or log in. It is preferred to allow them to login via Lichess and add themselves to your school with a join code.",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                })
+                .then((choice) => {
+                    if (choice) {
+                        window.location.href = '/Players/Create';
+                    }
+                });
+        }
+
+    </script>
+}

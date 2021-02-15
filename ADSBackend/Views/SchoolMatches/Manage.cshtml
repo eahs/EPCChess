@@ -49,51 +49,6 @@
         }
 
 
-        <!--
-    <table class="table-bordered table-hover">
-        <thead>
-        <th colspan="1"></th>
-        <th colspan="1">@Model.HomeSchool.ShortName</th>
-        <th></th>
-        <th colspan="1">@Model.AwaySchool.ShortName</th>
-        </thead>
-        <tr>
-            <td style="width:1%">Brd</td>
-            <td>Home</td>
-            <td style="width:1%">Result</td>
-            <td>Away</td>
-        </tr>
-        @foreach (var game in Model.Games)
-        {
-            <tr>
-                <td class="text-center" style="width:1%">@game.BoardPosition</td>
-                <td>
-                    @(game.HomePlayerFullName)<br />
-                    @if (game.HomePlayer != null && Model.MatchStarted)
-                    {
-                        <span class="chessrating">@(game.HomePlayerGameRating)</span>
-                    }
-                    else if (game.HomePlayer != null)
-                    {
-                        <span class="chessrating">(@(game.HomePlayer.Rating))</span>
-                    }
-                </td>
-                <td class="text-center">@game.HomePoints-@game.AwayPoints</td>
-                <td>
-                    @(game.AwayPlayerFullName)<br />
-                    @if (game.AwayPlayer != null && Model.MatchStarted)
-                    {
-                        <span class="chessrating">@(game.AwayPlayerGameRating)</span>
-                    }
-                    else if (game.AwayPlayer != null)
-                    {
-                        <span class="chessrating">(@(game.AwayPlayer.Rating))</span>
-                    }
-                </td>
-            </tr>
-        }
-    </table>
-    -->
         @foreach (var game in Model.Games)
         {
             @if (!Model.MatchStarted || (Model.MatchStarted && (game.HomePlayer != null || game.AwayPlayer != null)))
@@ -123,7 +78,7 @@
 
                         <table>
                             <tr>
-                                <td width="190" style="vertical-align: middle; text-align: center">
+                                <td width="250" style="vertical-align: middle; text-align: center">
                                     @if (game.HomePlayer != null && Model.MatchStarted)
                                     {
                                         @(game.HomePlayerFullName)

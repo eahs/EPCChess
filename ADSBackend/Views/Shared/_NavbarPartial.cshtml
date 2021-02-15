@@ -12,6 +12,7 @@
     var adminClass = "";
     var conferenceClass = "";
     var playClass = "";
+    var infoClass = "";
 
 
     switch (handlingController)
@@ -36,8 +37,10 @@
         case "Users": adminClass = "active"; break;
         case "Configuration": adminClass = "active"; break;
 
+        // Info
+        case "Info": infoClass = "active"; break;
     }
-            }
+ }
 
 <nav class="navbar-default navbar-static-side" role="navigation">
     <div class="sidebar-collapse">
@@ -49,7 +52,7 @@
                 <li class="nav-header">
                     <div class="dropdown profile-element">
                         <span>
-                            <img class="img-circle" src="https://www.gravatar.com/avatar/@user.GravitarHash()?d=identicon" />
+                            <a asp-controller="Admin" asp-action="Index"><img class="img-responsive center-block" src="/images/epclogo.png" style="width: 64px; margin-bottom: 5px"></a> 
                         </span>
                         <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                             <span class="clear">
@@ -144,6 +147,19 @@
 
                     }
                 }
+
+                <li id="nav_admin" class="@infoClass">
+                    <a href="#"><i class="fa fa-gavel"></i> <span class="nav-label">EPC Information </span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li is-active-route asp-controller="Info" asp-action="Rules">
+                            <a asp-controller="Info" asp-action="Rules">League Rules</a>
+                        </li>
+                        <li is-active-route asp-controller="Info" asp-action="VirtualRules">
+                            <a asp-controller="Info" asp-action="VirtualRules">Virtual Rules</a>
+                        </li>
+                    </ul>
+                </li>
+
             }
             else
             {

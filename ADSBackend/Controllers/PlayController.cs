@@ -13,6 +13,7 @@ using ADSBackend.Services;
 using LichessApi;
 using LichessApi.Web.Api.Challenges.Request;
 using LichessApi.Web.Entities.Enum;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ using Serilog;
 
 namespace ADSBackend.Controllers
 {
+    [Authorize(Roles = "Admin,Advisor,Player")]
     public class PlayController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -141,6 +143,14 @@ namespace ADSBackend.Controllers
                 AwayPoints = game.AwayPoints.ToString()
             };
 
+            // If JV, colors are swapped
+            if (game.BoardPosition > 7)
+            {
+                string temp = gameJson.BlackPlayerId;
+                gameJson.BlackPlayerId = gameJson.WhitePlayerId;
+                gameJson.WhitePlayerId = temp;
+            }
+
             bool challengeCreated = false;
 
             LichessApi.LichessApiClient client = new LichessApiClient(user.AccessToken);
@@ -157,6 +167,19 @@ namespace ADSBackend.Controllers
                     Fen = game.CurrentFen,
                     Message = "Your EPC team game with {opponent} is ready: {game}."
                 };
+
+                // Jv board colors are swapped
+                if (game.BoardPosition > 7)
+                {
+                    if (request.Color == Color.White)
+                    {
+                        request.Color = Color.Black;
+                    }
+                    else
+                    {
+                        request.Color = Color.White;
+                    }
+                }
 
                 try
                 {
@@ -190,6 +213,19 @@ namespace ADSBackend.Controllers
                     Fen = game.CurrentFen,
                     Message = "Your EPC team game with {opponent} is ready: {game}."
                 };
+
+                // Jv board colors are swapped
+                if (game.BoardPosition > 7)
+                {
+                    if (request.Color == Color.White)
+                    {
+                        request.Color = Color.Black;
+                    }
+                    else
+                    {
+                        request.Color = Color.White;
+                    }
+                }
 
                 try
                 {

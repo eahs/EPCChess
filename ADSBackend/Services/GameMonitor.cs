@@ -14,6 +14,7 @@ using LichessApi.Web;
 using LichessApi.Web.Api.Challenges.Response;
 using LichessApi.Web.Api.Games.Request;
 using LichessApi.Web.Entities.Enum;
+using LichessApi.Web.Exceptions;
 using LichessApi.Web.Util;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -125,7 +126,8 @@ namespace ADSBackend.Services
 
                                     try
                                     {
-                                        await foreach (LichessApi.Web.Models.Game ligame in client.Games.ExportGamesByIds(request, gameIds, cts.Token))
+                                        await foreach (LichessApi.Web.Models.Game ligame in client.Games
+                                            .ExportGamesByIds(request, gameIds, cts.Token))
                                         {
                                             // Remove this from the list
                                             gameIds.Remove(ligame.Id);
@@ -184,12 +186,30 @@ namespace ADSBackend.Services
                                                     if (game.BoardPosition % 2 == 1)
                                                     {
                                                         // black player is home, white player is away
-                                                        result = ligame.Winner.Equals("black") ? GameResult.Player1Wins : GameResult.Player2Wins;
+                                                        result = ligame.Winner.Equals("black")
+                                                            ? GameResult.Player1Wins
+                                                            : GameResult.Player2Wins;
                                                     }
                                                     else
                                                     {
                                                         // white player is home, black player is away 
-                                                        result = ligame.Winner.Equals("white") ? GameResult.Player1Wins : GameResult.Player2Wins;
+                                                        result = ligame.Winner.Equals("white")
+                                                            ? GameResult.Player1Wins
+                                                            : GameResult.Player2Wins;
+                                                    }
+
+                                                    // Everything beyond board 7 has flipped colors
+                                                    if (game.BoardPosition > 7)
+                                                    {
+                                                        if (result == GameResult.Player1Wins)
+                                                        {
+                                                            result = GameResult.Player2Wins;
+                                                        }
+                                                        else
+                                                        {
+                                                            result = GameResult.Player1Wins;
+                                                        }
+                                                        
                                                     }
 
                                                     await dataService.UpdateAndLogRatingCalculations(game, result);
@@ -212,13 +232,18 @@ namespace ADSBackend.Services
                                         }
 
                                     }
-                                    catch (ApiInvalidRequest e)
+                                    catch (ApiInvalidRequestException e)
                                     {
                                         Log.Error(e, "GameMonitor : Invalid Api request");
                                     }
                                     catch (ApiUnauthorizedException e)
                                     {
                                         Log.Error(e, "GameMonitor : Unauthorized request");
+                                    }
+                                    catch (ApiRateLimitExceededException e)
+                                    {
+                                        Log.Error(e, "GameMonitor: All requests are rate limited using various strategies, to ensure the API remains responsive for everyone. Only make one request at a time. If you receive an HTTP response with a 429 status, please wait a full minute before resuming API usage.");
+                                        await Task.Delay(60 * 1000);  // Wait 60 seconds due to rate limit exceeded
                                     }
                                     catch (Exception e)
                                     {
@@ -326,6 +351,14 @@ namespace ADSBackend.Services
                 HomePoints = game.HomePoints.ToString(),
                 AwayPoints = game.AwayPoints.ToString()
             };
+
+            // If JV, colors are swapped
+            if (game.BoardPosition > 7)
+            {
+                string temp = gameJson.BlackPlayerId;
+                gameJson.BlackPlayerId = gameJson.WhitePlayerId;
+                gameJson.WhitePlayerId = temp;
+            }
 
             return gameJson;
         }

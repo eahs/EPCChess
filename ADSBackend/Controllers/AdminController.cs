@@ -98,7 +98,7 @@ namespace ADSBackend.Controllers
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && !String.IsNullOrEmpty(model.JoinCode))
             {
                 model.JoinCode = model.JoinCode.ToUpper();
 

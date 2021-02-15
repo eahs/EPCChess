@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using ADSBackend.Hubs;
 using ADSBackend.Util;
 using AspNet.Security.OAuth.Lichess;
+using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 
 namespace ADSBackend
@@ -70,6 +71,12 @@ namespace ADSBackend
 
             });
 
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders =
+                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
+
             services.AddDataProtection()
                 .PersistKeysToDbContext<ApplicationDbContext>();
 
@@ -99,6 +106,7 @@ namespace ADSBackend
                 options.Cookie.HttpOnly = true;
                 // Make the session cookie essential
                 options.Cookie.IsEssential = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             });
 
 
@@ -130,6 +138,7 @@ namespace ADSBackend
             // https://www.thinktecture.com/identity/samesite/prepare-your-identityserver/
             services.Configure<CookiePolicyOptions>(options =>
             {
+                options.Secure = CookieSecurePolicy.Always;
                 options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
                 options.OnAppendCookie = cookieContext =>
                     CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
@@ -198,6 +207,7 @@ namespace ADSBackend
             app.UseRouting();
             app.UseStaticFiles();
 
+            app.UseForwardedHeaders();
 
             // global cors policy
             app.UseCors(x => x

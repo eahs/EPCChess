@@ -66,7 +66,7 @@ namespace ADSBackend.Controllers
 
             ViewBag.Schools = new SelectList(schools, "SchoolId", "Name");
 
-            return View();
+            return View(new Match());
         }
 
         // POST: Matches/Create
@@ -74,7 +74,7 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MatchDate,HomeSchoolId,AwaySchoolId,IsVirtual")] Match match)
+        public async Task<IActionResult> Create([Bind("MatchDate,HomeSchoolId,AwaySchoolId,IsVirtual,ClockIncrement,ClockTimeLimit")] Match match)
         {
             if (ModelState.IsValid)
             {
@@ -86,7 +86,7 @@ namespace ADSBackend.Controllers
 
                 await _context.SaveChangesAsync();
 
-                for (int board = 1; board <= 10; board++)
+                for (int board = 1; board <= 12; board++)
                 {
                     Game g = new Game
                     {
@@ -138,7 +138,7 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MatchId,MatchDate,HomeSchoolId,AwaySchoolId,Completed,HomePoints,AwayPoints,IsVirtual")] Match match)
+        public async Task<IActionResult> Edit(int id, [Bind("MatchId,MatchDate,HomeSchoolId,AwaySchoolId,Completed,HomePoints,AwayPoints,IsVirtual,ClockIncrement,ClockTimeLimit")] Match match)
         {
             if (id != match.MatchId)
             {
@@ -158,6 +158,8 @@ namespace ADSBackend.Controllers
                     _match.HomePoints = match.HomePoints;
                     _match.AwayPoints = match.AwayPoints;
                     _match.IsVirtual = match.IsVirtual;
+                    _match.ClockIncrement = match.ClockIncrement;
+                    _match.ClockTimeLimit = match.ClockTimeLimit;
 
                     _context.Update(_match);
                     await _context.SaveChangesAsync();
