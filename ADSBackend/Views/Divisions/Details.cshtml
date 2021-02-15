@@ -8,7 +8,7 @@
     <li class="breadcrumb-item">
         <a asp-controller="Admin" asp-action="Index">Home</a>
     </li>
-    <li>
+    <li class="breadcrumb-item">
         <a asp-controller="Divisions" asp-action="Index">Divisions</a>
     </li>
     <li class="breadcrumb-item active">
@@ -18,18 +18,21 @@
 
 <h2>Details</h2>
 
-<div class="row">
+
     <div class="ibox">
         <div class="ibox-content">
-            <dl class="dl-horizontal">
-                <dt>
-                    @Html.DisplayNameFor(model => model.Name)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.Name)
-                </dd>
-            </dl>
-        </div>
+            <div class="row">
+                <div class="col-lg-5">
+                    <dl class="dl-horizontal">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.Name)
+                        </dt>
+                        <dd>
+                            @Html.DisplayFor(model => model.Name)
+                        </dd>
+                    </dl>
+                </div>
+            </div>
     </div>
 </div>
 

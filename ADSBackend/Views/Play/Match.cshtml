@@ -292,7 +292,7 @@
                             var awayplayerresult = prefix + "apresult";
 
                             if (game.isStarted) {
-                                $(linkid).attr("href", game.challengeUrl); 
+                                $(linkid).attr("href", game.challengeUrl);
                                 $(linkid).show();
                                 $(statusid).hide();
                             } else {
@@ -317,8 +317,8 @@
                                 $(linkid).hide();
                                 $(statusid).show();
                             }
-                            
-                                
+
+
                         });
                     }
                 }
@@ -363,7 +363,10 @@
             position: 'start'
         }
 
-        @Html.Raw(gameInitCode)
+        @if (Model.Match.MatchStarted)
+        {
+            @Html.Raw(gameInitCode)
+        }
 
     </script>
 } 

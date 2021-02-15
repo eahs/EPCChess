@@ -8,7 +8,7 @@
     <li class="breadcrumb-item">
         <a asp-controller="Admin" asp-action="Index">Home</a>
     </li>
-    <li>
+    <li class="breadcrumb-item">
         <a asp-controller="Schools" asp-action="Index">Schools</a>
     </li>
     <li class="breadcrumb-item active">
@@ -20,13 +20,14 @@
 
 <hr />
 <div class="row">
-    <div class="ibox">
+    <div class="col-lg-12">
+        <div class="ibox">
             <div class="ibox-title"><h4>School</h4></div>
             <div class="ibox-content">
-                <div class="col-md-4" style="float:none">
+                <div class="col-md-4" style="float: none">
                     <form asp-action="Edit">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        <input type="hidden" asp-for="SchoolId" />
+                        <input type="hidden" asp-for="SchoolId"/>
                         <div class="form-group">
                             <select asp-for="SeasonId" asp-items="ViewBag.Seasons" class="form-control"></select>
                         </div>
@@ -35,43 +36,44 @@
                         </div>
                         <div class="form-group">
                             <label asp-for="Name" class="control-label"></label>
-                            <input asp-for="Name" class="form-control" />
+                            <input asp-for="Name" class="form-control"/>
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             <label asp-for="ShortName" class="control-label"></label>
-                            <input asp-for="ShortName" maxlength="12" class="form-control" />
+                            <input asp-for="ShortName" maxlength="12" class="form-control"/>
                             <span asp-validation-for="ShortName" class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             <label asp-for="Abbreviation" class="control-label"></label>
-                            <input asp-for="Abbreviation" maxlength="2" class="form-control" />
+                            <input asp-for="Abbreviation" maxlength="2" class="form-control"/>
                             <span asp-validation-for="Abbreviation" class="text-danger"></span>
                         </div>
 
                         <div class="form-group">
                             <label asp-for="AdvisorName" class="control-label"></label>
-                            <input asp-for="AdvisorName" class="form-control" />
+                            <input asp-for="AdvisorName" class="form-control"/>
                             <span asp-validation-for="AdvisorName" class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             <label asp-for="AdvisorEmail" class="control-label"></label>
-                            <input asp-for="AdvisorEmail" class="form-control" />
+                            <input asp-for="AdvisorEmail" class="form-control"/>
                             <span asp-validation-for="AdvisorEmail" class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             <label asp-for="AdvisorPhoneNumber" class="control-label"></label>
-                            <input asp-for="AdvisorPhoneNumber" class="form-control" data-mask="(999) 999-9999" placeholder="" />
+                            <input asp-for="AdvisorPhoneNumber" class="form-control" data-mask="(999) 999-9999" placeholder=""/>
                             <span asp-validation-for="AdvisorPhoneNumber" class="text-danger"></span>
                         </div>
 
                         <div class="form-group">
-                            <input type="submit" value="Save" class="btn btn-default" />
+                            <input type="submit" value="Save" class="btn btn-success"/>
                         </div>
                     </form>
                 </div>
-               
+
             </div>
+        </div>
     </div>
 </div>
 

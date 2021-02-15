@@ -37,10 +37,10 @@
     <li class="breadcrumb-item">
         <a asp-controller="Admin" asp-action="Index">Home</a>
     </li>
-    <li>
+    <li class="breadcrumb-item">
         <a asp-controller="SchoolMatches" asp-action="Index">Matches</a>
     </li>
-    <li>
+    <li class="breadcrumb-item">
         <a asp-controller="SchoolMatches" asp-action="Manage" asp-route-id="@Model.MatchId">@Model.HomeSchool.ShortName vs @Model.AwaySchool.ShortName</a>
     </li>
     <li class="breadcrumb-item active">

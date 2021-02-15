@@ -1,4 +1,4 @@
 [
-  { "Name": "Skyline" },
-  { "Name": "Steel" }
+  { "Name": "Skyline", "SeasonId":  3 },
+  { "Name": "Steel", "SeasonId":  3 }
 ]

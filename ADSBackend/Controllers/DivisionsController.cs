@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ADSBackend.Data;
 using ADSBackend.Models;
 using Microsoft.AspNetCore.Authorization;
+using ADSBackend.Services;
 
 namespace ADSBackend.Controllers
 {
@@ -15,16 +16,20 @@ namespace ADSBackend.Controllers
     public class DivisionsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly DataService _dataService;
 
-        public DivisionsController(ApplicationDbContext context)
+        public DivisionsController(ApplicationDbContext context, DataService dataService)
         {
             _context = context;
+            _dataService = dataService;
         }
 
         // GET: Divisions
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Division.ToListAsync());
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
+            return View(await _context.Division.Where(d => d.SeasonId == currentSeason).ToListAsync());
         }
 
         // GET: Divisions/Details/5
@@ -58,8 +63,12 @@ namespace ADSBackend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("DivisionId,Name")] Division division)
         {
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
             if (ModelState.IsValid)
             {
+                division.SeasonId = currentSeason;
+
                 _context.Add(division);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

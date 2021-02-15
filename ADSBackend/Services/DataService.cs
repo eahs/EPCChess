@@ -296,7 +296,7 @@ namespace ADSBackend.Services
 
         public async Task<List<Division>> GetDivisionStandingsAsync (int seasonId)
         {
-            var divisions = await _context.Division.OrderBy(d => d.Name).ToListAsync();
+            var divisions = await _context.Division.Where(d => d.SeasonId == seasonId).OrderBy(d => d.Name).ToListAsync();
 
             Dictionary<int, School> scores = new Dictionary<int, School>();  // Maps schoolId to School
 

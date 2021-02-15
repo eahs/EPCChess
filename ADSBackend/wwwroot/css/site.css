@@ -35,7 +35,7 @@ body {
 }
 
 .ibox-title {
-    border-color: #5697c2;
+    border-top-color: #5697c2;
     background-color: #fcfcfc;
 }
 
@@ -60,4 +60,8 @@ body {
 
 .nav > li {
     font-size: 13px;
+}
+
+.gray-bg {
+    background: #eeeef3;
 }

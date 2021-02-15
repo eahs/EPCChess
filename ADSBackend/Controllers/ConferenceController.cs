@@ -37,6 +37,8 @@ namespace ADSBackend.Controllers
 
             var divisions = await _dataService.GetDivisionStandingsAsync(currentSeason);
 
+            divisions = divisions.Where(d => d.Schools.Count > 0).ToList();
+
             var matches = await _context.Match.Include(m => m.HomeSchool).ThenInclude(m => m.Season)
                                               .Include(m => m.AwaySchool).ThenInclude(m => m.Season)
                                               .Where(m => m.HomeSchool.SeasonId == currentSeason)

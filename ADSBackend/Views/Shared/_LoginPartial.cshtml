@@ -10,6 +10,8 @@
 
     <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" class="navbar-right">
         <ul class="nav navbar-top-links navbar-right">
+             @await Html.PartialAsync("_SeasonSelectorPartial")
+
             <li>
                 <a asp-area="" asp-controller="Manage" asp-action="Index" title="Manage">Hello, @user.FullName!</a>
             </li>
@@ -20,8 +22,6 @@
             </li>
         </ul>
     </form>
-
-    @await Html.PartialAsync("_SeasonSelectorPartial")
 
 }
 else

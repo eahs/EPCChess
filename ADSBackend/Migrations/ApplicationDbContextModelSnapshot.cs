@@ -39,7 +39,12 @@ namespace ADSBackend.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
+                    b.Property<int?>("SeasonId")
+                        .HasColumnType("int");
+
                     b.HasKey("DivisionId");
+
+                    b.HasIndex("SeasonId");
 
                     b.ToTable("Division");
                 });
@@ -576,6 +581,15 @@ namespace ADSBackend.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("ADSBackend.Models.Division", b =>
+                {
+                    b.HasOne("ADSBackend.Models.Season", "Season")
+                        .WithMany()
+                        .HasForeignKey("SeasonId");
+
+                    b.Navigation("Season");
                 });
 
             modelBuilder.Entity("ADSBackend.Models.Game", b =>
