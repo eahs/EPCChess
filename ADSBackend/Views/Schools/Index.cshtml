@@ -27,10 +27,10 @@
                     @Html.DisplayNameFor(model => model.Name)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Season.Name)
+                    @Html.DisplayNameFor(model => model.JoinCode)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Division.Name)
+                    @Html.DisplayNameFor(model => model.Season.Name)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Division.Name)
@@ -44,6 +44,9 @@
                 <tr>
                     <td style="vertical-align: middle">
                         @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td style="vertical-align: middle">
+                        <strong>@Html.DisplayFor(modelItem => item.JoinCode)</strong>
                     </td>
                     <td style="vertical-align: middle">
                         @Html.DisplayFor(modelItem => item.Season.Name)
