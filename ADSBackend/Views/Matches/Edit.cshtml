@@ -23,6 +23,15 @@
                 </div>
             </div>
             <div class="form-group">
+                <div class="checkbox">
+                    <div class="i-checks">
+                        <label>
+                            <input asp-for="IsVirtual" /> @Html.DisplayNameFor(model => model.IsVirtual)
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
                 <label asp-for="MatchDate" class="control-label"></label>
                 <input asp-for="MatchDate" class="form-control" />
                 <span asp-validation-for="MatchDate" class="text-danger"></span>
@@ -44,6 +53,23 @@
                 <label asp-for="AwayPoints" class="control-label"></label>
                 <input asp-for="AwayPoints" class="form-control" />
                 <span asp-validation-for="AwayPoints" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ClockTimeLimit" class="control-label"></label>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <input asp-for="ClockTimeLimit" class="form-control" />
+                    </div>
+                    <div class="col-sm-6">
+                        <span id="ClockTimeLimitDescription"></span>
+                    </div>
+                </div>
+                <span asp-validation-for="ClockTimeLimit" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ClockIncrement" class="control-label"></label>
+                <input asp-for="ClockIncrement" class="form-control" />
+                <span asp-validation-for="ClockIncrement" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />
@@ -74,10 +100,29 @@
 
     <script src="~/lib/inspinia/plugins/iCheck/icheck.min.js"></script>
     <script>
+        function timeDesc(totalSeconds) {
+            var hours = Math.floor(totalSeconds / 3600);
+            var minutes = Math.floor(totalSeconds / 60);
+            var seconds = totalSeconds % 60;
+
+            var desc = hours + " hr(s) " + minutes + " min(s) " + seconds + " sec(s)";
+
+            return desc;
+        }
+
         $(document).ready(function () {
             $('.i-checks').iCheck({
                 checkboxClass: 'icheckbox_square-green'
             });
+
+            $('#ClockTimeLimit').change(function () {
+                var totalSeconds = $('#ClockTimeLimit').val();
+                var desc = timeDesc(totalSeconds);
+                $('#ClockTimeLimitDescription').html(desc);
+            });
+
+            $('#ClockTimeLimitDescription').html(timeDesc($('#ClockTimeLimit').val()));
+
         });
     </script>
 }

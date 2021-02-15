@@ -49,79 +49,36 @@
         }
 
 
-        <!--
-    <table class="table-bordered table-hover">
-        <thead>
-        <th colspan="1"></th>
-        <th colspan="1">@Model.HomeSchool.ShortName</th>
-        <th></th>
-        <th colspan="1">@Model.AwaySchool.ShortName</th>
-        </thead>
-        <tr>
-            <td style="width:1%">Brd</td>
-            <td>Home</td>
-            <td style="width:1%">Result</td>
-            <td>Away</td>
-        </tr>
         @foreach (var game in Model.Games)
         {
-            <tr>
-                <td class="text-center" style="width:1%">@game.BoardPosition</td>
-                <td>
-                    @(game.HomePlayerFullName)<br />
-                    @if (game.HomePlayer != null && Model.MatchStarted)
-                    {
-                        <span class="chessrating">@(game.HomePlayerGameRating)</span>
-                    }
-                    else if (game.HomePlayer != null)
-                    {
-                        <span class="chessrating">(@(game.HomePlayer.Rating))</span>
-                    }
-                </td>
-                <td class="text-center">@game.HomePoints-@game.AwayPoints</td>
-                <td>
-                    @(game.AwayPlayerFullName)<br />
-                    @if (game.AwayPlayer != null && Model.MatchStarted)
-                    {
-                        <span class="chessrating">@(game.AwayPlayerGameRating)</span>
-                    }
-                    else if (game.AwayPlayer != null)
-                    {
-                        <span class="chessrating">(@(game.AwayPlayer.Rating))</span>
-                    }
-                </td>
-            </tr>
-        }
-    </table>
-    -->
-        @foreach (var game in Model.Games)
-        {
-            @if (!@Model.MatchStarted || (@Model.MatchStarted && (game.HomePlayer != null && game.AwayPlayer != null)))
+            @if (!Model.MatchStarted || (Model.MatchStarted && (game.HomePlayer != null || game.AwayPlayer != null)))
             {
-                <div class="panel panel-default" data-seated="@(game.HomePlayer != null && game.AwayPlayer != null)">
+                <div class="panel panel-default" data-seated="@((game.HomePlayer != null && game.AwayPlayer != null) || (game.HomePlayer != null && game.BoardPosition <= 7) || (game.AwayPlayer != null && game.BoardPosition <= 7))">
                     <div class="panel-heading">
                         <span class="boardcardheader">Board @game.BoardPosition</span>
+                        
+                        @if (Model.MatchStarted && (game.HomePlayer != null && game.AwayPlayer != null))
+                        {
+                            <div class="btn-group" data-report="toggle" style="display: none">
 
-                        <div class="btn-group" data-report="toggle" style="display: none">
-
-                            <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle">Report Results <b class="caret"></b></button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 1)">@game.HomePlayer?.FirstName @game.HomePlayer?.LastName (@Model.HomeSchool.Abbreviation) Won</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 2)">@game.AwayPlayer?.FirstName @game.AwayPlayer?.LastName (@Model.AwaySchool.Abbreviation) Won</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 0)">Draw</a></li>
-                                <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 3)">Reset Winner</a></li>
-                            </ul>
+                                <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle">Report Results <b class="caret"></b></button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 1)">@game.HomePlayer?.FirstName @game.HomePlayer?.LastName (@Model.HomeSchool.Abbreviation) Won</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 2)">@game.AwayPlayer?.FirstName @game.AwayPlayer?.LastName (@Model.AwaySchool.Abbreviation) Won</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 0)">Draw</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 3)">Reset Winner</a></li>
+                                </ul>
 
 
-                        </div>
-
+                            </div>
+                        }
                     </div>
 
                     <div class="panel-body">
 
                         <table>
                             <tr>
-                                <td width="190" style="vertical-align: middle; text-align: center">
+                                <td width="250" style="vertical-align: middle; text-align: center">
                                     @if (game.HomePlayer != null && Model.MatchStarted)
                                     {
                                         @(game.HomePlayerFullName)
@@ -194,10 +151,12 @@
         @if (Model.Completed)
         {
             @Html.Raw("reportButtons.hide();");
+            @Html.Raw("$('div[data-seated=\"False\"]').hide();");
         }
         else if (Model.MatchStarted)
         {
             @Html.Raw("reportButtons.show();");
+            @Html.Raw("$('div[data-seated=\"False\"]').hide();");
         }
 
         function endMatch(matchId) {
@@ -230,7 +189,7 @@
                         })
                             .then((choice) => {
                                 $('div[data-report="toggle"]').hide();
-                                
+
                         });
 
                     }

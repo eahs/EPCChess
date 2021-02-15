@@ -31,6 +31,13 @@ namespace ADSBackend.Controllers
             _dataService = dataService;
         }
 
+        public async Task<string> UpdatePlayers()
+        {
+            await _dataService.UpdatePlayerRecords();
+
+            return "OK";
+        }
+
         public async Task<IActionResult> Index()
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
@@ -70,10 +77,18 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            if (match.Games == null || match.Games.Count == 0)
+            if (match.Games == null || match.Games.Count != 10)
             {
                 for (int board = 1; board <= 10; board++)
                 {
+                    if (match.Games != null)
+                    {
+                        // Is there a game with this boardposition already?
+                        var gm = match.Games.Where(gp => gp.BoardPosition == board).FirstOrDefault();
+                        if (gm != null) 
+                            continue;
+                    }
+
                     Game g = new Game
                     {
                         MatchId = (int) id,
@@ -111,8 +126,13 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
+            if (match.MatchStarted)
+            {
+                return RedirectToAction("Manage", "SchoolMatches", new { id }); 
+            }
+
             var homePlayers = match.Games.Where(g => g.HomePlayer != null).Select(g => g.HomePlayerId).ToList();
-            var awayPlayers = match.Games.Where(g => g.HomePlayer != null).Select(g => g.AwayPlayerId).ToList();
+            var awayPlayers = match.Games.Where(g => g.AwayPlayer != null).Select(g => g.AwayPlayerId).ToList();
 
             ViewBag.HomeStudents = await _context.Player.Where(p => p.PlayerSchoolId == match.HomeSchoolId && !homePlayers.Contains(p.PlayerId))
                                                     .OrderByDescending(p => p.Rating)
@@ -191,12 +211,27 @@ namespace ADSBackend.Controllers
             
             foreach (Game g in match.Games)
             {
-                if (g.HomePlayer != null && g.AwayPlayer != null)
+                bool update = false;
+
+                if (g.HomePlayer != null)
                 {
                     g.HomePlayerRatingBefore = g.HomePlayer.Rating;
-                    g.AwayPlayerRatingBefore = g.AwayPlayer.Rating;
-                    _context.Update(g);
+                    update = true;
+                }
 
+                if (g.AwayPlayer != null)
+                {
+                    g.AwayPlayerRatingBefore = g.AwayPlayer.Rating;
+                    update = true;
+                }
+
+                // Quick sanity check because we can't count boards past 7 in a match if either isn't seated
+                if ((g.HomePlayer == null || g.AwayPlayer == null) && g.BoardPosition > 7)
+                    update = false;
+
+                if (update)
+                {
+                    _context.Update(g);
                 }
             }
 
@@ -269,6 +304,38 @@ namespace ADSBackend.Controllers
                         }
                     }
                 }
+                else if (g.HomePlayer != null && g.BoardPosition <= 7)
+                {
+                    // Forfeit by awayplayer
+                    homePoints += 1;
+                    g.Completed = true;
+                    g.CompletedDate = DateTime.Now;
+                    g.HomePoints = 1;
+                    g.AwayPoints = 0;
+                    g.HomePlayerRatingAfter = g.HomePlayerRatingBefore + 16;
+                    g.HomePlayer.Rating += 16;
+
+                    await _dataService.LogRatingEvent(g.HomePlayer.PlayerId, g.HomePlayer.Rating, "game", "Win by forfeit", false, g.GameId);
+
+                    _context.Update(g);
+                    _context.Update(g.HomePlayer);
+                }
+                else if (g.AwayPlayer != null && g.BoardPosition <= 7)
+                {
+                    // Forfeit by homeplayer
+                    awayPoints += 1;
+                    g.Completed = true;
+                    g.CompletedDate = DateTime.Now;
+                    g.HomePoints = 0;
+                    g.AwayPoints = 1;
+                    g.AwayPlayerRatingAfter = g.AwayPlayerRatingBefore + 16;
+                    g.AwayPlayer.Rating += 16;
+
+                    await _dataService.LogRatingEvent(g.AwayPlayer.PlayerId, g.AwayPlayer.Rating, "game", "Win by forfeit", false, g.GameId);
+
+                    _context.Update(g);
+                    _context.Update(g.AwayPlayer);
+                }
             }
 
             if (gamesPlayed != gamesScheduled)
@@ -282,6 +349,9 @@ namespace ADSBackend.Controllers
 
             _context.Update(match);
             await _context.SaveChangesAsync();
+
+            // Now update all the player win, loss, draw records
+            await _dataService.UpdatePlayerRecords();
 
             return "OK";
         }
@@ -320,6 +390,7 @@ namespace ADSBackend.Controllers
 
             if (match == null) return JsonStatus("MATCH NOT FOUND");
             if (!match.MatchStarted) return JsonStatus("MATCH NOT STARTED");
+            if (match.Completed) return JsonStatus("MATCH HAS BEEN COMPLETED");
 
 
             var game = await _context.Game.Include(g => g.HomePlayer)
@@ -332,6 +403,9 @@ namespace ADSBackend.Controllers
 
             gameResult = (GameResult)result;
 
+            await _dataService.UpdateAndLogRatingCalculations(game, gameResult);
+
+            /*
             if (gameResult == GameResult.Reset)
             {
                 game.HomePoints = 0;
@@ -383,6 +457,7 @@ namespace ADSBackend.Controllers
                 game.HomePlayer.Rating = homeRating;
                 game.AwayPlayer.Rating = awayRating;
 
+                game.Completed = true;
                 game.CompletedDate = DateTime.Now;
 
                 _context.Update(game.HomePlayer);
@@ -392,6 +467,7 @@ namespace ADSBackend.Controllers
                 await _dataService.LogRatingEvent(game.AwayPlayer.PlayerId, game.AwayPlayer.Rating, "game", "End of game result", false, game.GameId);
 
             }
+            */
 
             _context.Update(game);
             await _context.SaveChangesAsync();

@@ -31,6 +31,7 @@ namespace ADSBackend.Controllers
         // GET: Players
         public async Task<IActionResult> Index()
         {
+            int currentSeason = await _dataService.GetCurrentSeasonId();
             int schoolId = await _dataService.GetSchoolIdAsync(User);
 
             if (schoolId == -1)
@@ -40,8 +41,13 @@ namespace ADSBackend.Controllers
 
             ViewBag.School = await _context.School.FirstOrDefaultAsync(x => x.SchoolId == schoolId);
 
+            var players = await _context.Player.Include(p => p.PlayerSchool)
+                                               .Where(x => x.PlayerSchoolId == schoolId && x.PlayerSchool.SeasonId == currentSeason)
+                                               .OrderByDescending(x => x.Rating)
+                                               .ToListAsync();
 
-            return View(await _context.Player.Where(x => x.PlayerSchoolId == schoolId).OrderByDescending(x => x.Rating).ToListAsync());
+
+            return View(players);
         }
 
         // GET: Players/Details/5

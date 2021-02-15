@@ -8,75 +8,92 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using ADSBackend.Services;
 
 namespace ADSBackend.Configuration
 {
-    public class ApplicationDbSeed
+    public class ApplicationDbSeed : ISeeder
     {
-        ApplicationDbContext _context;
- 
-        public ApplicationDbSeed (ApplicationDbContext context)
-        {
-            _context = context;
-           
-        }
-
-        public string GetJson (string seedFile)
+        public string GetJson(string seedFile)
         {
             var file = System.IO.File.ReadAllText(Path.Combine("Configuration", "SeedData", seedFile));
 
             return file;
         }
 
-        public void SeedDatabase<TEntity> (string jsonFile, DbSet<TEntity> dbset) where TEntity : class
+        /// <summary>
+        /// Inserts all the records from a json file into an empty database
+        /// </summary>
+        /// <typeparam name="TEntity">Model for each record in json file</typeparam>
+        /// <param name="jsonFile">JSON encoded array of database records</param>
+        /// <param name="dbset">Database dbset to insert into</param>
+        /// <param name="preserveOrder">Make sure order is maintained when inserting into database</param>
+        public void SeedDatabase<TEntity>(ApplicationDbContext _context, string jsonFile, DbSet<TEntity> dbset, bool preserveOrder = false) where TEntity : class
         {
             var records = JsonConvert.DeserializeObject<List<TEntity>>(GetJson(jsonFile));
 
             if (records?.Count > 0)
             {
-                records.ForEach(s => dbset.Add(s));
-                _context.SaveChanges();
-                
+                if (!preserveOrder)
+                {
+                    _context.AddRange(records);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    foreach (var record in records)
+                    {
+                        dbset.Add(record);
+                        _context.SaveChanges();
+                    }
+                }
             }
         }
 
-        public void CreateSeasons ()
+        /// <summary>
+        /// Inserts all the records from a json file into a database, adding records
+        /// that are not currently in the database if they are found
+        /// </summary>
+        /// <typeparam name="TEntity">Model for each record in json file</typeparam>
+        /// <param name="jsonFile">JSON encoded array of database records</param>
+        /// <param name="dbset">Database dbset to insert into</param>
+        /// <param name="matchingProperty">Json files will not have primary id keys, so this is used to check to see if a record already exists in table</param>
+        public void SeedDatabaseOrUpdate<TEntity>(ApplicationDbContext _context, string jsonFile, DbSet<TEntity> dbset, string matchingProperty = null) where TEntity : class
         {
-            var season = _context.Season.FirstOrDefault(m => m.SeasonId == 1);
-            if (season == null)
+            var records = dbset.ToList();
+            if (records == null || records.Count == 0)
             {
-                SeedDatabase<Season>("seasons.json", _context.Season);
+                SeedDatabase<TEntity>(_context, jsonFile, dbset, true);
             }
+            else if (matchingProperty != null)
+            {
+                var precords = JsonConvert.DeserializeObject<List<TEntity>>(GetJson(jsonFile));
+                foreach (var rec in precords)
+                {
+
+                    var p2 = rec.GetType().GetProperty(matchingProperty).GetValue(rec, null);
+                    var exists = records.FirstOrDefault(c => c.GetType().GetProperty(matchingProperty).GetValue(c, null).Equals(p2));
+
+                    if (exists == null)
+                    {
+                        dbset.Add(rec);
+                        _context.SaveChanges();
+                    }
+                }
+
+            }
+
 
         }
 
-        public void CreateDivisions()
+        public Task SeedAsync(ApplicationDbContext dbContext, IServiceProvider serviceProvider)
         {
-            var season = _context.Division.FirstOrDefault(m => m.DivisionId == 1);
-            if (season == null)
-            {
-                SeedDatabase<Division>("divisions.json", _context.Division);
-            }
+            SeedDatabaseOrUpdate<Season>(dbContext, "seasons.json", dbContext.Season, "Name");
+            SeedDatabaseOrUpdate<Division>(dbContext, "divisions.json", dbContext.Division, "Name");
+            SeedDatabaseOrUpdate<School>(dbContext, "schools.json", dbContext.School, "Name");
 
+            return Task.CompletedTask;
         }
-
-        public void CreateSchools ()
-        {
-            var school = _context.School.FirstOrDefault(m => m.SchoolId == 1);
-            if (school == null)
-            {
-                SeedDatabase<School>("schools.json", _context.School);
-            }
-        }
-
-        public void CreateMatches()
-        {
-            var match = _context.Match.FirstOrDefault();
-            if (match == null)
-            {
-                SeedDatabase<Match>("matches.json", _context.Match);
-            }
-        }
-
     }
 }

@@ -10,10 +10,19 @@
     var setupClass = "";
     var teamClass = "";
     var adminClass = "";
+    var conferenceClass = "";
+    var playClass = "";
+    var infoClass = "";
 
 
     switch (handlingController)
     {
+        // Conference Updates
+        case "Conference": conferenceClass = "active"; break;
+
+        // Play
+        case "Play": playClass = "active"; break;
+
         // Team Management
         case "Players": teamClass = "active"; break;
         case "SchoolMatches": teamClass = "active"; break;
@@ -28,8 +37,10 @@
         case "Users": adminClass = "active"; break;
         case "Configuration": adminClass = "active"; break;
 
+        // Info
+        case "Info": infoClass = "active"; break;
     }
-            }
+ }
 
 <nav class="navbar-default navbar-static-side" role="navigation">
     <div class="sidebar-collapse">
@@ -41,7 +52,7 @@
                 <li class="nav-header">
                     <div class="dropdown profile-element">
                         <span>
-                            <img class="img-circle" src="https://www.gravatar.com/avatar/@user.GravitarHash()?d=identicon" />
+                            <a asp-controller="Admin" asp-action="Index"><img class="img-responsive center-block" src="/images/epclogo.png" style="width: 64px; margin-bottom: 5px"></a> 
                         </span>
                         <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                             <span class="clear">
@@ -67,57 +78,93 @@
                 <li is-active-route asp-controller="Admin">
                     <a asp-controller="Admin" asp-action="Index"><i class="fa fa-dashboard"></i><span class="nav-label">Dashboard</span></a>
                 </li>
-                @if (User.IsInRole("Admin") || User.IsInRole("Advisor"))
+                @if (!User.IsInRole("Guest"))
                 {
-                    <li id="nav_team" class="@teamClass">
-                        <a href="#"><i class="fa fa-trophy"></i> <span class="nav-label">Team Manager </span><span class="fa arrow"></span></a>
+                    <li id="nav_play" class="@playClass">
+                        <a href="#"><i class="fa fa-paper-plane"></i> <span class="nav-label">Play </span><span class="fa arrow"></span></a>
                         <ul class="nav nav-second-level collapse">
-                            <li is-active-route asp-controller="Players">
-                                <a asp-controller="Players" asp-action="Index">Players</a>
-                            </li>
-                            <li is-active-route asp-controller="SchoolMatches">
-                                <a asp-controller="SchoolMatches" asp-action="Index">Matches</a>
+                            <li is-active-route asp-controller="Play" asp-action="Index">
+                                <a asp-controller="Play" asp-action="Index">My Team Matches</a>
                             </li>
                         </ul>
-                    </li>
-                }
-                @if (User.IsInRole("Admin"))
-                {
-                    <li id="nav_setup" class="@setupClass">
-                        <a href="#"><i class="fa fa-sitemap"></i> <span class="nav-label">League Setup </span><span class="fa arrow"></span></a>
-                        <ul class="nav nav-second-level collapse">
-                            <li is-active-route asp-controller="Seasons">
-                                <a asp-controller="Seasons" asp-action="Index">Seasons</a>
-                            </li>
-                            <li is-active-route asp-controller="Divisions">
-                                <a asp-controller="Divisions" asp-action="Index">Divisions</a>
-                            </li>
-                            <li is-active-route asp-controller="Schools">
-                                <a asp-controller="Schools" asp-action="Index">Schools</a>
-                            </li>
-                            <li is-active-route asp-controller="Matches">
-                                <a asp-controller="Matches" asp-action="Index">Matches</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li id="nav_admin" class="@adminClass">
-                        <a href="#"><i class="fa fa-cog"></i> <span class="nav-label">Administration </span><span class="fa arrow"></span></a>
-                        <ul class="nav nav-second-level collapse">
-                            <li is-active-route asp-controller="Users">
-                                <a asp-controller="Users" asp-action="Index">Manage Users</a>
-                            </li>
-                            <li is-active-route asp-controller="Configuration">
-                                <a asp-controller="Configuration" asp-action="Index">Configuration</a>
-                            </li>
-                        </ul>
-                    </li>
 
+                    </li>
+                    <li id="nav_team" class="@conferenceClass">
+                        <a href="#"><i class="fa fa-newspaper-o"></i> <span class="nav-label">Conference Updates </span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level collapse">
+                            <li is-active-route asp-controller="Conference" asp-action="MatchResults">
+                                <a asp-controller="Conference" asp-action="MatchResults">Match Results</a>
+                            </li>
+                            <li is-active-route asp-controller="Conference" asp-action="Players">
+                                <a asp-controller="Conference" asp-action="Players">Top Players</a>
+                            </li>
+                        </ul>
+                    </li>
+                    @if (User.IsInRole("Admin") || User.IsInRole("Advisor"))
+                    {
+                        <li id="nav_team" class="@teamClass">
+                            <a href="#"><i class="fa fa-trophy"></i> <span class="nav-label">Team Manager </span><span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level collapse">
+                                <li is-active-route asp-controller="Players">
+                                    <a asp-controller="Players" asp-action="Index">Players</a>
+                                </li>
+                                <li is-active-route asp-controller="SchoolMatches">
+                                    <a asp-controller="SchoolMatches" asp-action="Index">Matches</a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li id="nav_setup" class="@setupClass">
+                            <a href="#"><i class="fa fa-sitemap"></i> <span class="nav-label">League Setup </span><span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level collapse">
+                                <li is-active-route asp-controller="Seasons">
+                                    <a asp-controller="Seasons" asp-action="Index">Seasons</a>
+                                </li>
+                                <li is-active-route asp-controller="Divisions">
+                                    <a asp-controller="Divisions" asp-action="Index">Divisions</a>
+                                </li>
+                                <li is-active-route asp-controller="Schools">
+                                    <a asp-controller="Schools" asp-action="Index">Schools</a>
+                                </li>
+                                <li is-active-route asp-controller="Matches">
+                                    <a asp-controller="Matches" asp-action="Index">Matches</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li id="nav_admin" class="@adminClass">
+                            <a href="#"><i class="fa fa-cog"></i> <span class="nav-label">Administration </span><span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level collapse">
+                                <li is-active-route asp-controller="Users">
+                                    <a asp-controller="Users" asp-action="Index">Manage Users</a>
+                                </li>
+                                <li is-active-route asp-controller="Configuration">
+                                    <a asp-controller="Configuration" asp-action="Index">Configuration</a>
+                                </li>
+                            </ul>
+                        </li>
+
+                    }
                 }
+
+                <li id="nav_admin" class="@infoClass">
+                    <a href="#"><i class="fa fa-gavel"></i> <span class="nav-label">EPC Information </span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li is-active-route asp-controller="Info" asp-action="Rules">
+                            <a asp-controller="Info" asp-action="Rules">League Rules</a>
+                        </li>
+                        <li is-active-route asp-controller="Info" asp-action="VirtualRules">
+                            <a asp-controller="Info" asp-action="VirtualRules">Virtual Rules</a>
+                        </li>
+                    </ul>
+                </li>
+
             }
             else
             {
                 // not signed in
             }
-            </ul>
+        </ul>
 </div>
 </nav>

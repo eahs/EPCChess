@@ -14,5 +14,7 @@ namespace ADSBackend.Models.HomeViewModels
         public List<Division> Divisions { get; set; }
 
         public List<Player> TopSchoolPlayers { get; set; }
+
+        public bool JoinCodeError { get; set; } = false;
     }
 }

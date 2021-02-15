@@ -11,9 +11,18 @@ namespace ADSBackend.Models
     {
         public int MatchId { get; set; }
 
+        [DisplayName("Is Virtual?")]
+        public bool IsVirtual { get; set; } = false;  // Is this a LiChess game?
+
+        [DisplayName("Clock Time Limit (seconds)")]
+        public int ClockTimeLimit { get; set; } = 30 * 60;
+
+        [DisplayName("Clock Per Move Increment (seconds)")]
+        public int ClockIncrement { get; set; } = 0;
+
         [DisplayName("Match Date")]
         [DataType(DataType.Date)]
-        public DateTime MatchDate { get; set; }
+        public DateTime MatchDate { get; set; } = DateTime.Now;
 
         [DisplayName("Start Time")]
         [DataType(DataType.DateTime)]

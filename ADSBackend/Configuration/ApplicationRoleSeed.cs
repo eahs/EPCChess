@@ -1,25 +1,24 @@
-﻿using ADSBackend.Models.Identity;
+﻿using ADSBackend.Data;
+using ADSBackend.Models.Identity;
 using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using ADSBackend.Services;
 
 namespace ADSBackend.Configuration
 {
-    public class ApplicationRoleSeed
+    public class ApplicationRoleSeed : ISeeder
     {
-        private readonly RoleManager<ApplicationRole> _roleManager;
-
-        public ApplicationRoleSeed(RoleManager<ApplicationRole> roleManager)
-        {
-            _roleManager = roleManager;
-        }
-
-        public void CreateRoles()
+        public void CreateRoles(RoleManager<ApplicationRole> _roleManager)
         {
             var roles = new List<string>
             {
                 "Admin",
                 "Advisor",
-                "User"
+                "Player",
+                "Guest"
             };
 
             foreach (var roleName in roles)
@@ -31,6 +30,15 @@ namespace ADSBackend.Configuration
                     _roleManager.CreateAsync(role).Wait();
                 }
             }
+        }
+
+        public Task SeedAsync(ApplicationDbContext dbContext, IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+
+            CreateRoles(roleManager);
+
+            return Task.CompletedTask;
         }
     }
 }

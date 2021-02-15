@@ -9,6 +9,12 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using ADSBackend.Data;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+
+using ADSBackend.Models;
 
 namespace ADSBackend.Controllers
 {
@@ -20,13 +26,15 @@ namespace ADSBackend.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
+        private readonly ApplicationDbContext _context;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, ILogger<AccountController> logger)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, ILogger<AccountController> logger, ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _logger = logger;
+            _context = context;
         }
 
         [TempData]
@@ -269,9 +277,23 @@ namespace ADSBackend.Controllers
             }
 
             // Sign in the user with this external login provider if the user already has a login.
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: true, bypassTwoFactor: true);
             if (result.Succeeded)
             {
+                var accessToken = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("access_token")).Value;
+                var refreshToken = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("refresh_token")).Value;
+                var expiresAtRaw = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("expires_at")).Value;
+
+                var expiresAt = DateTime.Parse(expiresAtRaw);
+
+                var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+
+                user.AccessToken = accessToken;
+                user.RefreshToken = refreshToken;
+                user.ExpiresAt = expiresAt;
+
+                await _userManager.UpdateAsync(user);
+
                 _logger.LogInformation("User logged in with {Name} provider.", info.LoginProvider);
                 return RedirectToLocal(returnUrl);
             }
@@ -281,11 +303,26 @@ namespace ADSBackend.Controllers
             }
             else
             {
+                var season =
+                    await _context.Season.FirstOrDefaultAsync(s => s.StartDate <= DateTime.Now && s.EndDate >= DateTime.Now);
+
+                var seasonId = season is null ? 1 : season.SeasonId;
+                
+                var schools = await _context.School.Select(x => x)
+                    .Where(s => s.SeasonId == seasonId)
+                    .OrderBy(x => x.Name)
+                    .ToListAsync();
+
+                ViewBag.Schools = new SelectList(schools, "SchoolId", "Name");
+
                 // If the user does not have an account, then ask the user to create an account.
                 ViewData["ReturnUrl"] = returnUrl;
                 ViewData["LoginProvider"] = info.LoginProvider;
                 var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-                return View("ExternalLogin", new ExternalLoginViewModel { Email = email });
+                var firstName = info.Principal.FindFirstValue(ClaimTypes.GivenName) ?? "";
+                var lastName = info.Principal.FindFirstValue(ClaimTypes.Surname) ?? "";
+
+                return View("ExternalLogin", new ExternalLoginViewModel { Email = email, FirstName = firstName, LastName = lastName});
             }
         }
 
@@ -296,26 +333,63 @@ namespace ADSBackend.Controllers
         {
             if (ModelState.IsValid)
             {
+                model.SchoolId = 1;  // Default to unassigned school (schoolId of 1)
+
                 // Get the information about the user from the external login provider
                 var info = await _signInManager.GetExternalLoginInfoAsync();
                 if (info == null)
                 {
                     throw new ApplicationException("Error loading external login information during confirmation.");
                 }
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+
+                var accessToken = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("access_token")).Value;
+                var refreshToken = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("refresh_token")).Value;
+                var expiresAtRaw = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("expires_at")).Value;
+
+                var expiresAt = DateTime.Parse(expiresAtRaw);
+
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, FirstName = model.FirstName, LastName = model.LastName, SchoolId = model.SchoolId, AccessToken = accessToken, RefreshToken = refreshToken, ExpiresAt = expiresAt};
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        if (info.Principal.HasClaim(c => c.Type == ClaimTypes.GivenName))
+                        {
+                            await _userManager.AddClaimAsync(user,
+                                info.Principal.FindFirst(ClaimTypes.GivenName));
+                        }
+
+                        // assign new role
+                        await _userManager.AddToRoleAsync(user, "Guest");
+
+                        // Include the access token in the properties
+                        var props = new AuthenticationProperties();
+                        props.StoreTokens(info.AuthenticationTokens);
+                        props.IsPersistent = true;
+
+                        await _signInManager.SignInAsync(user, props);
+
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
                         return RedirectToLocal(returnUrl);
                     }
                 }
                 AddErrors(result);
             }
+
+            var season =
+                await _context.Season.FirstOrDefaultAsync(s => s.StartDate <= DateTime.Now && s.EndDate >= DateTime.Now);
+
+            var seasonId = season is null ? 1 : season.SeasonId;
+
+            var schools = await _context.School.Select(x => x)
+                .Where(s => s.SeasonId == seasonId)
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+
+            ViewBag.Schools = new SelectList(schools, "SchoolId", "Name");
+
 
             ViewData["ReturnUrl"] = returnUrl;
             return View(nameof(ExternalLogin), model);

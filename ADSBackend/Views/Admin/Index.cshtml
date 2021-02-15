@@ -2,22 +2,62 @@
 
 @{
     ViewData["Title"] = "Dashboard";
+    var isGuest = User.IsInRole("Guest");
+    var k = 3;
 }
 
+@if (User.IsInRole("Guest"))
+{
+<div class="row">
+
+    <div class="jumbotron">
+
+        <h1 class="display-4">Welcome!</h1>
+        <p class="lead">This is the EPC Conference Chess site.  All players that wish to compete will need to join up with a team by using a join code that was provided by your coach.  Please enter the code below.</p>
+        <hr class="my-4">
+
+        @if (Model.JoinCodeError)
+            {
+        <div class="alert alert-danger">
+            The join code you have entered was invalid so we are unable to join you up with a school. Please double check the code and try again.
+        </div>
+            }
+        <form asp-action="Index" id="joinForm" method="post">
+            <div class="form-inline">
+                <div class="form-group">
+                    <label for="joinCode">Join Code:</label>
+                    <input type="text" class="form-control" placeholder="Ex. KENV83BY" id="joinCode" name="joinCode">
+                </div>
+                <button class="btn btn-primary" type="submit">Join School</button>
+            </div>
+        </form>
+
+    </div>
+
+</div>
+}
+else
+{
 <div class="row">
     <div class="col-md-8 card">
         <div class="ibox">
             <div class="ibox-title">
-                <h2>@Model.User.FullName's Dashboard</h2>
+                @{
+                        var name = Model.User.FullName;
+                        name = name.EndsWith("s") ? name + "'" : name + "'s";
+                }
+                <h2>@name Dashboard</h2>
             </div>
             <div class="ibox-content">
-                <h3>@Model.HomeSchool.Name</h3>
+                <h3>@Model.HomeSchool?.Name</h3>
                 <table>
                     <tr>
-                        <td>Advisor:&nbsp;&nbsp;&nbsp;</td><td>@Model.HomeSchool.AdvisorName (@Model.HomeSchool.AdvisorEmail)</td>
+                        <td>Advisor:&nbsp;&nbsp;&nbsp;</td>
+                        <td>@Model.HomeSchool?.AdvisorName (@Model.HomeSchool?.AdvisorEmail)</td>
                     </tr>
                     <tr>
-                        <td>Phone:</td><td>@Model.HomeSchool.AdvisorPhoneNumber</td>
+                        <td>Phone:</td>
+                        <td>@Model.HomeSchool?.AdvisorPhoneNumber</td>
                     </tr>
                 </table>
             </div>
@@ -37,7 +77,6 @@
     </div>
 </div>
 
-
 <div class="row">
 
     <div class="col-lg-4">
@@ -49,6 +88,14 @@
     </div>
 
     <div class="col-lg-4">
+        @if (User.IsInRole("Advisor"))
+            {
+        <div class="widget style1 lazur-bg">
+            <div class="row vertical-align text-center">
+                <h2 class="font-bold">&nbsp;Join Code: @Model.HomeSchool.JoinCode</h2>
+            </div>
+        </div>
+            }
         @await Html.PartialAsync("~/Views/Shared/Dashboard/_UpcomingMatchesPanelPartial.cshtml", Model.Upcoming)
     </div>
 
@@ -71,4 +118,29 @@
     </div>
 </div>
 
+}
 
+@section Scripts {
+
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script type="text/javascript">
+
+        $('#joinForm').on('submit',
+            function() {
+                if ($('#joinCode').val() === "") {
+
+                    swal({
+                        title: "An Error Occurred",
+                        text: "You must input a school join code as provided by your coach",
+                        icon: "error"
+                    });
+
+                    return false;
+                }
+            });
+
+    </script>
+
+
+} 

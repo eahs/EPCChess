@@ -1,20 +1,17 @@
-﻿using ADSBackend.Models.Identity;
+﻿using ADSBackend.Data;
+using ADSBackend.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using ADSBackend.Services;
 
 namespace ADSBackend.Configuration
 {
-    public class ApplicationUserSeed
+    public class ApplicationUserSeed : ISeeder
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-
-        public ApplicationUserSeed(UserManager<ApplicationUser> userManager)
-        {
-            _userManager = userManager;
-        }
-
-        public void CreateAdminUser()
+        public void CreateAdminUser(UserManager<ApplicationUser> _userManager)
         {
             if (_userManager.FindByNameAsync("admin").Result != null)
             {
@@ -44,6 +41,15 @@ namespace ADSBackend.Configuration
             }
 
             _userManager.AddToRoleAsync(adminUser, "Admin").Wait();
+        }
+
+        public Task SeedAsync(ApplicationDbContext dbContext, IServiceProvider serviceProvider)
+        {
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            CreateAdminUser(userManager);
+
+            return Task.CompletedTask;
         }
     }
 }

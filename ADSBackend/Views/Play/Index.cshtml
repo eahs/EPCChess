@@ -1,0 +1,89 @@
+﻿@model IEnumerable<ADSBackend.Models.Match>
+
+@{
+    var school = ViewBag.School as School;
+
+
+    ViewData["Title"] = "Scheduled Matches for " + school?.Name;
+
+
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a asp-controller="Admin" asp-action="Index">Home</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong>My Team Matches</strong>
+    </li>
+</ol>
+
+<h2>@ViewData["Title"]</h2>
+
+
+<div class="ibox">
+    <div class="ibox-content">
+        <div class="table-responsive">
+
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>
+                            Matchup (Home vs Away)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td style="vertical-align: middle">
+                                <strong>@Html.DisplayFor(modelItem => item.MatchDate)</strong><br />
+                                @Html.DisplayFor(modelItem => item.HomeSchool.ShortName)
+                                @if (item.Completed)
+                                {
+                                    <i>(@Html.DisplayFor(modelItem => item.HomePoints))</i>
+                                }
+                                &nbsp;vs&nbsp;
+                                @Html.DisplayFor(modelItem => item.AwaySchool.ShortName)
+
+                                @if (item.Completed)
+                                {
+                                    <i>(@Html.DisplayFor(modelItem => item.AwayPoints))</i>
+                                }
+                            </td>
+                            <td style="vertical-align: middle">
+                                <a class="btn btn-info btn-bitbucket" asp-action="Match" asp-route-id="@item.MatchId"><i class="fa fa-eye"></i> View Match</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+
+@section Styles {
+    <link href="~/lib/inspinia/plugins/iCheck/custom.css" rel="stylesheet">
+
+    <style type="text/css">
+        .icheckbox_square-green.checked.disabled {
+            background-position: -48px 0;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="~/lib/inspinia/plugins/iCheck/icheck.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green'
+            });
+        });
+    </script>
+}
+

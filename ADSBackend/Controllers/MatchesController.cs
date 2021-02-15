@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using ADSBackend.Data;
 using ADSBackend.Models;
 using Microsoft.AspNetCore.Authorization;
-using ADSBackend.Util;
 using ADSBackend.Services;
 
 namespace ADSBackend.Controllers
@@ -69,7 +66,7 @@ namespace ADSBackend.Controllers
 
             ViewBag.Schools = new SelectList(schools, "SchoolId", "Name");
 
-            return View();
+            return View(new Match());
         }
 
         // POST: Matches/Create
@@ -77,7 +74,7 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MatchDate,HomeSchoolId,AwaySchoolId")] Match match)
+        public async Task<IActionResult> Create([Bind("MatchDate,HomeSchoolId,AwaySchoolId,IsVirtual,ClockIncrement,ClockTimeLimit")] Match match)
         {
             if (ModelState.IsValid)
             {
@@ -89,7 +86,7 @@ namespace ADSBackend.Controllers
 
                 await _context.SaveChangesAsync();
 
-                for (int board = 1; board <= 10; board++)
+                for (int board = 1; board <= 12; board++)
                 {
                     Game g = new Game
                     {
@@ -141,7 +138,7 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MatchId,MatchDate,HomeSchoolId,AwaySchoolId,Completed,HomePoints,AwayPoints")] Match match)
+        public async Task<IActionResult> Edit(int id, [Bind("MatchId,MatchDate,HomeSchoolId,AwaySchoolId,Completed,HomePoints,AwayPoints,IsVirtual,ClockIncrement,ClockTimeLimit")] Match match)
         {
             if (id != match.MatchId)
             {
@@ -160,6 +157,9 @@ namespace ADSBackend.Controllers
                     _match.Completed = match.Completed;
                     _match.HomePoints = match.HomePoints;
                     _match.AwayPoints = match.AwayPoints;
+                    _match.IsVirtual = match.IsVirtual;
+                    _match.ClockIncrement = match.ClockIncrement;
+                    _match.ClockTimeLimit = match.ClockTimeLimit;
 
                     _context.Update(_match);
                     await _context.SaveChangesAsync();
@@ -204,6 +204,22 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var match = await _context.Match.FindAsync(id);
+
+            if (match == null)
+                return RedirectToAction(nameof(Index));
+
+            var ratingEvents = await _context.RatingEvent.Include(re => re.Game)
+                                                         .Where(re => re.Game != null && re.Game.MatchId == match.MatchId)
+                                                         .ToListAsync();
+
+            foreach (var re in ratingEvents)
+            {
+                re.GameId = null;
+                re.Type = "adjustment";
+                re.Message = "Original game removed from history";
+                _context.RatingEvent.Update(re);
+            }
+
             _context.Match.Remove(match);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

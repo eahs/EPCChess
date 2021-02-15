@@ -3,7 +3,6 @@ using System;
 using ADSBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ADSBackend.Migrations
@@ -15,16 +14,16 @@ namespace ADSBackend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("Relational:MaxIdentifierLength", 64)
+                .HasAnnotation("ProductVersion", "5.0.2");
 
             modelBuilder.Entity("ADSBackend.Models.ConfigurationItem", b =>
                 {
                     b.Property<string>("Key")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
-                    b.Property<string>("Value");
+                    b.Property<string>("Value")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("Key");
 
@@ -35,9 +34,10 @@ namespace ADSBackend.Migrations
                 {
                     b.Property<int>("DivisionId")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("DivisionId");
 
@@ -48,31 +48,76 @@ namespace ADSBackend.Migrations
                 {
                     b.Property<int>("GameId")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
-                    b.Property<int?>("AwayPlayerId");
+                    b.Property<int?>("AwayPlayerId")
+                        .HasColumnType("int");
 
-                    b.Property<int>("AwayPlayerRatingAfter");
+                    b.Property<int>("AwayPlayerRatingAfter")
+                        .HasColumnType("int");
 
-                    b.Property<int>("AwayPlayerRatingBefore");
+                    b.Property<int>("AwayPlayerRatingBefore")
+                        .HasColumnType("int");
 
-                    b.Property<double>("AwayPoints");
+                    b.Property<double>("AwayPoints")
+                        .HasColumnType("double");
 
-                    b.Property<int>("BoardPosition");
+                    b.Property<int>("BoardPosition")
+                        .HasColumnType("int");
 
-                    b.Property<bool>("Completed");
+                    b.Property<string>("ChallengeId")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<DateTime>("CompletedDate");
+                    b.Property<string>("ChallengeJson")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<int?>("HomePlayerId");
+                    b.Property<string>("ChallengeMoves")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<int>("HomePlayerRatingAfter");
+                    b.Property<string>("ChallengeStatus")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<int>("HomePlayerRatingBefore");
+                    b.Property<string>("ChallengeUrl")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<double>("HomePoints");
+                    b.Property<bool>("CheatingDetected")
+                        .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("MatchId");
+                    b.Property<bool>("Completed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("CompletedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CurrentFen")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("GameJson")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<int?>("HomePlayerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HomePlayerRatingAfter")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HomePlayerRatingBefore")
+                        .HasColumnType("int");
+
+                    b.Property<double>("HomePoints")
+                        .HasColumnType("double");
+
+                    b.Property<bool>("IsStarted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("LastGameExportTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("LastMove")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("MatchId")
+                        .HasColumnType("int");
 
                     b.HasKey("GameId");
 
@@ -89,23 +134,25 @@ namespace ADSBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken();
+                        .IsConcurrencyToken()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4");
 
                     b.Property<string>("NormalizedName")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
+                        .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles");
                 });
@@ -114,58 +161,86 @@ namespace ADSBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
-                    b.Property<int>("AccessFailedCount");
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AccessToken")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken();
+                        .IsConcurrencyToken()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4");
 
-                    b.Property<bool>("EmailConfirmed");
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(50);
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50) CHARACTER SET utf8mb4");
 
-                    b.Property<string>("LastName");
+                    b.Property<string>("LastName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<bool>("LockoutEnabled");
+                    b.Property<string>("LichessId")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<DateTimeOffset?>("LockoutEnd");
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4");
 
                     b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4");
 
-                    b.Property<string>("PasswordHash");
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<string>("PhoneNumber");
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<bool>("PhoneNumberConfirmed");
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("SchoolId");
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<string>("SecurityStamp");
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("int");
 
-                    b.Property<bool>("TwoFactorEnabled");
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("UserName")
-                        .HasMaxLength(256);
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256) CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
-                        .HasName("EmailIndex");
+                        .HasDatabaseName("EmailIndex");
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+                        .HasDatabaseName("UserNameIndex");
 
                     b.HasIndex("SchoolId");
 
@@ -176,27 +251,46 @@ namespace ADSBackend.Migrations
                 {
                     b.Property<int>("MatchId")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
-                    b.Property<double>("AwayPoints");
+                    b.Property<double>("AwayPoints")
+                        .HasColumnType("double");
 
-                    b.Property<bool>("AwayRosterLocked");
+                    b.Property<bool>("AwayRosterLocked")
+                        .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("AwaySchoolId");
+                    b.Property<int>("AwaySchoolId")
+                        .HasColumnType("int");
 
-                    b.Property<bool>("Completed");
+                    b.Property<int>("ClockIncrement")
+                        .HasColumnType("int");
 
-                    b.Property<double>("HomePoints");
+                    b.Property<int>("ClockTimeLimit")
+                        .HasColumnType("int");
 
-                    b.Property<bool>("HomeRosterLocked");
+                    b.Property<bool>("Completed")
+                        .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("HomeSchoolId");
+                    b.Property<double>("HomePoints")
+                        .HasColumnType("double");
 
-                    b.Property<DateTime>("MatchDate");
+                    b.Property<bool>("HomeRosterLocked")
+                        .HasColumnType("tinyint(1)");
 
-                    b.Property<DateTime>("MatchStartTime");
+                    b.Property<int>("HomeSchoolId")
+                        .HasColumnType("int");
 
-                    b.Property<bool>("MatchStarted");
+                    b.Property<bool>("IsVirtual")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("MatchDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("MatchStartTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("MatchStarted")
+                        .HasColumnType("tinyint(1)");
 
                     b.HasKey("MatchId");
 
@@ -210,17 +304,22 @@ namespace ADSBackend.Migrations
             modelBuilder.Entity("ADSBackend.Models.MessagesModels.Message", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
-                    b.Property<string>("Author");
+                    b.Property<string>("Author")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<string>("Link");
+                    b.Property<string>("Link")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<DateTime>("PublishDate");
+                    b.Property<DateTime>("PublishDate")
+                        .HasColumnType("datetime(6)");
 
-                    b.Property<string>("Title");
+                    b.Property<string>("Title")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
 
@@ -231,19 +330,37 @@ namespace ADSBackend.Migrations
                 {
                     b.Property<int>("PlayerId")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
-                    b.Property<string>("FirstName");
+                    b.Property<int>("Draws")
+                        .HasColumnType("int");
 
-                    b.Property<string>("LastName");
+                    b.Property<string>("FirstName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<int>("PlayerSchoolId");
+                    b.Property<string>("LastName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<int>("Rating");
+                    b.Property<int>("Losses")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PlayerSchoolId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Wins")
+                        .HasColumnType("int");
 
                     b.HasKey("PlayerId");
 
                     b.HasIndex("PlayerSchoolId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Player");
                 });
@@ -252,19 +369,25 @@ namespace ADSBackend.Migrations
                 {
                     b.Property<int>("RatingEventId")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
-                    b.Property<DateTime>("Date");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime(6)");
 
-                    b.Property<int?>("GameId");
+                    b.Property<int?>("GameId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Message");
+                    b.Property<string>("Message")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<int>("PlayerId");
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("int");
 
-                    b.Property<int>("Rating");
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Type");
+                    b.Property<string>("Type")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("RatingEventId");
 
@@ -279,25 +402,36 @@ namespace ADSBackend.Migrations
                 {
                     b.Property<int>("SchoolId")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<string>("Abbreviation")
-                        .HasMaxLength(2);
+                        .HasMaxLength(2)
+                        .HasColumnType("varchar(2) CHARACTER SET utf8mb4");
 
-                    b.Property<string>("AdvisorEmail");
+                    b.Property<string>("AdvisorEmail")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<string>("AdvisorName");
+                    b.Property<string>("AdvisorName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<string>("AdvisorPhoneNumber");
+                    b.Property<string>("AdvisorPhoneNumber")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<int?>("DivisionId");
+                    b.Property<int?>("DivisionId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("JoinCode")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<int>("SeasonId");
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<int>("SeasonId")
+                        .HasColumnType("int");
 
                     b.Property<string>("ShortName")
-                        .HasMaxLength(12);
+                        .HasMaxLength(12)
+                        .HasColumnType("varchar(12) CHARACTER SET utf8mb4");
 
                     b.HasKey("SchoolId");
 
@@ -312,30 +446,53 @@ namespace ADSBackend.Migrations
                 {
                     b.Property<int>("SeasonId")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
-                    b.Property<DateTime>("EndDate");
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime(6)");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<DateTime>("StartDate");
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("SeasonId");
 
                     b.ToTable("Season");
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("FriendlyName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Xml")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DataProtectionKeys");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
-                    b.Property<string>("ClaimType");
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<string>("ClaimValue");
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<int>("RoleId");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -348,13 +505,16 @@ namespace ADSBackend.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
-                    b.Property<string>("ClaimType");
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<string>("ClaimValue");
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<int>("UserId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -365,13 +525,17 @@ namespace ADSBackend.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.Property<string>("LoginProvider");
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
-                    b.Property<string>("ProviderKey");
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
-                    b.Property<string>("ProviderDisplayName");
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<int>("UserId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -382,9 +546,11 @@ namespace ADSBackend.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
                 {
-                    b.Property<int>("UserId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
-                    b.Property<int>("RoleId");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -395,13 +561,17 @@ namespace ADSBackend.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.Property<int>("UserId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("LoginProvider");
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
-                    b.Property<string>("Value");
+                    b.Property<string>("Value")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
@@ -421,7 +591,14 @@ namespace ADSBackend.Migrations
                     b.HasOne("ADSBackend.Models.Match", "Match")
                         .WithMany("Games")
                         .HasForeignKey("MatchId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AwayPlayer");
+
+                    b.Navigation("HomePlayer");
+
+                    b.Navigation("Match");
                 });
 
             modelBuilder.Entity("ADSBackend.Models.Identity.ApplicationUser", b =>
@@ -429,7 +606,10 @@ namespace ADSBackend.Migrations
                     b.HasOne("ADSBackend.Models.School", "School")
                         .WithMany()
                         .HasForeignKey("SchoolId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("School");
                 });
 
             modelBuilder.Entity("ADSBackend.Models.Match", b =>
@@ -437,12 +617,18 @@ namespace ADSBackend.Migrations
                     b.HasOne("ADSBackend.Models.School", "AwaySchool")
                         .WithMany()
                         .HasForeignKey("AwaySchoolId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ADSBackend.Models.School", "HomeSchool")
                         .WithMany()
                         .HasForeignKey("HomeSchoolId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AwaySchool");
+
+                    b.Navigation("HomeSchool");
                 });
 
             modelBuilder.Entity("ADSBackend.Models.Player", b =>
@@ -450,7 +636,16 @@ namespace ADSBackend.Migrations
                     b.HasOne("ADSBackend.Models.School", "PlayerSchool")
                         .WithMany("Players")
                         .HasForeignKey("PlayerSchoolId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ADSBackend.Models.Identity.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("PlayerSchool");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ADSBackend.Models.RatingEvent", b =>
@@ -462,7 +657,12 @@ namespace ADSBackend.Migrations
                     b.HasOne("ADSBackend.Models.Player", "Player")
                         .WithMany()
                         .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+
+                    b.Navigation("Player");
                 });
 
             modelBuilder.Entity("ADSBackend.Models.School", b =>
@@ -474,52 +674,83 @@ namespace ADSBackend.Migrations
                     b.HasOne("ADSBackend.Models.Season", "Season")
                         .WithMany("Schools")
                         .HasForeignKey("SeasonId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Division");
+
+                    b.Navigation("Season");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
-                    b.HasOne("ADSBackend.Models.Identity.ApplicationRole")
+                    b.HasOne("ADSBackend.Models.Identity.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("ADSBackend.Models.Identity.ApplicationUser")
+                    b.HasOne("ADSBackend.Models.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("ADSBackend.Models.Identity.ApplicationUser")
+                    b.HasOne("ADSBackend.Models.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
                 {
-                    b.HasOne("ADSBackend.Models.Identity.ApplicationRole")
+                    b.HasOne("ADSBackend.Models.Identity.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("ADSBackend.Models.Identity.ApplicationUser")
+                    b.HasOne("ADSBackend.Models.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("ADSBackend.Models.Identity.ApplicationUser")
+                    b.HasOne("ADSBackend.Models.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ADSBackend.Models.Division", b =>
+                {
+                    b.Navigation("Schools");
+                });
+
+            modelBuilder.Entity("ADSBackend.Models.Match", b =>
+                {
+                    b.Navigation("Games");
+                });
+
+            modelBuilder.Entity("ADSBackend.Models.School", b =>
+                {
+                    b.Navigation("Players");
+                });
+
+            modelBuilder.Entity("ADSBackend.Models.Season", b =>
+                {
+                    b.Navigation("Schools");
                 });
 #pragma warning restore 612, 618
         }

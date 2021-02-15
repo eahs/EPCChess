@@ -7,7 +7,7 @@
   },
   {
     "Name": "Easton Area High School",
-    "SeasonId": 2,
+    "SeasonId": 3,
     "AdvisorEmail": "tanczosm@eastonsd.org",
     "AdvisorPhoneNumber": "(610) 442-3943",
     "Abbreviation": "EA",
@@ -16,49 +16,49 @@
   },
   {
     "Name": "William Allen High School",
-    "SeasonId": 2,
+    "SeasonId": 3,
     "Abbreviation": "WA",
     "ShortName": "Allen",
     "DivisionId": 2
   },
   {
     "Name": "Liberty High School",
-    "SeasonId": 2,
+    "SeasonId": 3,
     "Abbreviation": "LB",
     "ShortName": "Liberty",
     "DivisionId": 2
   },
   {
     "Name": "Freedom High School",
-    "SeasonId": 2,
+    "SeasonId": 3,
     "Abbreviation": "FR",
     "ShortName": "Freedom",
     "DivisionId": 2
   },
   {
     "Name": "Allentown Central Catholic High School",
-    "SeasonId": 2,
+    "SeasonId": 3,
     "Abbreviation": "AC",
     "ShortName": "ACC",
     "DivisionId": 1
   },
   {
     "Name": "Nazareth High School",
-    "SeasonId": 2,
+    "SeasonId": 3,
     "Abbreviation": "NZ",
     "ShortName": "Nazareth",
     "DivisionId": 1
   },
   {
     "Name": "Parkland High School",
-    "SeasonId": 2,
+    "SeasonId": 3,
     "Abbreviation": "PL",
     "ShortName": "Parkland",
     "DivisionId": 1
   },
   {
     "Name": "Northampton High School",
-    "SeasonId": 2,
+    "SeasonId": 3,
     "Abbreviation": "NH",
     "ShortName": "Northampton",
     "DivisionId": 1
