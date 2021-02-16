@@ -103,7 +103,7 @@ namespace ADSBackend.Services
                     }
                 }
 
-                var task = Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
+                var task = Task.Delay(TimeSpan.FromSeconds(15), cancellationToken);
                 try
                 {
                     await task;
@@ -266,7 +266,6 @@ namespace ADSBackend.Services
                 {
                     Log.Error(e, "GameMonitor : Error occurred");
                 }
-
 
                 // Are there any games that we didn't get responses back for?
                 if (games.Keys.Count > 0)
