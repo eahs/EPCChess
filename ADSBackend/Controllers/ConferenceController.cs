@@ -41,7 +41,7 @@ namespace ADSBackend.Controllers
 
             var matches = await _context.Match.Include(m => m.HomeSchool).ThenInclude(m => m.Season)
                                               .Include(m => m.AwaySchool).ThenInclude(m => m.Season)
-                                              .Where(m => m.HomeSchool.SeasonId == currentSeason)
+                                              .Where(m => m.HomeSchool.SeasonId == currentSeason && m.Completed)
                                               .OrderBy(m => m.MatchDate)
                                               .ToListAsync();
 

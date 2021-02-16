@@ -26,7 +26,7 @@ namespace ADSBackend.Models
         public String ShortName { get; set; }
 
         [DisplayName("Abbreviation")]
-        [StringLength(2)]
+        [StringLength(3)]
         public String Abbreviation { get; set; }
 
         [DisplayName("Advisor Name")]

@@ -18,6 +18,7 @@ using System.Security.Cryptography;
 using ADSBackend.Models.AdminViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace ADSBackend.Controllers
 {
@@ -134,6 +135,79 @@ namespace ADSBackend.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<string> Dump ()
+        {
+            DumpViewModel dmp = new DumpViewModel
+            {
+                Matches = await _context.Match.Select(x => new 
+                                                            { 
+                                                                x.MatchId,
+                                                                x.MatchDate,
+                                                                x.HomePoints,
+                                                                x.AwayPoints,
+                                                                x.AwaySchoolId,
+                                                                x.HomeSchoolId,
+                                                                x.MatchStartTime,
+                                                                x.AwayRosterLocked,
+                                                                x.HomeRosterLocked,
+                                                                x.ClockIncrement,
+                                                                x.ClockTimeLimit,
+                                                                x.IsVirtual,
+                                                                MatchStarted = false,
+                                                                Completed = false
+                                                            })
+                                               .OrderBy(m => m.MatchId)
+                                               .Cast<object>()
+                                               .ToListAsync(),
+
+                Schools = await _context.School.Select(x => new
+                                                            {
+                                                                x.SchoolId,
+                                                                x.DivisionId,
+                                                                x.Name,
+                                                                x.ShortName,
+                                                                x.Abbreviation,
+                                                                x.AdvisorName,
+                                                                x.AdvisorEmail,
+                                                                x.AdvisorPhoneNumber,
+                                                                x.SeasonId,
+                                                                x.JoinCode
+                                                            })
+                                                .OrderBy(m => m.SchoolId)
+                                                .Cast<object>()
+                                                .ToListAsync(),
+
+                Seasons = await _context.Season.Select(x => new
+                                                            {
+                                                                x.SeasonId,
+                                                                x.Name,
+                                                                x.StartDate,
+                                                                x.EndDate
+                                                            })
+                                                .OrderBy(m => m.SeasonId)
+                                                .Cast<object>()
+                                                .ToListAsync(),
+
+                Divisions = await _context.Division.Select(x => new
+                                                                {
+                                                                    x.DivisionId,
+                                                                    x.Name,
+                                                                    x.SeasonId
+                                                                })
+                                                    .OrderBy(m => m.DivisionId)
+                                                    .Cast<object>()
+                                                    .ToListAsync(),
+            };
+
+            string json = JsonConvert.SerializeObject(dmp, Formatting.Indented, new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
+
+            return json;
         }
 
         private async Task<int> GetSchoolIdAsync()

@@ -1,128 +1,182 @@
 [
   {
+    "SchoolId": 1,
+    "DivisionId": null,
     "Name": "Unassigned School",
-    "SeasonId": 3,
-    "Abbreviation": "UN",
     "ShortName": "Unassigned",
-    "DivisionId": "",
+    "Abbreviation": "UN",
+    "AdvisorName": null,
     "AdvisorEmail": "",
-    "AdvisorPhoneNumber": ""
+    "AdvisorPhoneNumber": "",
+    "SeasonId": 3,
+    "JoinCode": "YJGFW9OF"
   },
   {
+    "SchoolId": 2,
+    "DivisionId": 2,
     "Name": "Easton Area High School",
-    "SeasonId": 3,
-    "Abbreviation": "EA",
     "ShortName": "Easton",
-    "DivisionId": 2,
+    "Abbreviation": "EA",
+    "AdvisorName": null,
     "AdvisorEmail": "tanczosm@eastonsd.org",
-    "AdvisorPhoneNumber": "(610) 442-3943"
+    "AdvisorPhoneNumber": "(610) 442-3943",
+    "SeasonId": 3,
+    "JoinCode": "2E5L3S7F"
   },
   {
+    "SchoolId": 3,
+    "DivisionId": 2,
     "Name": "William Allen High School",
-    "SeasonId": 3,
-    "Abbreviation": "WA",
     "ShortName": "Allen",
-    "DivisionId": 2,
+    "Abbreviation": "WA",
+    "AdvisorName": null,
     "AdvisorEmail": "",
-    "AdvisorPhoneNumber": ""
+    "AdvisorPhoneNumber": "",
+    "SeasonId": 3,
+    "JoinCode": "0KWY0TMF"
   },
   {
+    "SchoolId": 4,
+    "DivisionId": 2,
     "Name": "Liberty High School",
-    "SeasonId": 3,
-    "Abbreviation": "LB",
     "ShortName": "Liberty",
-    "DivisionId": 2,
+    "Abbreviation": "LB",
+    "AdvisorName": null,
     "AdvisorEmail": "",
-    "AdvisorPhoneNumber": ""
+    "AdvisorPhoneNumber": "",
+    "SeasonId": 3,
+    "JoinCode": "BG6S71XF"
   },
   {
+    "SchoolId": 5,
+    "DivisionId": 2,
     "Name": "Freedom High School",
-    "SeasonId": 3,
-    "Abbreviation": "FR",
     "ShortName": "Freedom",
-    "DivisionId": 2,
+    "Abbreviation": "FR",
+    "AdvisorName": null,
     "AdvisorEmail": "",
-    "AdvisorPhoneNumber": ""
+    "AdvisorPhoneNumber": "",
+    "SeasonId": 3,
+    "JoinCode": "JI0G1UTF"
   },
   {
+    "SchoolId": 6,
+    "DivisionId": 1,
     "Name": "Allentown Central Catholic High School",
-    "SeasonId": 3,
-    "Abbreviation": "AC",
     "ShortName": "ACC",
-    "DivisionId": 1,
+    "Abbreviation": "AC",
+    "AdvisorName": null,
     "AdvisorEmail": "",
-    "AdvisorPhoneNumber": ""
+    "AdvisorPhoneNumber": "",
+    "SeasonId": 3,
+    "JoinCode": "DKIX1P7F"
   },
   {
+    "SchoolId": 7,
+    "DivisionId": 1,
     "Name": "Nazareth High School",
-    "SeasonId": 3,
-    "Abbreviation": "NZ",
     "ShortName": "Nazareth",
-    "DivisionId": 1,
+    "Abbreviation": "NZ",
+    "AdvisorName": null,
     "AdvisorEmail": "",
-    "AdvisorPhoneNumber": ""
+    "AdvisorPhoneNumber": "",
+    "SeasonId": 3,
+    "JoinCode": "RVRJYP6F"
   },
   {
+    "SchoolId": 8,
+    "DivisionId": 1,
     "Name": "Parkland High School",
-    "SeasonId": 3,
-    "Abbreviation": "PL",
     "ShortName": "Parkland",
+    "Abbreviation": "PL",
+    "AdvisorName": null,
+    "AdvisorEmail": "",
+    "AdvisorPhoneNumber": "",
+    "SeasonId": 3,
+    "JoinCode": "0R5JRDNF"
+  },
+  {
+    "SchoolId": 9,
     "DivisionId": 1,
+    "Name": "Northampton High School",
+    "ShortName": "Northampton",
+    "Abbreviation": "NH",
+    "AdvisorName": null,
     "AdvisorEmail": "",
-    "AdvisorPhoneNumber": ""
+    "AdvisorPhoneNumber": "",
+    "SeasonId": 3,
+    "JoinCode": "29NO8QJF"
   },
   {
+    "SchoolId": 10,
+    "DivisionId": 3,
     "Name": "Pocono Mountain West",
-    "SeasonId": 3,
-    "Abbreviation": "PMW",
     "ShortName": "PM West",
-    "DivisionId": 3,
+    "Abbreviation": "PMW",
+    "AdvisorName": null,
     "AdvisorEmail": "",
-    "AdvisorPhoneNumber": ""
+    "AdvisorPhoneNumber": "",
+    "SeasonId": 3,
+    "JoinCode": "W441XDNF"
   },
   {
+    "SchoolId": 11,
+    "DivisionId": 3,
     "Name": "East Stroudsburg North",
-    "SeasonId": 3,
-    "Abbreviation": "ESN",
     "ShortName": "ES North",
-    "DivisionId": 3,
+    "Abbreviation": "ESN",
+    "AdvisorName": null,
     "AdvisorEmail": "",
-    "AdvisorPhoneNumber": ""
+    "AdvisorPhoneNumber": "",
+    "SeasonId": 3,
+    "JoinCode": "0E1Z3FJF"
   },
   {
+    "SchoolId": 12,
+    "DivisionId": 3,
     "Name": "East Stroudsburg South",
-    "SeasonId": 3,
-    "Abbreviation": "ESS",
     "ShortName": "ES South",
-    "DivisionId": 3,
+    "Abbreviation": "ESS",
+    "AdvisorName": null,
     "AdvisorEmail": "",
-    "AdvisorPhoneNumber": ""
+    "AdvisorPhoneNumber": "",
+    "SeasonId": 3,
+    "JoinCode": "LE89CQIF"
   },
   {
+    "SchoolId": 13,
+    "DivisionId": 3,
     "Name": "Stroudsburg",
-    "SeasonId": 3,
-    "Abbreviation": "S",
     "ShortName": "Stroudsburg",
-    "DivisionId": 3,
+    "Abbreviation": "S",
+    "AdvisorName": null,
     "AdvisorEmail": "",
-    "AdvisorPhoneNumber": ""
+    "AdvisorPhoneNumber": "",
+    "SeasonId": 3,
+    "JoinCode": "QVXAH6BF"
   },
   {
+    "SchoolId": 14,
+    "DivisionId": 3,
     "Name": "Pocono Mountain East",
-    "SeasonId": 3,
-    "Abbreviation": "PME",
     "ShortName": "PM East",
-    "DivisionId": 3,
+    "Abbreviation": "PME",
+    "AdvisorName": null,
     "AdvisorEmail": "",
-    "AdvisorPhoneNumber": ""
+    "AdvisorPhoneNumber": "",
+    "SeasonId": 3,
+    "JoinCode": "AU8TZOUF"
   },
   {
-    "Name": "Pleasant Valley",
-    "SeasonId": 3,
-    "Abbreviation": "PV",
-    "ShortName": "PV",
+    "SchoolId": 15,
     "DivisionId": 3,
+    "Name": "Pleasant Valley",
+    "ShortName": "PV",
+    "Abbreviation": "PV",
+    "AdvisorName": null,
     "AdvisorEmail": "",
-    "AdvisorPhoneNumber": ""
+    "AdvisorPhoneNumber": "",
+    "SeasonId": 3,
+    "JoinCode": "RNI0BJ0F"
   }
 ]

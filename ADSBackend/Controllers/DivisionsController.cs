@@ -51,8 +51,16 @@ namespace ADSBackend.Controllers
         }
 
         // GET: Divisions/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
+
+            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x)
+                                                                  .OrderByDescending(x => x.StartDate)
+                                                                  .ToListAsync(), "SeasonId", "Name", currentSeason);
+
+
             return View();
         }
 
@@ -61,9 +69,15 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DivisionId,Name")] Division division)
+        public async Task<IActionResult> Create([Bind("DivisionId,Name,SeasonId")] Division division)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
+
+
+            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x)
+                                                                  .OrderByDescending(x => x.StartDate)
+                                                                  .ToListAsync(), "SeasonId", "Name", currentSeason);
+
 
             if (ModelState.IsValid)
             {
@@ -84,6 +98,12 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
+            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x)
+                                                                  .OrderByDescending(x => x.StartDate)
+                                                                  .ToListAsync(), "SeasonId", "Name", currentSeason);
+
             var division = await _context.Division.FindAsync(id);
             if (division == null)
             {
@@ -97,12 +117,20 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("DivisionId,Name")] Division division)
+        public async Task<IActionResult> Edit(int id, [Bind("DivisionId,Name,SeasonId")] Division division)
         {
             if (id != division.DivisionId)
             {
                 return NotFound();
             }
+
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
+
+            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x)
+                                                                  .OrderByDescending(x => x.StartDate)
+                                                                  .ToListAsync(), "SeasonId", "Name", currentSeason);
+
 
             if (ModelState.IsValid)
             {
