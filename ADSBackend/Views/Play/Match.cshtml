@@ -72,7 +72,7 @@
 
             </div>
         }
-
+    
         @if (Model.Match.MatchStarted)
         {
 
@@ -171,7 +171,7 @@
 
                                                     if (game.HomePlayer.User.Id == Model.ViewingUser.Id)
                                                     {
-                                                        <a asp-action="IssueChallenge" asp-route-id="@game.GameId" id="@statusid" class="btn btn-w-m btn-success" style="margin-top: 40px; margin-bottom: 20px; display: none">Challenge Opponent</a>
+                                                        <a asp-action="IssueChallenge" asp-route-id="@game.GameId" id="@statusid" class="ladda-button btn btn-w-m btn-success prevent_doubleclick" style="margin-top: 40px; margin-bottom: 20px; display: none">Challenge Opponent</a>
                                                     }
                                                 }
                                                 else if (!game.Completed)
@@ -180,7 +180,7 @@
 
                                                     if (game.HomePlayer.User.Id == Model.ViewingUser.Id)
                                                     {
-                                                        <a asp-action="IssueChallenge" asp-route-id="@game.GameId" id="@statusid" class="btn btn-w-m btn-success" style="margin-top: 40px; margin-bottom: 20px;">Challenge Opponent</a>
+                                                        <a asp-action="IssueChallenge" asp-route-id="@game.GameId" id="@statusid" class="ladda-button btn btn-w-m btn-success prevent_doubleclick" style="margin-top: 40px; margin-bottom: 20px;">Challenge Opponent</a>
                                                     }
                                                     else if (game.AwayPlayer.User.Id == Model.ViewingUser.Id)
                                                     {
@@ -249,7 +249,8 @@
 @section Styles
 {
     <link href="~/lib/chessboardjs/css/chessboard-1.0.0.min.css" rel="stylesheet">
-    
+    <link href="~/lib/ladda/dist/ladda-themeless.min.css" rel="stylesheet">
+
     <style type="text/css">
         .boardcardheader {
             font-size: 18px;
@@ -269,13 +270,16 @@
 
     <script src="~/lib/signalr/signalr.min.js"></script>
     <script src="~/lib/chessboardjs/js/chessboard-1.0.0.min.js"></script>
+    <script src="~/lib/ladda/dist/spin.min.js"></script>
+    <script src="~/lib/ladda/dist/ladda.min.js"></script>
+    <script src="~/lib/ladda/dist/ladda.jquery.min.js"></script>
 
     <script type="text/javascript">
 
         var connection = new signalR.HubConnectionBuilder().withUrl("/gamehub").build();
 
         connection.on("UpdateMatches",
-            function (gameJson) {
+            function(gameJson) {
                 if (gameJson !== null) {
                     if (gameJson.games !== null) {
                         gameJson.games.forEach(function(game) {
@@ -303,8 +307,7 @@
 
                             if (game.isStarted && !game.completed) {
                                 $(progressid).html("- In Progress");
-                            }
-                            else if (game.isStarted && game.completed) {
+                            } else if (game.isStarted && game.completed) {
                                 $(progressid).html("- Completed");
 
                                 $(homeplayerrating).html(game.homePlayerRating);
@@ -347,16 +350,6 @@
         // Start the connection.
         start();
 
-        /*
-        document.getElementById("sendButton").addEventListener("click", function (event) {
-            var user = document.getElementById("userInput").value;
-            var message = document.getElementById("messageInput").value;
-            connection.invoke("SendMessage", user, message).catch(function (err) {
-                return console.error(err.toString());
-            });
-            event.preventDefault();
-        });
-        */
         var games = {};
 
         var config = {
@@ -368,6 +361,24 @@
         {
             @Html.Raw(gameInitCode)
         }
+
+
+        $(document).ready(function() {
+
+            $('.prevent_doubleclick').on('click',
+                null,
+                function(e) {
+                    var isDisabled = e.currentTarget.hasAttribute('disabled');
+
+                    if (isDisabled) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+
+            // Bind normal buttons
+            Ladda.bind('.ladda-button', { timeout: 5000 });
+        });
 
     </script>
 } 
