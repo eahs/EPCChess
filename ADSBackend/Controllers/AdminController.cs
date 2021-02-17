@@ -59,6 +59,7 @@ namespace ADSBackend.Controllers
             viewModel.Upcoming = await _dataService.GetUpcomingMatchesAsync(currentSeason, schoolId, 4);
 
             viewModel.TopSchoolPlayers = await _context.Player.Include(p => p.PlayerSchool)
+                                                              .Include(p => p.User)
                                                               .Where(p => p.PlayerSchoolId == schoolId && p.PlayerSchool.SeasonId == currentSeason)
                                                               .OrderByDescending(p => p.Rating)
                                                               .ThenBy(p => p.LastName)

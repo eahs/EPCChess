@@ -235,7 +235,7 @@
                                         <table>
                                             <tr>
                                                 <td>
-                                                    <div class="@game.HomePlayer.User.OnlineStatusCss">
+                                                    <div class="@game.HomePlayer.User?.OnlineStatusCss">
                                                         <strong>@game.HomePlayer.FirstName @game.HomePlayer.LastName</strong>
                                                         @if (!String.IsNullOrEmpty(game.HomePlayer.User?.LichessId))
                                                         {
@@ -253,7 +253,7 @@
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <div class="@game.AwayPlayer.User.OnlineStatusCss">
+                                                    <div class="@game.AwayPlayer.User?.OnlineStatusCss">
 
                                                         <strong>@game.AwayPlayer.FirstName @game.AwayPlayer.LastName</strong>
                                                         @if (!String.IsNullOrEmpty(game.AwayPlayer.User?.LichessId))
