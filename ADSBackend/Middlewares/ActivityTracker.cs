@@ -19,7 +19,6 @@ namespace ADSBackend.Middlewares
     public class ActivityTracker
     {
         private readonly RequestDelegate _next;
-        private string[] ControllersToTrack = { "Admin", "Scholarships", "Articles", "Home", "Profile", "Scholarships" };
 
         public ActivityTracker(RequestDelegate next)
         {
@@ -31,14 +30,21 @@ namespace ADSBackend.Middlewares
             try
             {
 
-                if (httpContext.User.Identity.IsAuthenticated)
+                if (httpContext.User is not null)
                 {
-                    var user = await userManager.GetUserAsync(httpContext.User);
-
-                    if (user != null)
+                    if (httpContext.User.Identity is not null)
                     {
-                        user.LastOnline = DateTime.Now;
-                        await userManager.UpdateAsync(user);
+                        if (httpContext.User.Identity.IsAuthenticated)
+                        {
+                            var user = await userManager.GetUserAsync(httpContext.User);
+
+                            if (user != null)
+                            {
+                                user.LastOnline = DateTime.Now;
+                                await userManager.UpdateAsync(user);
+                            }
+
+                        }
                     }
                 }
 
