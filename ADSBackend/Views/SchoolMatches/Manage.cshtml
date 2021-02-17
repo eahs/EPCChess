@@ -8,7 +8,7 @@
     <li class="breadcrumb-item">
         <a asp-controller="Admin" asp-action="Index">Home</a>
     </li>
-    <li>
+    <li class="breadcrumb-item">
         <a asp-controller="SchoolMatches" asp-action="Index">Matches</a>
     </li>
     <li class="breadcrumb-item active">
@@ -59,9 +59,9 @@
                         
                         @if (Model.MatchStarted && (game.HomePlayer != null && game.AwayPlayer != null))
                         {
-                            <div class="btn-group" data-report="toggle" style="display: none">
+                            <div class="btn-group" data-report="toggle" style="display: none; margin-left: 20px;">
 
-                                <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle">Report Results <b class="caret"></b></button>
+                                <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle">Report Results</button>
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 1)">@game.HomePlayer?.FirstName @game.HomePlayer?.LastName (@Model.HomeSchool.Abbreviation) Won</a></li>
                                     <li><a class="dropdown-item" href="#" onclick="reportResult(@game.MatchId, @game.GameId, 2)">@game.AwayPlayer?.FirstName @game.AwayPlayer?.LastName (@Model.AwaySchool.Abbreviation) Won</a></li>

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ADSBackend.Models.Identity
 {
@@ -26,6 +27,18 @@ namespace ADSBackend.Models.Identity
         public string RefreshToken { get; set; } = "";
         public DateTime ExpiresAt { get; set; } = DateTime.Now;
         public String LichessId { get; set; } = "";
+        public DateTime LastOnline { get; set; }
+
+        [NotMapped]
+        public string OnlineStatusCss
+        {
+            get
+            {
+                bool isOnline = LastOnline >= DateTime.Now.AddMinutes(-15);
+
+                return isOnline ? "status online" : "status offline";
+            }
+        }
 
         public virtual string GravitarHash()
         {

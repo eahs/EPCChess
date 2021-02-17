@@ -34,6 +34,7 @@ using ADSBackend.Util;
 using AspNet.Security.OAuth.Lichess;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
+using ADSBackend.Middlewares;
 
 namespace ADSBackend
 {
@@ -219,6 +220,7 @@ namespace ADSBackend
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSession();
+            app.UseActivityTracker(); // Custom middleware to track logged in users
 
             app.UseEndpoints(endpoints =>
             {

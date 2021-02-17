@@ -65,3 +65,25 @@ body {
 .gray-bg {
     background: #eeeef3;
 }
+
+.status.online:before {
+            background-color: #44b72d;
+            border-color: #78D965;
+            box-shadow: 0px 0px 4px 1px #94E185;
+        }
+
+
+.status.offline:before {
+    background-color: #8e8081;
+    border-color: #717171;
+}
+
+.status:before {
+            content: ' ';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin-right: 3px;
+            border: 1px solid #000;
+            border-radius: 7px;
+        }

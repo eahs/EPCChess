@@ -55,10 +55,13 @@ else
                         <td>Advisor:&nbsp;&nbsp;&nbsp;</td>
                         <td>@Model.HomeSchool?.AdvisorName (@Model.HomeSchool?.AdvisorEmail)</td>
                     </tr>
+                    @if (!String.IsNullOrEmpty(Model.HomeSchool?.AdvisorPhoneNumber))
+                    {
                     <tr>
                         <td>Phone:</td>
                         <td>@Model.HomeSchool?.AdvisorPhoneNumber</td>
                     </tr>
+                   }
                 </table>
             </div>
         </div>
