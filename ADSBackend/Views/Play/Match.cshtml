@@ -292,9 +292,12 @@
             <div class="ibox-title">Match Chat</div>
             <div class="ibox-content" id="chatBox" style="">
                 <ul id="messagesList">
-                    @foreach (var chat in Model.Chat)
+                    @if (Model.Chat != null) 
                     {
-                        <li><strong>@chat.User.FullName</strong>: @chat.Message</li>
+                        @foreach (var chat in Model.Chat)
+                        {
+                            <li><strong>@chat.User.FullName</strong>: @chat.Message</li>
+                        }
                     }
                 </ul>
             </div>

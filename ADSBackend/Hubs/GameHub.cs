@@ -54,19 +54,23 @@ namespace ADSBackend.Hubs
                                 var filter = new ProfanityFilter.ProfanityFilter();
 
                                 var user = await _userManager.GetUserAsync(Context.User);
-                                message = filter.CensorString(message);
 
-                                MatchChat matchChat = new MatchChat
+                                if (user is not null)
                                 {
-                                    UserId = user.Id,
-                                    MatchId = match.MatchId,
-                                    Message = message
-                                };
+                                    message = filter.CensorString(message);
 
-                                _context.MatchChat.Add(matchChat);
-                                await _context.SaveChangesAsync();
-    
-                                await Clients.Groups("match_" + match.MatchId).SendAsync("ReceiveMessage", user.FullName, message);
+                                    MatchChat matchChat = new MatchChat
+                                    {
+                                        UserId = user.Id,
+                                        MatchId = match.MatchId,
+                                        Message = message
+                                    };
+
+                                    _context.MatchChat.Add(matchChat);
+                                    await _context.SaveChangesAsync();
+
+                                    await Clients.Groups("match_" + match.MatchId).SendAsync("ReceiveMessage", user.FullName, message);
+                                }
                             }
 
                         }

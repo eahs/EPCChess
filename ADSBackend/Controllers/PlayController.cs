@@ -84,6 +84,8 @@ namespace ADSBackend.Controllers
             }
 
             var chat = await _context.MatchChat.Where(m => m.MatchId == match.MatchId)
+                .Include(m => m.Match)
+                .Include(m => m.User)
                 .OrderBy(m => m.MessageDate)
                 .ToListAsync();
 
@@ -91,7 +93,7 @@ namespace ADSBackend.Controllers
             {
                 Match = match,
                 ViewingUser = user,
-                Chat = chat
+                Chat = chat ?? new List<MatchChat>()
             };
 
             return View(viewmodel);

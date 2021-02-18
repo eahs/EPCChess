@@ -12,6 +12,7 @@ using ADSBackend.Data;
 using ADSBackend.Models.Identity;
 using Microsoft.AspNetCore.Routing;
 using ADSBackend.Models;
+using Serilog;
 
 namespace ADSBackend.Middlewares
 {
@@ -49,8 +50,9 @@ namespace ADSBackend.Middlewares
                 }
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Log.Error(e, "Error tracking user activity");
             }
 
             await _next(httpContext);
