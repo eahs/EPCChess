@@ -4592,7 +4592,7 @@ video {
 /* WRAPPERS */
 #wrapper {
   width: 100%;
-  overflow-x: hidden;
+  /*overflow-x: hidden;*/
   display: -ms-flex;
   display: -webkit-flex;
   display: flex;

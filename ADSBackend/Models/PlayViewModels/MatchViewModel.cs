@@ -10,5 +10,6 @@ namespace ADSBackend.Models.PlayViewModels
     {
         public Match Match { get; set; }
         public ApplicationUser ViewingUser { get; set; }
+        public List<MatchChat> Chat { get; set; }
     }
 }

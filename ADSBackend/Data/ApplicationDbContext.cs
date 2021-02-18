@@ -42,6 +42,7 @@ namespace ADSBackend.Data
         public DbSet<ADSBackend.Models.RatingEvent> RatingEvent { get; set; }
         // This maps to the table that stores keys.
         public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+        public DbSet<MatchChat> MatchChat { get; set; }
 
     }
 }

@@ -83,10 +83,15 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
+            var chat = await _context.MatchChat.Where(m => m.MatchId == match.MatchId)
+                .OrderBy(m => m.MessageDate)
+                .ToListAsync();
+
             MatchViewModel viewmodel = new MatchViewModel
             {
                 Match = match,
-                ViewingUser = user
+                ViewingUser = user,
+                Chat = chat
             };
 
             return View(viewmodel);
