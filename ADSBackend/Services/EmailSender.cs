@@ -10,26 +10,26 @@ namespace ADSBackend.Services
 
     public class EmailSender : IEmailSender
     {
-        private IConfiguration Configuration { get; set; }
+        private Services.Configuration Configuration { get; set; }
 
-        public EmailSender(IConfiguration configuration)
+        public EmailSender(Services.Configuration configuration)
         {
             Configuration = configuration;
         }
 
         public Task SendEmailAsync(string email, string subject, string message)
         {
-            SmtpClient client = new SmtpClient(Configuration["SMTP_HOST"])
+            SmtpClient client = new SmtpClient(Configuration.Get("SMTP_HOST"))
             {
                 UseDefaultCredentials = false,
-                Port = int.Parse(Configuration["SMTP_PORT"]),
-                Credentials = new NetworkCredential(Configuration["SMTP_USER"], Configuration["SMTP_PASSWORD"])
+                Port = int.Parse(Configuration.Get("SMTP_PORT")),
+                Credentials = new NetworkCredential(Configuration.Get("SMTP_USER"), Configuration.Get("SMTP_PASSWORD"))
             };
 
             MailMessage mailMessage = new MailMessage
             {
                 IsBodyHtml = true,
-                From = new MailAddress(Configuration["SMTP_USER"], "EPC Chess Admin"),
+                From = new MailAddress(Configuration.Get("SMTP_USER"), "EPC Chess Admin"),
                 Body = message,
                 Subject = subject,
             };

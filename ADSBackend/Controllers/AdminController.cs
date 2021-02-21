@@ -30,13 +30,17 @@ namespace ADSBackend.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
         private readonly DataService _dataService;
+        private readonly IEmailSender _mailSender;
+        private readonly IRazorViewRenderer _razorViewRenderer;
 
-        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, DataService dataService)
+        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, DataService dataService, IEmailSender mailSender, IRazorViewRenderer razorViewRenderer)
         {
             _context = context;
             _userManager = userManager;
             _dataService = dataService;
             _signInManager = signInManager;
+            _mailSender = mailSender;
+            _razorViewRenderer = razorViewRenderer;
         }
 
         public async Task<IActionResult> Index(int err)
@@ -136,6 +140,31 @@ namespace ADSBackend.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> JoinCodes()
+        {
+            var schools = await _context.School.OrderBy(s => s.Name).ToListAsync();
+
+            return View(schools);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> SendCodes(int id)
+        {
+            var school = await _context.School.FirstOrDefaultAsync(s => s.SchoolId == id);
+
+            if (school != null && !String.IsNullOrEmpty(school.AdvisorEmail))
+            {
+                var message = await _razorViewRenderer.RenderViewAsync("~/Views/Shared/EmailTemplates/JoinCodeMessage.cshtml", school);
+
+                await _mailSender.SendEmailAsync(school.AdvisorEmail, "Welcome to EPC Chess!", message);
+
+                return RedirectToAction("JoinCodes", new { result = "success" });
+            }
+
+            return RedirectToAction("JoinCodes", new { result = "error"});
         }
 
         [Authorize(Roles = "Admin")]

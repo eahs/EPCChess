@@ -13,14 +13,14 @@ namespace ADSBackend.Configuration
     {
         public void CreateAdminUser(UserManager<ApplicationUser> _userManager)
         {
-            if (_userManager.FindByNameAsync("admin").Result != null)
+            if (_userManager.FindByNameAsync("mike@logic-gate.com").Result != null)
             {
                 return;
             }
 
             var adminUser = new ApplicationUser
             {
-                UserName = "admin",
+                UserName = "mike@logic-gate.com",
                 FirstName = "Admin",
                 SchoolId = 1
             };

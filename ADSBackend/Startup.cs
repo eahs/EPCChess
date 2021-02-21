@@ -49,12 +49,7 @@ namespace ADSBackend
             Configuration = configuration;
             Env = env;
 
-            if (Env.IsDevelopment())
-                ConnString = Configuration.GetConnectionString("AppDevelopmentContext");
-            else if (Env.IsStaging())
-                ConnString = Configuration.GetConnectionString("AppStagingContext");
-            else if (Env.IsProduction())
-                ConnString = Configuration.GetConnectionString("AppProductionContext");
+            ConnString = Configuration.GetConnectionString("AppDatabaseContext");
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -96,6 +91,7 @@ namespace ADSBackend
 
             services.AddTransient<Services.ITokenRefresher, Services.TokenRefresher>();
             services.AddScoped<RefreshTokenFilter>();
+            services.AddScoped<IRazorViewRenderer, RazorViewRenderer>();
 
             services.AddSingleton<IHostedService, GameMonitor>();
 

@@ -10,7 +10,7 @@ namespace ADSBackend.Util
     {
 
         private static char[] _base62chars =
-            "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+            "1123456789ABCDEFGHIJKLMNNPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
                 .ToCharArray();
 
         private static Random _random = new Random();

@@ -301,3 +301,9 @@ __pycache__/
 ADSBackend/Logs/20*
 
 ADSBackend/appsettings.json
+
+ADSBackend/appsettings.Development.json
+
+ADSBackend/appsettings.Production.json
+
+ADSBackend/appsettings.Staging.json

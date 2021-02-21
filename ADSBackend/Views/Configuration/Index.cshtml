@@ -43,30 +43,8 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label asp-for="SMTP_PASSWORD" class="control-label"></label>
-                        <input asp-for="SMTP_PASSWORD" type="password" class="form-control" />
+                        <input type="password" class="form-control" id="SMTP_PASSWORD" name="SMTP_PASSWORD" value="@Model.SMTP_PASSWORD" autocomplete="nope" />
                         <span asp-validation-for="SMTP_PASSWORD" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-            <hr />
-            <h2>RSS News Feed</h2>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="RSSFeedUrl" class="control-label"></label>
-                        <input asp-for="RSSFeedUrl" class="form-control" />
-                        <span asp-validation-for="RSSFeedUrl" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-            <hr />
-            <h2>Mobile App Privacy Policy</h2>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="PrivacyPolicyUrl" class="control-label"></label>
-                        <input asp-for="PrivacyPolicyUrl" class="form-control" />
-                        <span asp-validation-for="PrivacyPolicyUrl" class="text-danger"></span>
                     </div>
                 </div>
             </div>

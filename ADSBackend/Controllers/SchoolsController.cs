@@ -138,25 +138,34 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("SeasonId,DivisionId,SchoolId,Name,ShortName,Abbreviation,AdivisorName,AdvisorEmail,AdvisorPhoneNumber")] School school)
+        public async Task<IActionResult> Edit(int id, [Bind("SeasonId,DivisionId,SchoolId,Name,ShortName,Abbreviation,AdvisorName,AdvisorEmail,AdvisorPhoneNumber")] School school)
         {
             if (id != school.SchoolId)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            var _school = await _context.School.FirstOrDefaultAsync(s => s.SchoolId == id);
+
+            if (_school != null && ModelState.IsValid)
             {
+                _school.SeasonId = school.SeasonId;
+                _school.DivisionId = school.DivisionId;
+                _school.Name = school.Name;
+                _school.ShortName = school.ShortName;
+                _school.Abbreviation = school.Abbreviation;
+                _school.AdvisorName = school.AdvisorName;
+                _school.AdvisorEmail = school.AdvisorEmail;
+                _school.AdvisorPhoneNumber = school.AdvisorPhoneNumber;
+
                 if (school.Abbreviation != null)
                 {
-                    school.Abbreviation = school.Abbreviation.ToUpper();
-                    if (school.Abbreviation.Length > 2)
-                        school.Abbreviation = school.Abbreviation.Substring(0, 2);
+                    _school.Abbreviation = school.Abbreviation.ToUpper();
                 }
 
                 try
                 {
-                    _context.Update(school);
+                    _context.Update(_school);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)

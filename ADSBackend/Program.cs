@@ -10,6 +10,8 @@ namespace ADSBackend
 {
     public class Program
     {
+        public static IConfigurationRoot AppConfiguration { get; set; }
+
         public static void Main(string[] args)
         {
             string logPath = "Logs" + Path.DirectorySeparatorChar;
@@ -44,10 +46,19 @@ namespace ADSBackend
 
         public static IWebHost BuildWebHost(string[] args)
         {
-            var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddEnvironmentVariables().Build();
+            // Get the environment
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+            // Build an app configuration that includes environment-based appsettings
+            AppConfiguration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddEnvironmentVariables()
+                .AddJsonFile("appsettings.json")
+                .AddJsonFile($"appsettings.{environment}.json", optional: true)
+                .Build();
 
             return WebHost.CreateDefaultBuilder(args)
-                          .UseConfiguration(configuration)
+                          .UseConfiguration(AppConfiguration)
                           .UseStartup<Startup>()
                           .Build();
         }

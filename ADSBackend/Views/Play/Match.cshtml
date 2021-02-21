@@ -11,7 +11,7 @@
     {
         foreach (var game in Model.Match.Games)
         {
-            if (!Model.Match.MatchStarted || (Model.Match.MatchStarted && (game.HomePlayer != null || game.AwayPlayer != null)))
+            if (!Model.Match.MatchStarted || (Model.Match.MatchStarted && (game.HomePlayer != null && game.AwayPlayer != null)))
             {
                 var gameColor = game.BoardPosition % 2 == 0 ? "black" : "white";
 
@@ -198,7 +198,7 @@
                                                     <td class="text-center" colspan="2">
                                                         @if (Model.Match.IsVirtual)
                                                         {
-                                                            @if (game.IsStarted)
+                                                            @if (game.IsStarted && game.HomePlayer != null)
                                                             {
                                                                 <a href="@game.ChallengeUrl" id="@linkid" class="btn btn-w-m btn-success" style="margin-top: 40px">View Game</a>
 
@@ -207,7 +207,7 @@
                                                                     <a asp-action="IssueChallenge" asp-route-id="@game.GameId" id="@statusid" class="ladda-button btn btn-w-m btn-success prevent_doubleclick" style="margin-top: 40px; margin-bottom: 20px; display: none">Challenge Opponent</a>
                                                                 }
                                                             }
-                                                            else if (!game.Completed)
+                                                            else if (!game.Completed && game.HomePlayer != null & game.AwayPlayer != null)
                                                             {
                                                                 <a href="@game.ChallengeUrl" id="@linkid" class="btn btn-w-m btn-success" style="margin-top: 40px; display: none;">View Game</a>
 
@@ -234,7 +234,7 @@
                                             </table>
                                         </div>
                                         <div class="col-lg-6 text-center">
-                                            @if (Model.Match.IsVirtual)
+                                            @if (Model.Match.IsVirtual && game.HomePlayer != null && game.AwayPlayer != null)
                                             {
                                                 <table>
                                                     <tr>
