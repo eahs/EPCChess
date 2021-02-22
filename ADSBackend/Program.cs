@@ -5,6 +5,7 @@ using Serilog;
 using Serilog.Events;
 using System;
 using System.IO;
+using ADSBackend.Data;
 
 namespace ADSBackend
 {
@@ -46,16 +47,8 @@ namespace ADSBackend
 
         public static IWebHost BuildWebHost(string[] args)
         {
-            // Get the environment
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
             // Build an app configuration that includes environment-based appsettings
-            AppConfiguration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddEnvironmentVariables()
-                .AddJsonFile("appsettings.json")
-                .AddJsonFile($"appsettings.{environment}.json", optional: true)
-                .Build();
+            AppConfiguration = ApplicationDbContextFactory.BuildConfiguration();
 
             return WebHost.CreateDefaultBuilder(args)
                           .UseConfiguration(AppConfiguration)

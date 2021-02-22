@@ -12,18 +12,25 @@ namespace ADSBackend.Data
     
     public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
     {
-        public ApplicationDbContext CreateDbContext(string[] args)
+        public static IConfigurationRoot BuildConfiguration()
         {
             // Get environment
             string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
             // Build config
-            IConfiguration config = new ConfigurationBuilder()
+            IConfigurationRoot config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{environment}.json", optional: true)
                 .AddEnvironmentVariables()
                 .Build();
+
+            return config;
+        }
+
+        public ApplicationDbContext CreateDbContext(string[] args)
+        {
+            var config = BuildConfiguration();
 
             // Get connection string
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
