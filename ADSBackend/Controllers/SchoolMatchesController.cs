@@ -77,9 +77,9 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            if (match.Games == null || match.Games.Count != 10)
+            if (match.Games == null || match.Games.Count != 12)
             {
-                for (int board = 1; board <= 10; board++)
+                for (int board = 1; board <= 12; board++)
                 {
                     if (match.Games != null)
                     {
