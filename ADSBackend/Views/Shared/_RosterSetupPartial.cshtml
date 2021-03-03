@@ -44,6 +44,18 @@
 
                 </tr>
         </table>
+
+        @if (Model.SkippedPlayers?.Count > 0)
+        {
+            <div class="alert alert-danger" style="margin-top: 5px">
+                The following accounts are not eligible for virtual play as they were manually created:
+                @{
+                    var players = String.Join(", ", Model.SkippedPlayers.Select(p => p.FirstName + " " + p.LastName));
+                }
+                <strong>@players</strong>
+            </div>
+        }
+
     </div>
 
     <div class="ibox-footer text-left">
