@@ -66,7 +66,7 @@ namespace ADSBackend.Controllers
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
             var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _dataService.GetUserAsync(User);
 
             if (schoolId == -1)
                 return NotFound();
@@ -106,7 +106,7 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _dataService.GetUserAsync(User);
             var game = await _context.Game.Include(g => g.HomePlayer.User)
                 .Include(g => g.AwayPlayer.User)
                 .Include(g => g.Match)

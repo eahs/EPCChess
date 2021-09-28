@@ -2,8 +2,10 @@
 using ADSBackend.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ADSBackend.Models;
 using Microsoft.Extensions.DependencyInjection;
 using ADSBackend.Services;
 
@@ -22,7 +24,7 @@ namespace ADSBackend.Configuration
             {
                 UserName = "mike@logic-gate.com",
                 FirstName = "Admin",
-                SchoolId = 1
+                Schools = new List<UserSchool>()
             };
 
             IdentityResult result;
@@ -39,6 +41,13 @@ namespace ADSBackend.Configuration
             {
                 throw new Exception("The following error(s) occurred while creating the admin user: " + string.Join(" ", result.Errors.Select(e => e.Description)));
             }
+
+            adminUser.Schools.Add(new UserSchool
+            {
+                UserId = adminUser.Id,
+                SchoolId = 1
+            });
+            _userManager.UpdateAsync(adminUser).Wait();
 
             _userManager.AddToRoleAsync(adminUser, "Admin").Wait();
         }

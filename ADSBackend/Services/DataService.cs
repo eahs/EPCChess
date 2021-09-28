@@ -256,14 +256,33 @@ namespace ADSBackend.Services
             return new SelectList(seasons, "SeasonId", "Name", currentSeasonId);
         }
 
+        /// <summary>
+        /// Properly retrieves a user with extension navigation properties
+        /// </summary>
+        /// <param name="User"></param>
+        /// <returns></returns>
+        public async Task<ApplicationUser> GetUserAsync(ClaimsPrincipal User)
+        {
+            var userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var user = await _context.Users.Include(x => x.Schools).ThenInclude(s => s.School).SingleOrDefaultAsync(x => x.Id == userId);
+
+            return user;
+        }
+
         public async Task<int> GetSchoolIdAsync(ClaimsPrincipal User, int seasonId)
         {
-            var user = await _userManager.GetUserAsync(User);
+//            var user = await _userManager.GetUserAsync(User);
+            var user = await GetUserAsync(User);
 
             if (user == null)
                 return -1;
 
-            return user.SchoolId;
+            var school = user.Schools.Where(s => s.School.SeasonId == seasonId).Max();
+
+            if (school is null)
+                return -1;
+
+            return school.SchoolId;
         }
 
         // Returns Match matching matchid id and seasonId and optionally matches a schoolId

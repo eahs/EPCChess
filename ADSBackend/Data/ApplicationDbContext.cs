@@ -25,9 +25,12 @@ namespace ADSBackend.Data
             // Add your customizations after calling base.OnModelCreating(builder);
             builder.Entity<UserSchool>()
                 .HasOne(us => us.User)
-                .WithMany(t => t.Schools);
+                .WithMany(t => t.Schools)
+                .HasForeignKey(t => t.UserId);
 
         }
+
+        public DbSet<UserSchool> UserSchool { get; set; }
 
         public DbSet<ADSBackend.Models.MessagesModels.Message> Message { get; set; }
 

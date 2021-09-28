@@ -46,11 +46,11 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> Index(int err)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            int schoolId = await GetSchoolIdAsync();
+            int schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             var viewModel = new HomeViewModel
             {
-                User = await _userManager.GetUserAsync(User),
+                User = await _dataService.GetUserAsync(User),
                 JoinCodeError = err > 0
             };
 
@@ -113,7 +113,7 @@ namespace ADSBackend.Controllers
 
                 if (school is not null)
                 {
-                    var appUser = await _userManager.GetUserAsync(User);
+                    var appUser = await _dataService.GetUserAsync(User);
                     appUser.SchoolId = school.SchoolId;
 
                     var identity = (User.Identity as ClaimsIdentity);
@@ -240,16 +240,6 @@ namespace ADSBackend.Controllers
             return json;
         }
 
-        private async Task<int> GetSchoolIdAsync()
-        {
-            
-            var user = await _userManager.GetUserAsync(User);
-             
-            if (user == null)
-                return -1;
-
-            return user.SchoolId;
-        }
     }
 
 }
