@@ -44,6 +44,7 @@ namespace ADSBackend.Models
 
         [DisplayName("Join Code")] public string JoinCode { get; set; } = RandomIdGenerator.Generate(8);
 
+        public List<UserSchool> Users { get; set; }
         public List<Player> Players { get; set; }
 
         [NotMapped]

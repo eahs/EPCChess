@@ -156,7 +156,7 @@ namespace ADSBackend.Controllers
                         user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, viewModel.Password);
                     }
 
-                    // upadate user
+                    // update user
                     _context.Update(user);
                     await _context.SaveChangesAsync();
 

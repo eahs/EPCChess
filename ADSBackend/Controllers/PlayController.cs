@@ -46,7 +46,7 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> Index()
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
                 return NotFound();
@@ -65,7 +65,7 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> Match(int? id)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
             var user = await _userManager.GetUserAsync(User);
 
             if (schoolId == -1)

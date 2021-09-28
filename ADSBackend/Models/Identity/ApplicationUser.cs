@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
@@ -21,6 +22,7 @@ namespace ADSBackend.Models.Identity
         public int SchoolId { get; set; }
         public School School { get; set; }
 
+        public List<UserSchool> Schools { get; set; }
         public virtual string FullName => FirstName.Trim() + " " + LastName?.Trim();
 
         public string AccessToken { get; set; } = "";

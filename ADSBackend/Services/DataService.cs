@@ -256,7 +256,7 @@ namespace ADSBackend.Services
             return new SelectList(seasons, "SeasonId", "Name", currentSeasonId);
         }
 
-        public async Task<int> GetSchoolIdAsync(ClaimsPrincipal User)
+        public async Task<int> GetSchoolIdAsync(ClaimsPrincipal User, int seasonId)
         {
             var user = await _userManager.GetUserAsync(User);
 

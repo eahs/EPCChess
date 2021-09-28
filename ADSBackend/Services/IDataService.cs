@@ -13,7 +13,7 @@ namespace ADSBackend.Services
     {
         Task<int> GetCurrentSeasonId();
         Task<SelectList> GetSeasonSelectList(int currentSeasonId);
-        Task<int> GetSchoolIdAsync(ClaimsPrincipal User);
+        Task<int> GetSchoolIdAsync(ClaimsPrincipal User, int seasonId);
         Task<List<Division>> GetDivisionStandingsAsync(int seasonId);
         Task<List<Match>> GetUpcomingMatchesAsync(int seasonId, int schoolId, int count);
 

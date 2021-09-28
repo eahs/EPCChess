@@ -32,7 +32,7 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> Index()
         {
             int currentSeason = await _dataService.GetCurrentSeasonId();
-            int schoolId = await _dataService.GetSchoolIdAsync(User);
+            int schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
             {
@@ -58,7 +58,8 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            int schoolId = await _dataService.GetSchoolIdAsync(User);
+            int currentSeason = await _dataService.GetCurrentSeasonId();
+            int schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             var player = await _context.Player                
                 .FirstOrDefaultAsync(m => m.PlayerId == id && m.PlayerSchoolId == schoolId);
@@ -84,7 +85,8 @@ namespace ADSBackend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("PlayerId,PlayerSchoolId,FirstName,LastName,Rating")] Player player)
         {
-            int schoolId = await _dataService.GetSchoolIdAsync(User);
+            int currentSeason = await _dataService.GetCurrentSeasonId();
+            int schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (ModelState.IsValid)
             {
@@ -121,7 +123,8 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("PlayerId,FirstName,LastName,Rating")] Player player)
         {
             bool logRating = false;
-            int schoolId = await _dataService.GetSchoolIdAsync(User);
+            int currentSeason = await _dataService.GetCurrentSeasonId();
+            int schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             var _player = _context.Player.Find(id);
 
@@ -174,7 +177,8 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            int schoolId = await _dataService.GetSchoolIdAsync(User);
+            int currentSeason = await _dataService.GetCurrentSeasonId();
+            int schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             var player = await _context.Player
                 .FirstOrDefaultAsync(m => m.PlayerId == id && m.PlayerSchoolId == schoolId);

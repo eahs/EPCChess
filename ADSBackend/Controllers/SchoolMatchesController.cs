@@ -41,7 +41,7 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> Index()
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
                 return NotFound();
@@ -60,7 +60,7 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> Manage(int? id)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
                 return NotFound();
@@ -109,7 +109,7 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> MatchSetup(int? id)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
                 return NotFound();
@@ -186,7 +186,7 @@ namespace ADSBackend.Controllers
         public async Task<String> BeginMatch(IFormCollection forms)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
                 return "SCHOOL NOT FOUND";
@@ -260,7 +260,7 @@ namespace ADSBackend.Controllers
         public async Task<String> EndMatch(IFormCollection forms)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
                 return "SCHOOL NOT FOUND";
@@ -375,7 +375,7 @@ namespace ADSBackend.Controllers
         public async Task<String> ReportResult(IFormCollection forms)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
                 return JsonStatus("SCHOOL NOT FOUND");
@@ -443,7 +443,7 @@ namespace ADSBackend.Controllers
         public async Task<String> LockRoster(IFormCollection forms)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
                 return "SCHOOL NOT FOUND";
@@ -492,7 +492,7 @@ namespace ADSBackend.Controllers
         public async Task<String> UpdateRoster(IFormCollection forms)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
                 return "SCHOOL NOT FOUND";
