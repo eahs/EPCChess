@@ -127,14 +127,17 @@ namespace ADSBackend.Controllers
                         identity.RemoveClaim(guestClaim);
                     identity.AddClaim(new Claim(ClaimTypes.Role, "Player"));
 
-                    // reset user roles
-                    var roles = await _userManager.GetRolesAsync(appUser);
-                    await _userManager.RemoveFromRolesAsync(appUser, roles);
+                    if (User.IsInRole("Guest"))
+                    {
+                        // reset user roles
+                        var roles = await _userManager.GetRolesAsync(appUser);
+                        await _userManager.RemoveFromRolesAsync(appUser, roles);
 
-                    // assign new role
-                    await _userManager.AddToRoleAsync(appUser, "Player");
+                        // assign new role
+                        await _userManager.AddToRoleAsync(appUser, "Player");
 
-                    await _signInManager.SignInAsync(appUser, true);
+                        await _signInManager.SignInAsync(appUser, true);
+                    }
 
                     await _dataService.SyncExternalPlayer(appUser.Id);
 
@@ -150,7 +153,8 @@ namespace ADSBackend.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> JoinCodes()
         {
-            var schools = await _context.School.OrderBy(s => s.Name).ToListAsync();
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+            var schools = await _context.School.Where(s => s.SeasonId == currentSeason).OrderBy(s => s.Name).ToListAsync();
 
             return View(schools);
         }
@@ -158,7 +162,8 @@ namespace ADSBackend.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SendCodes(int id)
         {
-            var school = await _context.School.FirstOrDefaultAsync(s => s.SchoolId == id);
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+            var school = await _context.School.FirstOrDefaultAsync(s => s.SchoolId == id && s.SeasonId == currentSeason);
 
             if (school != null && !String.IsNullOrEmpty(school.AdvisorEmail))
             {
