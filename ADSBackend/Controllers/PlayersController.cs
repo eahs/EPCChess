@@ -36,7 +36,7 @@ namespace ADSBackend.Controllers
 
             if (schoolId == -1)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Admin");
             }
 
             ViewBag.School = await _context.School.FirstOrDefaultAsync(x => x.SchoolId == schoolId);
@@ -60,6 +60,11 @@ namespace ADSBackend.Controllers
 
             int currentSeason = await _dataService.GetCurrentSeasonId();
             int schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
+
+            if (schoolId == -1)
+            {
+                return RedirectToAction("Index", "Admin");
+            }
 
             var player = await _context.Player                
                 .FirstOrDefaultAsync(m => m.PlayerId == id && m.PlayerSchoolId == schoolId);
@@ -87,6 +92,11 @@ namespace ADSBackend.Controllers
         {
             int currentSeason = await _dataService.GetCurrentSeasonId();
             int schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
+
+            if (schoolId == -1)
+            {
+                return RedirectToAction("Index", "Admin");
+            }
 
             if (ModelState.IsValid)
             {
@@ -125,6 +135,11 @@ namespace ADSBackend.Controllers
             bool logRating = false;
             int currentSeason = await _dataService.GetCurrentSeasonId();
             int schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
+
+            if (schoolId == -1)
+            {
+                return RedirectToAction("Index", "Admin");
+            }
 
             var _player = _context.Player.Find(id);
 
@@ -180,6 +195,11 @@ namespace ADSBackend.Controllers
             int currentSeason = await _dataService.GetCurrentSeasonId();
             int schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
+            if (schoolId == -1)
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+
             var player = await _context.Player
                 .FirstOrDefaultAsync(m => m.PlayerId == id && m.PlayerSchoolId == schoolId);
             if (player == null)
@@ -196,8 +216,24 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var player = await _context.Player.FindAsync(id);
-            _context.Player.Remove(player);
-            await _context.SaveChangesAsync();
+
+            bool canDelete = User.IsInRole("Admin");
+
+            if (!canDelete)
+            {
+                var editingUser = await _dataService.GetUserAsync(User);
+
+                // Editing user can delete if that user goes to the same school as they do
+                canDelete = editingUser.Schools.FirstOrDefault(s => s.SchoolId == player.PlayerSchoolId) is not null;
+            }
+
+            if (canDelete)
+            {
+                _context.Player.Remove(player);
+                await _context.SaveChangesAsync();
+            }
+
+
             return RedirectToAction(nameof(Index));
         }
 

@@ -22,6 +22,7 @@
     */
     var seasonId = await _dataService.GetCurrentSeasonId();
     var seasonsSelect = await _dataService.GetSeasonSelectList(seasonId);
+    
 }
 <form asp-controller="SeasonSwitcher" asp-action="Switch" method="post" id="seasonSwitch" class="navbar-right">
         <li>

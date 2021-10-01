@@ -104,14 +104,17 @@ namespace ADSBackend.Services
 
         public async Task SyncExternalPlayer(int userId)
         {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-            var player = await _context.Player.FirstOrDefaultAsync(p => p.UserId == userId);
+            var user = await GetUserByIdAsync(userId);
 
+            int currentSchoolId = user.Schools.Select(s => s.SchoolId).Max();
+
+            var player = await _context.Player.OrderByDescending(p => p.PlayerId).FirstOrDefaultAsync(p => p.UserId == userId && p.PlayerSchoolId == currentSchoolId);
+            
             var info = await _userManager.GetLoginsAsync(user);
 
             if (info is not null)
             {
-                var loginrec = info.Where(ul => ul.LoginProvider.Equals("Lichess")).FirstOrDefault();
+                var loginrec = info.FirstOrDefault(ul => ul.LoginProvider.Equals("Lichess"));
 
                 if (loginrec is not null)
                 {
@@ -130,7 +133,7 @@ namespace ADSBackend.Services
                     UserId = userId,
                     FirstName = user.FirstName ?? "",
                     LastName = user.LastName ?? "",
-                    PlayerSchoolId = user.SchoolId,
+                    PlayerSchoolId = currentSchoolId,
                     Rating = 1000
                 };
 
@@ -141,14 +144,15 @@ namespace ADSBackend.Services
             {
                 if (!isPlayer)
                 {
-                    if (player != null)
-                        _context.Player.Remove(player);
+                    // We don't want to remove them if they aren't a player for a current season for past seasons
+                    // if (player != null)
+                    //    _context.Player.Remove(player);
                 }
                 else
                 {
                     player.FirstName = user.FirstName;
                     player.LastName = user.LastName;
-                    player.PlayerSchoolId = user.SchoolId;
+                    player.PlayerSchoolId = currentSchoolId;
 
                     _context.Player.Update(player);
                 }
@@ -264,9 +268,44 @@ namespace ADSBackend.Services
         public async Task<ApplicationUser> GetUserAsync(ClaimsPrincipal User)
         {
             var userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var user = await _context.Users.Include(x => x.Schools).ThenInclude(s => s.School).SingleOrDefaultAsync(x => x.Id == userId);
+            
+            return await GetUserByIdAsync(userId);
+        }
 
-            return user;
+        public async Task<ApplicationUser> GetUserByIdAsync(int userId)
+        {
+            return await _context.Users.Include(x => x.Schools).ThenInclude(s => s.School).SingleOrDefaultAsync(x => x.Id == userId);
+            
+        }
+
+
+        public async Task AddUserToSchoolAsync(ClaimsPrincipal User, int schoolId)
+        {
+            var user = await GetUserAsync(User);
+            await AddUserToSchoolAsync(user, schoolId);
+        }
+
+        public async Task AddUserToSchoolAsync(ApplicationUser User, int schoolId)
+        {
+            if (User is null) return;
+
+            var exists = User.Schools?.FirstOrDefault(s => s.SchoolId == schoolId);
+
+            if (exists is null)
+            {
+                var school = new UserSchool
+                {
+                    UserId = User.Id,
+                    SchoolId = schoolId
+                };
+                _context.UserSchool.Add(school);
+                await _context.SaveChangesAsync();
+
+                User.Schools ??= new List<UserSchool>();
+                User.Schools.Add(school);
+            }
+
+            
         }
 
         public async Task<int> GetSchoolIdAsync(ClaimsPrincipal User, int seasonId)

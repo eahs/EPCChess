@@ -19,6 +19,7 @@ namespace ADSBackend.Models.Identity
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
 
+        // DEPRECATED - Remove after running at least once in production
         public int SchoolId { get; set; }
         public School School { get; set; }
 

@@ -10,7 +10,7 @@ using ADSBackend.Models.Identity;
 
 namespace ADSBackend.Services
 {
-    interface IDataService
+    public interface IDataService
     {
         Task<int> GetCurrentSeasonId();
         Task<SelectList> GetSeasonSelectList(int currentSeasonId);
@@ -18,6 +18,9 @@ namespace ADSBackend.Services
         Task<List<Division>> GetDivisionStandingsAsync(int seasonId);
         Task<List<Match>> GetUpcomingMatchesAsync(int seasonId, int schoolId, int count);
         Task<ApplicationUser> GetUserAsync(ClaimsPrincipal User);
+        Task AddUserToSchoolAsync(ClaimsPrincipal User, int schoolId);
+        Task AddUserToSchoolAsync(ApplicationUser User, int schoolId);
+        Task<ApplicationUser> GetUserByIdAsync(int userId);
 
     }
 }

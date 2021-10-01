@@ -49,7 +49,7 @@ namespace ADSBackend.Controllers
             var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
-                return NotFound();
+                return RedirectToAction("Index", "Admin");
 
             var matches = await _context.Match.Include(m => m.HomeSchool).ThenInclude(m => m.Season)
                 .Include(m => m.AwaySchool).ThenInclude(m => m.Season)
@@ -69,7 +69,7 @@ namespace ADSBackend.Controllers
             var user = await _dataService.GetUserAsync(User);
 
             if (schoolId == -1)
-                return NotFound();
+                return RedirectToAction("Index", "Admin");
 
             if (id == null)
             {

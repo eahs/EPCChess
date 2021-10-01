@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ADSBackend.Models;
 using Microsoft.Extensions.DependencyInjection;
 using ADSBackend.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace ADSBackend.Configuration
 {
@@ -52,11 +53,46 @@ namespace ADSBackend.Configuration
             _userManager.AddToRoleAsync(adminUser, "Admin").Wait();
         }
 
+        // Temporarily used to migrate all users who have old school mappings to new style
+        // Can be removed once the SchoolId field from ApplicationUser is removed
+        public void MigrateUsers(ApplicationDbContext dbContext)
+        {
+            var users = dbContext.Users
+                .Include(u => u.Schools)
+                .ThenInclude(u => u.School)
+                .Where(u => u.SchoolId != 1)
+                .ToList();
+
+            bool updated = false;
+
+            foreach (var user in users)
+            {
+                var exists = user.Schools.FirstOrDefault(x => x.SchoolId == user.SchoolId);
+
+                if (exists is null)
+                {
+                    updated = true;
+                    user.Schools.Add(new UserSchool
+                    {
+                        UserId = user.Id,
+                        SchoolId = user.SchoolId
+                    });
+                    user.SchoolId = 1;
+                }
+            }
+
+            if (updated)
+            {
+                dbContext.SaveChanges();
+            }
+        }
+
         public Task SeedAsync(ApplicationDbContext dbContext, IServiceProvider serviceProvider)
         {
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             CreateAdminUser(userManager);
+            MigrateUsers(dbContext);
 
             return Task.CompletedTask;
         }

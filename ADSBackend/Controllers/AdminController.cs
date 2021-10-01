@@ -50,50 +50,55 @@ namespace ADSBackend.Controllers
 
             var viewModel = new HomeViewModel
             {
+                IsPlayerThisSeason = schoolId != -1,
                 User = await _dataService.GetUserAsync(User),
                 JoinCodeError = err > 0
             };
 
             bool isGuest = await _userManager.IsInRoleAsync(viewModel.User, "Guest");
 
-            if (!isGuest)
-                await _dataService.SyncExternalPlayer(viewModel.User.Id);
-
-
-            viewModel.Upcoming = await _dataService.GetUpcomingMatchesAsync(currentSeason, schoolId, 4);
-
-            viewModel.TopSchoolPlayers = await _context.Player.Include(p => p.PlayerSchool)
-                                                              .Include(p => p.User)
-                                                              .Where(p => p.PlayerSchoolId == schoolId && p.PlayerSchool.SeasonId == currentSeason)
-                                                              .OrderByDescending(p => p.Rating)
-                                                              .ThenBy(p => p.LastName)
-                                                              .ThenBy(p => p.FirstName)
-                                                              .ToListAsync();
-
-            viewModel.Divisions = await _dataService.GetDivisionStandingsAsync(currentSeason);
-
-            foreach (Division d in viewModel.Divisions)
+            if (schoolId != -1)
             {
-                var homeschool = d.Schools.FirstOrDefault(s => s.SchoolId == schoolId);
+                if (!isGuest)
+                    await _dataService.SyncExternalPlayer(viewModel.User.Id);
 
-                if (homeschool != null)
+
+                viewModel.Upcoming = await _dataService.GetUpcomingMatchesAsync(currentSeason, schoolId, 4);
+
+                viewModel.TopSchoolPlayers = await _context.Player.Include(p => p.PlayerSchool)
+                    .Include(p => p.User)
+                    .Where(p => p.PlayerSchoolId == schoolId && p.PlayerSchool.SeasonId == currentSeason)
+                    .OrderByDescending(p => p.Rating)
+                    .ThenBy(p => p.LastName)
+                    .ThenBy(p => p.FirstName)
+                    .ToListAsync();
+
+                viewModel.Divisions = await _dataService.GetDivisionStandingsAsync(currentSeason);
+
+                foreach (Division d in viewModel.Divisions)
                 {
-                    viewModel.HomeSchool = homeschool;
-                    break;
+                    var homeschool = d.Schools.FirstOrDefault(s => s.SchoolId == schoolId);
+
+                    if (homeschool != null)
+                    {
+                        viewModel.HomeSchool = homeschool;
+                        break;
+                    }
                 }
-            }
 
-            if (viewModel.HomeSchool == null)
-            {
-                viewModel.HomeSchool = new School
+                if (viewModel.HomeSchool == null)
                 {
-                    Name = "Unassigned",
-                    ShortName = "Unassigned",
-                    Abbreviation = "Unassigned",
-                    AdvisorName = "",
-                    AdvisorEmail = "",
-                    AdvisorPhoneNumber = ""
-                };
+                    viewModel.HomeSchool = new School
+                    {
+                        Name = "Unassigned",
+                        ShortName = "Unassigned",
+                        Abbreviation = "Unassigned",
+                        AdvisorName = "",
+                        AdvisorEmail = "",
+                        AdvisorPhoneNumber = ""
+                    };
+                }
+
             }
 
             return View(viewModel);
@@ -114,7 +119,7 @@ namespace ADSBackend.Controllers
                 if (school is not null)
                 {
                     var appUser = await _dataService.GetUserAsync(User);
-                    appUser.SchoolId = school.SchoolId;
+                    await _dataService.AddUserToSchoolAsync(appUser, school.SchoolId);
 
                     var identity = (User.Identity as ClaimsIdentity);
                     var guestClaim = identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role && c.Value == "Guest");
