@@ -116,6 +116,8 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
             var school = await _context.School.FindAsync(id);
             if (school == null)
             {
@@ -127,6 +129,7 @@ namespace ADSBackend.Controllers
                                                                   .ToListAsync(), "SeasonId", "Name");
 
             ViewBag.Divisions = new SelectList(await _context.Division.Select(x => x)
+                .Where(d => d.SeasonId == currentSeason)
                 .OrderByDescending(x => x.Name)
                 .ToListAsync(), "DivisionId", "Name");
 

@@ -349,10 +349,11 @@ namespace ADSBackend.Controllers
 
                 var expiresAt = DateTime.Parse(expiresAtRaw);
 
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, FirstName = model.FirstName, LastName = model.LastName, AccessToken = accessToken, RefreshToken = refreshToken, ExpiresAt = expiresAt};
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, FirstName = model.FirstName, LastName = model.LastName, AccessToken = accessToken, RefreshToken = refreshToken, ExpiresAt = expiresAt, SchoolId = 1};
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
+                    user.SchoolId = 1; // Necessary until this is removed to maintain key constraint
                     user.Schools = new List<UserSchool>();
                     user.Schools.Add(new UserSchool
                     {

@@ -316,7 +316,7 @@ namespace ADSBackend.Services
             if (user == null)
                 return -1;
 
-            var school = user.Schools.Where(s => s.School.SeasonId == seasonId).Max();
+            var school = user.Schools.Where(s => s.School.SeasonId == seasonId).OrderByDescending(s => s.School.SeasonId).FirstOrDefault();
 
             if (school is null)
                 return -1;
