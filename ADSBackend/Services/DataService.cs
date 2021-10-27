@@ -278,6 +278,24 @@ namespace ADSBackend.Services
             
         }
 
+        public async Task RemoveUserFromSchool(ClaimsPrincipal User, int schoolId)
+        {
+            var user = await GetUserAsync(User);
+            await RemoveUserFromSchool(user, schoolId);
+        }
+
+        public async Task RemoveUserFromSchool(ApplicationUser User, int schoolId)
+        {
+            var userSchool =
+                await _context.UserSchool.FirstOrDefaultAsync(x => x.UserId == User.Id && x.SchoolId == schoolId);
+
+            if (userSchool is not null)
+            {
+                _context.UserSchool.Remove(userSchool);
+
+                await _context.SaveChangesAsync();
+            }
+        }
 
         public async Task AddUserToSchoolAsync(ClaimsPrincipal User, int schoolId)
         {

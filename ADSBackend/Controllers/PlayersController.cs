@@ -224,11 +224,14 @@ namespace ADSBackend.Controllers
                 var editingUser = await _dataService.GetUserAsync(User);
 
                 // Editing user can delete if that user goes to the same school as they do
-                canDelete = editingUser.Schools.FirstOrDefault(s => s.SchoolId == player.PlayerSchoolId) is not null;
+                canDelete = editingUser.Schools.FirstOrDefault(s => s.SchoolId == player.PlayerSchoolId) is not null && User.IsInRole("Advisor");
             }
 
             if (canDelete)
             {
+                var user = await _userManager.FindByIdAsync(player.UserId+"");
+
+                await _dataService.RemoveUserFromSchool(user, player.PlayerSchoolId);
                 _context.Player.Remove(player);
                 await _context.SaveChangesAsync();
             }

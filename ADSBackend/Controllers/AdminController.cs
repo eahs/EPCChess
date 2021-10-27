@@ -121,14 +121,14 @@ namespace ADSBackend.Controllers
                     var appUser = await _dataService.GetUserAsync(User);
                     await _dataService.AddUserToSchoolAsync(appUser, school.SchoolId);
 
-                    var identity = (User.Identity as ClaimsIdentity);
-                    var guestClaim = identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role && c.Value == "Guest");
-                    if (guestClaim != null)
-                        identity.RemoveClaim(guestClaim);
-                    identity.AddClaim(new Claim(ClaimTypes.Role, "Player"));
-
                     if (User.IsInRole("Guest"))
                     {
+                        var identity = (User.Identity as ClaimsIdentity);
+                        var guestClaim = identity.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role && c.Value == "Guest");
+                        if (guestClaim != null)
+                            identity.RemoveClaim(guestClaim);
+                        identity.AddClaim(new Claim(ClaimTypes.Role, "Player"));
+
                         // reset user roles
                         var roles = await _userManager.GetRolesAsync(appUser);
                         await _userManager.RemoveFromRolesAsync(appUser, roles);

@@ -21,6 +21,8 @@ namespace ADSBackend.Services
         Task AddUserToSchoolAsync(ClaimsPrincipal User, int schoolId);
         Task AddUserToSchoolAsync(ApplicationUser User, int schoolId);
         Task<ApplicationUser> GetUserByIdAsync(int userId);
+        Task RemoveUserFromSchool(ClaimsPrincipal User, int schoolId);
+        Task RemoveUserFromSchool(ApplicationUser User, int schoolId);
 
     }
 }
