@@ -36,6 +36,7 @@ namespace ADSBackend.Services
         /// <returns></returns>
         public async Task<bool> RefreshTokens(ApplicationUser user, bool signInUser = false)
         {
+            /* OBSOLETE - LiChess no longer uses refresh tokens */
             var lichessAuthNSection = _configuration.GetSection("Authentication:Lichess");
 
             HttpMessageHandler _handler = new HttpClientHandler();

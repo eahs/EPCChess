@@ -22,24 +22,24 @@ namespace ADSBackend.Util
     public class RefreshTokenFilter : ActionFilterAttribute
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ITokenRefresher _tokenRefresher;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public RefreshTokenFilter(UserManager<ApplicationUser> userManager, ITokenRefresher tokenRefresher)
+        public RefreshTokenFilter(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
             _userManager = userManager;
-            _tokenRefresher = tokenRefresher;
+            _signInManager = signInManager;
         }
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var user = await _userManager.GetUserAsync(context.HttpContext.User);
 
-            if (user is not null && !String.IsNullOrEmpty(user.RefreshToken))
+            if (user is not null)
             {
-                if (user.ExpiresAt < DateTime.Now.AddMinutes(5)) //Check if the access token will expire in 5 minutes
+                if (user.ExpiresAt < DateTime.Now.AddMinutes(120)) //Check if the access token will expire in 120 minutes
                 {
-                    // Update the authorization tokens and sign the user in again
-                    await _tokenRefresher.RefreshTokens(user, signInUser: true);
+                    // Sign the user out
+                    await _signInManager.SignOutAsync();
                 }
             }
 

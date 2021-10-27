@@ -168,6 +168,8 @@ namespace ADSBackend
                 options.Scope.Add(LichessAuthenticationConstants.Scopes.MessageWrite);
                 options.SaveTokens = true;
 
+                options.UsePkce = true;
+                
                 options.Events.OnCreatingTicket = ctx =>
                 {
                     List<AuthenticationToken> tokens = ctx.Properties.GetTokens().ToList();
@@ -182,6 +184,7 @@ namespace ADSBackend
 
                     return Task.CompletedTask;
                 };
+
             });
 
             // configure DI for application services

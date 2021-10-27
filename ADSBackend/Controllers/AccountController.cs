@@ -282,7 +282,6 @@ namespace ADSBackend.Controllers
             if (result.Succeeded)
             {
                 var accessToken = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("access_token")).Value;
-                var refreshToken = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("refresh_token")).Value;
                 var expiresAtRaw = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("expires_at")).Value;
 
                 var expiresAt = DateTime.Parse(expiresAtRaw);
@@ -290,7 +289,6 @@ namespace ADSBackend.Controllers
                 var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
 
                 user.AccessToken = accessToken;
-                user.RefreshToken = refreshToken;
                 user.ExpiresAt = expiresAt;
 
                 await _userManager.UpdateAsync(user);
@@ -344,12 +342,11 @@ namespace ADSBackend.Controllers
                 }
 
                 var accessToken = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("access_token")).Value;
-                var refreshToken = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("refresh_token")).Value;
                 var expiresAtRaw = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("expires_at")).Value;
 
                 var expiresAt = DateTime.Parse(expiresAtRaw);
 
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, FirstName = model.FirstName, LastName = model.LastName, AccessToken = accessToken, RefreshToken = refreshToken, ExpiresAt = expiresAt, SchoolId = 1};
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, FirstName = model.FirstName, LastName = model.LastName, AccessToken = accessToken, ExpiresAt = expiresAt, SchoolId = 1};
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {

@@ -121,9 +121,9 @@ namespace ADSBackend.Controllers
 
             bool userRefreshed = false, awayRefreshed = false;
 
-            userRefreshed = await _tokenRefresher.RefreshTokens(user, false);
-            awayRefreshed = await _tokenRefresher.RefreshTokens(awayUser, false);
-            
+            userRefreshed = user.ExpiresAt > DateTime.Now.AddMinutes(60);
+            awayRefreshed = awayUser.ExpiresAt > DateTime.Now.AddMinutes(60);
+
             if (!userRefreshed)
             {
                 Log.Information("User access token expired");
