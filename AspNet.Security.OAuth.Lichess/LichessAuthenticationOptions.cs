@@ -29,6 +29,8 @@ namespace AspNet.Security.OAuth.Lichess
             ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
             ClaimActions.MapJsonSubKey(ClaimTypes.GivenName, "profile", "firstName");
             ClaimActions.MapJsonSubKey(ClaimTypes.Surname, "profile", "lastName");
+
+            UsePkce = true;
         }
 
         /// <summary>

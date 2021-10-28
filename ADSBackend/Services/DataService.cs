@@ -363,7 +363,7 @@ namespace ADSBackend.Services
         {
             return await _context.Match.Include(m => m.HomeSchool)
                                                      .Where(m => m.HomeSchool.SeasonId == seasonId && 
-                                                                 m.MatchDate.Day >= DateTime.Now.Day &&
+                                                                 m.MatchDate.Date >= DateTime.Now.Date &&
                                                                  (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId))
                                                      .OrderBy(m => m.MatchDate)
                                                      .Take(count)

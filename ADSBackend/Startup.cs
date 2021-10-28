@@ -168,7 +168,7 @@ namespace ADSBackend
                 options.Scope.Add(LichessAuthenticationConstants.Scopes.MessageWrite);
                 options.SaveTokens = true;
 
-                options.UsePkce = true;
+                //options.UsePkce = true;
                 
                 options.Events.OnCreatingTicket = ctx =>
                 {
