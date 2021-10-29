@@ -232,7 +232,7 @@ namespace ADSBackend.Controllers
                 var user = await _userManager.FindByIdAsync(player.UserId+"");
 
                 await _dataService.RemoveUserFromSchool(user, player.PlayerSchoolId);
-                _context.Player.Remove(player);
+                player.PlayerSchoolId = 1;
                 await _context.SaveChangesAsync();
             }
 

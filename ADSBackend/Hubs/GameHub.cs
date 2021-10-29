@@ -7,6 +7,7 @@ using ADSBackend.Data;
 using ADSBackend.Models;
 using ADSBackend.Models.Identity;
 using ADSBackend.Models.PlayhubViewModels;
+using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 
@@ -42,6 +43,7 @@ namespace ADSBackend.Hubs
             try
             {
                 int mid = -1;
+                message ??= "";
 
                 if (Int32.TryParse(matchId, out mid))
                 {
@@ -58,6 +60,7 @@ namespace ADSBackend.Hubs
                                 if (user is not null)
                                 {
                                     message = filter.CensorString(message);
+                                    message = message.Truncate(255);
 
                                     MatchChat matchChat = new MatchChat
                                     {

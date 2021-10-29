@@ -302,7 +302,7 @@
                 </ul>
             </div>
             <div class="input-group mb-3" style="margin-bottom: 0px !important;">
-                <input type="text" class="form-control" placeholder="Please be polite!" id="sendMessage">
+                <input type="text" class="form-control" placeholder="Please be polite!" maxlength="255" id="sendMessage">
                 <div class="input-group-append">
                     <button class="btn btn-success btn-outline-secondary" type="button" id="sendButton">Send</button>
                 </div>
@@ -456,11 +456,11 @@
             $('#chatBox').height(function (index, height) {
                 return window.innerHeight - $(this).offset().top - 100;
             });
-            scrollChatBox();
+            scrollChatBox(0);
         }
 
-        function scrollChatBox() {
-            $("#chatBox").stop().animate({ scrollTop: $("#chatBox")[0].scrollHeight }, 1000);
+        function scrollChatBox(duration) {
+            $("#chatBox").stop().animate({ scrollTop: $("#chatBox")[0].scrollHeight }, duration);
         }
 
         function postMessageToChatBox(user, message) {
@@ -473,7 +473,7 @@
             document.getElementById("messagesList").appendChild(li);
 
             $("#sendMessage").val("");
-            scrollChatBox();
+            scrollChatBox(1000);
         }
 
         $(window).resize(function () {
