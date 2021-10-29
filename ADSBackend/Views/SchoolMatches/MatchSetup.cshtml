@@ -18,6 +18,7 @@
         RosterLocked = Model.HomeRosterLocked,
         AssignedPlayers = homeAssignedPlayers,
         RemainingPlayers = ViewBag.HomeStudents,
+        SkippedPlayers = ViewBag.HomeSkippedStudents,
         School = Model.HomeSchool,
         Match = Model
     };
@@ -28,6 +29,7 @@
         RosterLocked = Model.AwayRosterLocked,
         AssignedPlayers = awayAssignedPlayers,
         RemainingPlayers = ViewBag.AwayStudents,
+        SkippedPlayers = ViewBag.HomeAwayStudents,
         School = Model.AwaySchool,
         Match = Model
     };
@@ -37,10 +39,10 @@
     <li class="breadcrumb-item">
         <a asp-controller="Admin" asp-action="Index">Home</a>
     </li>
-    <li>
+    <li class="breadcrumb-item">
         <a asp-controller="SchoolMatches" asp-action="Index">Matches</a>
     </li>
-    <li>
+    <li class="breadcrumb-item">
         <a asp-controller="SchoolMatches" asp-action="Manage" asp-route-id="@Model.MatchId">@Model.HomeSchool.ShortName vs @Model.AwaySchool.ShortName</a>
     </li>
     <li class="breadcrumb-item active">
@@ -94,7 +96,7 @@
 
 <div class="tabs-container">
     <ul class="nav nav-tabs" role="tablist">
-        <li class="active"><a class="nav-link active" data-toggle="tab" href="#tab-1">@Model.HomeSchool.ShortName Roster</a></li>
+        <li><a class="nav-link active" data-toggle="tab" href="#tab-1">@Model.HomeSchool.ShortName Roster</a></li>
         <li><a class="nav-link" data-toggle="tab" href="#tab-2">@Model.AwaySchool.ShortName Roster</a></li>
     </ul>
     <div class="tab-content">

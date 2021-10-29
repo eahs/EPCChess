@@ -5,61 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - EPC Chess</title>
 
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/lib/jquery-libs/jquery-ui/jquery-ui.css" asp-append-version="true" />
-    <link rel="stylesheet" type="text/css" href="~/lib/inspinia/inspinia.css" asp-append-version="true" />
-    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" asp-append-version="true" />
+    <environment names="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
+        <link rel="stylesheet" href="~/css/animate.css" />
+        <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+    </environment>
+    <environment names="Staging,Production">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="~/css/animate.css" />
+        <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+    </environment>
 
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
     @RenderSection("Styles", required: false)
 </head>
 <body>
-    <div id="wrapper">
+<div id="wrapper">
 
-        @await Html.PartialAsync("_NavbarPartial")
+    @await Html.PartialAsync("_NavbarPartial")
 
-        <div id="page-wrapper" class="gray-bg">
-            <div class="row border-bottom">
-                <nav class="navbar navbar-static-top white-bg" role="navigation" style="margin-bottom: 0">
-                    <div class="navbar-header">
-                        <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
-                    </div>
-                    @await Html.PartialAsync("_LoginPartial")
-                </nav>
-            </div>
-            <div class="wrapper wrapper-content animated fadeInRight">
-                <div class="row">
-                    <div class="col-lg-12">
-                        @RenderBody()
-                    </div>
+    <div id="page-wrapper" class="gray-bg">
+        <div class="row border-bottom">
+            <nav class="navbar navbar-static-top white-bg" role="navigation" style="margin-bottom: 0">
+                <div class="navbar-header">
+                    <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
                 </div>
-            </div>
-            <div class="footer">
-                <div>
-                    <strong>Copyright</strong> Michael Tanczos &copy; @DateTime.Now.Year
+                @await Html.PartialAsync("_LoginPartial")
+            </nav>
+        </div>
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+                <div class="col-lg-12">
+                    @RenderBody()
                 </div>
             </div>
         </div>
+        <div class="footer">
+            <div>
+                <strong>Copyright</strong> Michael Tanczos &copy; @DateTime.Now.Year
+            </div>
+        </div>
     </div>
+</div>
 
-    <!-- Libraries -->
-    <script src="~/lib/jquery/dist/jquery.js" asp-append-version="true"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.js" asp-append-version="true"></script>
-    <script src="~/lib/jquery-libs/jquery-ui/jquery-ui.min.js" asp-append-version="true"></script>
+<script type="text/javascript">
+    window.paceOptions = { ajax: { ignoreURLs: ['gameHub', '__browserLink', 'browserLinkSignalR'], trackWebSockets: false } }
+</script>
 
-    <!-- Custom Scripts -->
-    <script src="~/js/site.js" asp-append-version="true"></script>
+<environment names="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/Popper/popper.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/lib/metisMenu/dist/jquery.metisMenu.js"></script>
+        <script src="~/lib/slimScroll/jquery.slimscroll.js"></script>
+        <script src="~/lib/jquery-ui/jquery-ui.js"></script>
+        <script src="~/lib/pace/pace.js"></script>
+        <script src="~/js/script.js" asp-append-version="true"></script>
 
-    <!-- INSPINIA -->
-    <script src="~/lib/inspinia/plugins/metisMenu/jquery.metisMenu.js" asp-append-version="true"></script>
-    <script src="~/lib/inspinia/plugins/slimscroll/jquery.slimscroll.min.js" asp-append-version="true"></script>
-    <script src="~/lib/inspinia/inspinia.js" asp-append-version="true"></script>
-    <script src="~/lib/inspinia/plugins/pace/pace.min.js" asp-append-version="true"></script>
+        <!-- Only for demo purpose -->
+        <script src="~/js/skin.config.js"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/Popper/popper.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script src="~/lib/metisMenu/dist/jquery.metisMenu.js"></script>
+        <script src="~/lib/jquery-ui/jquery-ui.min.js"></script>
+        <script src="~/lib/pace/pace.min.js"></script>
+        <script src="~/lib/slimScroll/jquery.slimscroll.min.js"></script>
+        <script src="~/js/script.js" asp-append-version="true"></script>
+    </environment>
 
-    <!-- THIRD PARTY LIBRARIES -->
-    <script src="~/lib/mask/jquery.mask.min.js" asp-append-version="true"></script>
-    <script src="~/lib/jquery-libs/jquery.ui.touch-punch.min.js" asp-append-version="true"></script>
+    <script src="~/lib/jqueryMask/jquery.mask.min.js"></script>
+<script src="~/lib/jquery-ui/jquery.ui.touch-punch.min.js" asp-append-version="true"></script>
+
 
     @RenderSection("Scripts", required: false)
 </body>

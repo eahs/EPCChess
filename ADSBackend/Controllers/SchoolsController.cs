@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ADSBackend.Data;
 using ADSBackend.Models;
+using ADSBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace ADSBackend.Controllers
@@ -15,16 +16,20 @@ namespace ADSBackend.Controllers
     public class SchoolsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly DataService _dataService;
 
-        public SchoolsController(ApplicationDbContext context)
+        public SchoolsController(ApplicationDbContext context, DataService dataService)
         {
             _context = context;
+            _dataService = dataService;
         }
 
         // GET: Schools
         public async Task<IActionResult> Index()
         {
-            var schools = await _context.School.Where(m => m.SchoolId != 1)
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
+            var schools = await _context.School.Where(m => m.SchoolId != 1 && m.SeasonId == currentSeason)
                                                .Include(m => m.Season)
                                                .Include(m => m.Division)
                                                .OrderBy(m => m.Season.StartDate)
@@ -67,11 +72,13 @@ namespace ADSBackend.Controllers
         // GET: Schools/Create
         public async Task<IActionResult> Create()
         {
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
             ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x)
                                                                   .OrderByDescending(x => x.StartDate)
-                                                                  .ToListAsync(), "SeasonId", "Name");
+                                                                  .ToListAsync(), "SeasonId", "Name", currentSeason);
 
-            ViewBag.Divisions = new SelectList(await _context.Division.Select(x => x)
+            ViewBag.Divisions = new SelectList(await _context.Division.Select(x => x).Where(d => d.SeasonId == currentSeason)
                 .OrderByDescending(x => x.Name)
                 .ToListAsync(), "DivisionId", "Name");
 
@@ -109,6 +116,8 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
             var school = await _context.School.FindAsync(id);
             if (school == null)
             {
@@ -120,6 +129,7 @@ namespace ADSBackend.Controllers
                                                                   .ToListAsync(), "SeasonId", "Name");
 
             ViewBag.Divisions = new SelectList(await _context.Division.Select(x => x)
+                .Where(d => d.SeasonId == currentSeason)
                 .OrderByDescending(x => x.Name)
                 .ToListAsync(), "DivisionId", "Name");
 
@@ -131,25 +141,34 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("SeasonId,DivisionId,SchoolId,Name,ShortName,Abbreviation,AdivisorName,AdvisorEmail,AdvisorPhoneNumber")] School school)
+        public async Task<IActionResult> Edit(int id, [Bind("SeasonId,DivisionId,SchoolId,Name,ShortName,Abbreviation,AdvisorName,AdvisorEmail,AdvisorPhoneNumber")] School school)
         {
             if (id != school.SchoolId)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            var _school = await _context.School.FirstOrDefaultAsync(s => s.SchoolId == id);
+
+            if (_school != null && ModelState.IsValid)
             {
+                _school.SeasonId = school.SeasonId;
+                _school.DivisionId = school.DivisionId;
+                _school.Name = school.Name;
+                _school.ShortName = school.ShortName;
+                _school.Abbreviation = school.Abbreviation;
+                _school.AdvisorName = school.AdvisorName;
+                _school.AdvisorEmail = school.AdvisorEmail;
+                _school.AdvisorPhoneNumber = school.AdvisorPhoneNumber;
+
                 if (school.Abbreviation != null)
                 {
-                    school.Abbreviation = school.Abbreviation.ToUpper();
-                    if (school.Abbreviation.Length > 2)
-                        school.Abbreviation = school.Abbreviation.Substring(0, 2);
+                    _school.Abbreviation = school.Abbreviation.ToUpper();
                 }
 
                 try
                 {
-                    _context.Update(school);
+                    _context.Update(_school);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)

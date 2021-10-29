@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ADSBackend.Data;
 using ADSBackend.Models;
 using Microsoft.AspNetCore.Authorization;
+using ADSBackend.Services;
 
 namespace ADSBackend.Controllers
 {
@@ -15,16 +16,20 @@ namespace ADSBackend.Controllers
     public class DivisionsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly DataService _dataService;
 
-        public DivisionsController(ApplicationDbContext context)
+        public DivisionsController(ApplicationDbContext context, DataService dataService)
         {
             _context = context;
+            _dataService = dataService;
         }
 
         // GET: Divisions
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Division.ToListAsync());
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
+            return View(await _context.Division.Where(d => d.SeasonId == currentSeason).ToListAsync());
         }
 
         // GET: Divisions/Details/5
@@ -46,8 +51,16 @@ namespace ADSBackend.Controllers
         }
 
         // GET: Divisions/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
+
+            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x)
+                                                                  .OrderByDescending(x => x.StartDate)
+                                                                  .ToListAsync(), "SeasonId", "Name", currentSeason);
+
+
             return View();
         }
 
@@ -56,10 +69,20 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DivisionId,Name")] Division division)
+        public async Task<IActionResult> Create([Bind("DivisionId,Name,SeasonId")] Division division)
         {
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
+
+            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x)
+                                                                  .OrderByDescending(x => x.StartDate)
+                                                                  .ToListAsync(), "SeasonId", "Name", currentSeason);
+
+
             if (ModelState.IsValid)
             {
+                division.SeasonId = currentSeason;
+
                 _context.Add(division);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -75,6 +98,12 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
+            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x)
+                                                                  .OrderByDescending(x => x.StartDate)
+                                                                  .ToListAsync(), "SeasonId", "Name", currentSeason);
+
             var division = await _context.Division.FindAsync(id);
             if (division == null)
             {
@@ -88,12 +117,20 @@ namespace ADSBackend.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("DivisionId,Name")] Division division)
+        public async Task<IActionResult> Edit(int id, [Bind("DivisionId,Name,SeasonId")] Division division)
         {
             if (id != division.DivisionId)
             {
                 return NotFound();
             }
+
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+
+
+            ViewBag.Seasons = new SelectList(await _context.Season.Select(x => x)
+                                                                  .OrderByDescending(x => x.StartDate)
+                                                                  .ToListAsync(), "SeasonId", "Name", currentSeason);
+
 
             if (ModelState.IsValid)
             {

@@ -89,9 +89,10 @@ namespace ADSBackend.Configuration
 
         public Task SeedAsync(ApplicationDbContext dbContext, IServiceProvider serviceProvider)
         {
-            SeedDatabaseOrUpdate<Season>(dbContext, "seasons.json", dbContext.Season, "Name");
-            SeedDatabaseOrUpdate<Division>(dbContext, "divisions.json", dbContext.Division, "Name");
-            SeedDatabaseOrUpdate<School>(dbContext, "schools.json", dbContext.School, "Name");
+            SeedDatabaseOrUpdate<Season>(dbContext, "seasons.json", dbContext.Season, "SeasonId");
+            SeedDatabaseOrUpdate<Division>(dbContext, "divisions.json", dbContext.Division, "DivisionId");
+            SeedDatabaseOrUpdate<School>(dbContext, "schools.json", dbContext.School, "SchoolId");
+            SeedDatabaseOrUpdate<Match>(dbContext, "matches.json", dbContext.Match, "MatchId");
 
             return Task.CompletedTask;
         }

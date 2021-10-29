@@ -1,4 +1,17 @@
 [
-  { "Name": "Skyline" },
-  { "Name": "Steel" }
+  {
+    "DivisionId": 1,
+    "Name": "Skyline",
+    "SeasonId": 3
+  },
+  {
+    "DivisionId": 2,
+    "Name": "Steel",
+    "SeasonId": 3
+  },
+  {
+    "DivisionId": 3,
+    "Name": "Mountain",
+    "SeasonId": 3
+  }
 ]

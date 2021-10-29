@@ -5,11 +5,14 @@ using Serilog;
 using Serilog.Events;
 using System;
 using System.IO;
+using ADSBackend.Data;
 
 namespace ADSBackend
 {
     public class Program
     {
+        public static IConfigurationRoot AppConfiguration { get; set; }
+
         public static void Main(string[] args)
         {
             string logPath = "Logs" + Path.DirectorySeparatorChar;
@@ -44,10 +47,11 @@ namespace ADSBackend
 
         public static IWebHost BuildWebHost(string[] args)
         {
-            var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddEnvironmentVariables().Build();
+            // Build an app configuration that includes environment-based appsettings
+            AppConfiguration = ApplicationDbContextFactory.BuildConfiguration();
 
             return WebHost.CreateDefaultBuilder(args)
-                          .UseConfiguration(configuration)
+                          .UseConfiguration(AppConfiguration)
                           .UseStartup<Startup>()
                           .Build();
         }

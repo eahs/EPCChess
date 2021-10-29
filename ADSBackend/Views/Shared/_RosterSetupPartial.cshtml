@@ -5,9 +5,9 @@
 }
 
 <div class="ibox" style="box-shadow: none; border: none">
-    <div class="ibox-title" style="padding-left: 0px"><h4>@(schoolType) School: @Model.School.Name</h4></div>
+    <div class="ibox-title" style=""><h4>@(schoolType) School: @Model.School.Name</h4></div>
 
-    <div class="ibox-content" style="padding: 0px;">
+    <div class="ibox-content" style="">
 
         <br />
         <input id="@(Model.Prefix)Lock" type="checkbox" checked="@Model.RosterLocked" data-toggle="toggle" data-on="Locked" data-off="Unlocked" data-onstyle="success" data-offstyle="danger" data-width="90" data-height="40">
@@ -44,6 +44,18 @@
 
                 </tr>
         </table>
+
+        @if (Model.SkippedPlayers?.Count > 0)
+        {
+            <div class="alert alert-danger" style="margin-top: 5px">
+                The following accounts are not eligible for virtual play as they were manually created:
+                @{
+                    var players = String.Join(", ", Model.SkippedPlayers.Select(p => p.FirstName + " " + p.LastName));
+                }
+                <strong>@players</strong>
+            </div>
+        }
+
     </div>
 
     <div class="ibox-footer text-left">

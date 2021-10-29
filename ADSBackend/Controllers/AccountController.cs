@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using ADSBackend.Data;
@@ -65,6 +66,11 @@ namespace ADSBackend.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+
+                    var user = await _userManager.FindByNameAsync(model.Username);
+                    user.ExpiresAt = DateTime.Now.AddDays(30);
+                    await _userManager.UpdateAsync(user);
+
                     return RedirectToLocal(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
@@ -281,7 +287,6 @@ namespace ADSBackend.Controllers
             if (result.Succeeded)
             {
                 var accessToken = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("access_token")).Value;
-                var refreshToken = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("refresh_token")).Value;
                 var expiresAtRaw = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("expires_at")).Value;
 
                 var expiresAt = DateTime.Parse(expiresAtRaw);
@@ -289,7 +294,6 @@ namespace ADSBackend.Controllers
                 var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
 
                 user.AccessToken = accessToken;
-                user.RefreshToken = refreshToken;
                 user.ExpiresAt = expiresAt;
 
                 await _userManager.UpdateAsync(user);
@@ -343,15 +347,23 @@ namespace ADSBackend.Controllers
                 }
 
                 var accessToken = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("access_token")).Value;
-                var refreshToken = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("refresh_token")).Value;
                 var expiresAtRaw = info.AuthenticationTokens.FirstOrDefault(inf => inf.Name.Equals("expires_at")).Value;
 
                 var expiresAt = DateTime.Parse(expiresAtRaw);
 
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, FirstName = model.FirstName, LastName = model.LastName, SchoolId = model.SchoolId, AccessToken = accessToken, RefreshToken = refreshToken, ExpiresAt = expiresAt};
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, FirstName = model.FirstName, LastName = model.LastName, AccessToken = accessToken, ExpiresAt = expiresAt, SchoolId = 1};
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
+                    user.SchoolId = 1; // Necessary until this is removed to maintain key constraint
+                    user.Schools = new List<UserSchool>();
+                    user.Schools.Add(new UserSchool
+                    {
+                        UserId = user.Id,
+                        SchoolId = model.SchoolId
+                    });
+                    await _userManager.UpdateAsync(user);
+
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {

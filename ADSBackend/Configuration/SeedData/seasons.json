@@ -1,17 +1,20 @@
 [
   {
-      "Name": "Unassigned",
-      "EndDate": "2000-03-31T00:00:00",
-      "StartDate": "2000-10-01T00:00:00"
+    "SeasonId": 1,
+    "Name": "Unassigned",
+    "StartDate": "2000-10-01T00:00:00",
+    "EndDate": "2000-03-31T00:00:00"
   },
   {
+    "SeasonId": 2,
     "Name": "EPC 2019-20",
-    "EndDate": "2020-03-31T00:00:00",
-    "StartDate": "2019-10-01T00:00:00"
+    "StartDate": "2019-10-01T00:00:00",
+    "EndDate": "2020-03-31T00:00:00"
   },
   {
+    "SeasonId": 3,
     "Name": "EPC 2020-21",
-    "EndDate": "2021-05-31T00:00:00",
-    "StartDate": "2021-02-01T00:00:00"
+    "StartDate": "2021-02-01T00:00:00",
+    "EndDate": "2021-05-31T00:00:00"
   }
 ]

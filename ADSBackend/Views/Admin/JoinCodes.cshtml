@@ -1,0 +1,63 @@
+﻿@model IEnumerable<ADSBackend.Models.School>
+
+@{
+    ViewData["Title"] = "Send School Join Codes";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a asp-controller="Admin" asp-action="Index">Home</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong>Send Join Codes</strong>
+    </li>
+</ol>
+
+<h2>Schools</h2>
+
+<div class="ibox-content">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Name)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.AdvisorName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.AdvisorEmail)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.JoinCode)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td style="vertical-align: middle">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td style="vertical-align: middle">
+                        @Html.DisplayFor(modelItem => item.AdvisorName)
+                    </td>
+                    <td style="vertical-align: middle">
+                        @Html.DisplayFor(modelItem => item.AdvisorEmail)
+                    </td>
+                    <td style="vertical-align: middle">
+                        <strong>@Html.DisplayFor(modelItem => item.JoinCode)</strong>
+                    </td>
+                    <td style="vertical-align: middle">
+                        <a asp-action="SendCodes" asp-route-id="@item.SchoolId" class="btn btn-info">Send Code</a>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>

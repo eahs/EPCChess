@@ -5,6 +5,11 @@ namespace ADSBackend.Models.HomeViewModels
 {
     public class HomeViewModel
     {
+        /// <summary>
+        ///  Is this user a player in this season?
+        /// </summary>
+        public bool IsPlayerThisSeason { get; set; }
+
         public ApplicationUser User { get; set; }
 
         public School HomeSchool { get; set; }

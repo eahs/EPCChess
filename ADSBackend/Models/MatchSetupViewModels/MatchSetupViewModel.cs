@@ -18,5 +18,7 @@ namespace ADSBackend.Models.MatchSetupViewModels
         public List<Player> AssignedPlayers { get; set; }
 
         public List<Player> RemainingPlayers { get; set; }
+
+        public List<Player> SkippedPlayers { get; set; }
     }
 }

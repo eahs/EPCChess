@@ -41,10 +41,12 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> Index()
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
-                return NotFound();
+            {
+                return RedirectToAction("Index", "Admin");
+            }
 
             var matches = await _context.Match.Include(m => m.HomeSchool).ThenInclude(m => m.Season)
                                               .Include(m => m.AwaySchool).ThenInclude(m => m.Season)
@@ -60,10 +62,12 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> Manage(int? id)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
-                return NotFound();
+            {
+                return RedirectToAction("Index", "Admin");
+            }
 
             if (id == null)
             {
@@ -77,9 +81,9 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            if (match.Games == null || match.Games.Count != 10)
+            if (match.Games == null || match.Games.Count != 12)
             {
-                for (int board = 1; board <= 10; board++)
+                for (int board = 1; board <= 12; board++)
                 {
                     if (match.Games != null)
                     {
@@ -109,10 +113,12 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> MatchSetup(int? id)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
-                return NotFound();
+            {
+                return RedirectToAction("Index", "Admin");
+            }
 
             if (id == null)
             {
@@ -134,13 +140,28 @@ namespace ADSBackend.Controllers
             var homePlayers = match.Games.Where(g => g.HomePlayer != null).Select(g => g.HomePlayerId).ToList();
             var awayPlayers = match.Games.Where(g => g.AwayPlayer != null).Select(g => g.AwayPlayerId).ToList();
 
-            ViewBag.HomeStudents = await _context.Player.Where(p => p.PlayerSchoolId == match.HomeSchoolId && !homePlayers.Contains(p.PlayerId))
-                                                    .OrderByDescending(p => p.Rating)
-                                                    .ToListAsync();
+            var homeStudents = await _context.Player.Where(p => p.PlayerSchoolId == match.HomeSchoolId && !homePlayers.Contains(p.PlayerId))
+                .OrderByDescending(p => p.Rating)
+                .ToListAsync();
 
-            ViewBag.AwayStudents = await _context.Player.Where(p => p.PlayerSchoolId == match.AwaySchoolId && !awayPlayers.Contains(p.PlayerId))
-                                                    .OrderByDescending(p => p.Rating)
-                                                    .ToListAsync();
+            var awayStudents = await _context.Player.Where(p => p.PlayerSchoolId == match.AwaySchoolId && !awayPlayers.Contains(p.PlayerId))
+                .OrderByDescending(p => p.Rating)
+                .ToListAsync();
+
+            ViewBag.HomeSkippedStudents = new List<Player>();
+            ViewBag.AwaySkippedStudents = new List<Player>();
+
+            if (match.IsVirtual)
+            {
+                ViewBag.HomeSkippedStudents = homeStudents.Where(p => p.UserId == null).ToList();
+                ViewBag.AwaySkippedStudents = awayStudents.Where(p => p.UserId == null).ToList(); 
+
+                homeStudents = homeStudents.Where(p => p.UserId != null).ToList();
+                awayStudents = awayStudents.Where(p => p.UserId != null).ToList();
+            }
+
+            ViewBag.HomeStudents = homeStudents;
+            ViewBag.AwayStudents = awayStudents;
 
             return View(match);
         }
@@ -171,7 +192,7 @@ namespace ADSBackend.Controllers
         public async Task<String> BeginMatch(IFormCollection forms)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
                 return "SCHOOL NOT FOUND";
@@ -245,7 +266,7 @@ namespace ADSBackend.Controllers
         public async Task<String> EndMatch(IFormCollection forms)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
                 return "SCHOOL NOT FOUND";
@@ -360,7 +381,7 @@ namespace ADSBackend.Controllers
         public async Task<String> ReportResult(IFormCollection forms)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
                 return JsonStatus("SCHOOL NOT FOUND");
@@ -405,70 +426,6 @@ namespace ADSBackend.Controllers
 
             await _dataService.UpdateAndLogRatingCalculations(game, gameResult);
 
-            /*
-            if (gameResult == GameResult.Reset)
-            {
-                game.HomePoints = 0;
-                game.AwayPoints = 0;
-                game.HomePlayerRatingAfter = 0;
-                game.AwayPlayerRatingAfter = 0;
-                game.Completed = false;
-
-                if (game.HomePoints + game.AwayPoints != 0)
-                {
-                    game.HomePlayer.Rating = game.HomePlayerRatingBefore;
-                    game.AwayPlayer.Rating = game.AwayPlayerRatingBefore;
-
-                    _context.Update(game.HomePlayer);
-                    _context.Update(game.AwayPlayer);
-
-                    await _dataService.LogRatingEvent(game.HomePlayer.PlayerId, game.HomePlayer.Rating, "adjustment", "Game reset by advisor", false, game.GameId);
-                    await _dataService.LogRatingEvent(game.AwayPlayer.PlayerId, game.AwayPlayer.Rating, "adjustment", "Game reset by advisor", false, game.GameId);
-
-                }
-
-            }
-            else
-            {
-                int homeRating, awayRating;
-
-                // Update player's rating in case it was adjusted before this game was submitted
-                // This only happens if there are two matches running at the same time 
-                if (game.HomePoints + game.AwayPoints == 0)
-                {
-                    if (game.HomePlayerRatingBefore != game.HomePlayer.Rating)
-                        await _dataService.LogRatingEvent(game.HomePlayer.PlayerId, game.HomePlayer.Rating, "adjustment", "Player rating changed after match started", false, game.GameId);
-                    
-                    if (game.AwayPlayerRatingBefore != game.AwayPlayer.Rating)
-                        await _dataService.LogRatingEvent(game.AwayPlayer.PlayerId, game.AwayPlayer.Rating, "adjustment", "Player rating changed after match started", false, game.GameId);
-
-                    game.HomePlayerRatingBefore = game.HomePlayer.Rating;
-                    game.AwayPlayerRatingBefore = game.AwayPlayer.Rating;
-                }
-
-                RatingCalculator.Current.CalculateNewRating(game.HomePlayerRatingBefore, game.AwayPlayerRatingBefore,
-                    gameResult, out homeRating, out awayRating);
-
-                game.HomePoints = ConvertPointsWon(gameResult, 1);
-                game.AwayPoints = ConvertPointsWon(gameResult, 2); ;
-                game.HomePlayerRatingAfter = homeRating;
-                game.AwayPlayerRatingAfter = awayRating;
-
-                game.HomePlayer.Rating = homeRating;
-                game.AwayPlayer.Rating = awayRating;
-
-                game.Completed = true;
-                game.CompletedDate = DateTime.Now;
-
-                _context.Update(game.HomePlayer);
-                _context.Update(game.AwayPlayer);
-
-                await _dataService.LogRatingEvent(game.HomePlayer.PlayerId, game.HomePlayer.Rating, "game", "End of game result", false, game.GameId);
-                await _dataService.LogRatingEvent(game.AwayPlayer.PlayerId, game.AwayPlayer.Rating, "game", "End of game result", false, game.GameId);
-
-            }
-            */
-
             _context.Update(game);
             await _context.SaveChangesAsync();
 
@@ -492,7 +449,7 @@ namespace ADSBackend.Controllers
         public async Task<String> LockRoster(IFormCollection forms)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
                 return "SCHOOL NOT FOUND";
@@ -541,7 +498,7 @@ namespace ADSBackend.Controllers
         public async Task<String> UpdateRoster(IFormCollection forms)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
                 return "SCHOOL NOT FOUND";

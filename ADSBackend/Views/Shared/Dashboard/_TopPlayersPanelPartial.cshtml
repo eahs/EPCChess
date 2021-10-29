@@ -15,7 +15,7 @@
             @foreach (var player in Model)
             {
                 <tr>
-                    <td>@player.FirstName  @player.LastName</td>
+                    <td><div class="@player.User?.OnlineStatusCss">@player.FirstName  @player.LastName</div></td>
                     <td>@player.Rating</td>
                     <td>@player.Wins-@player.Losses-@player.Draws</td>
                 </tr>

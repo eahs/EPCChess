@@ -34,6 +34,7 @@ using ADSBackend.Util;
 using AspNet.Security.OAuth.Lichess;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
+using ADSBackend.Middlewares;
 
 namespace ADSBackend
 {
@@ -48,12 +49,7 @@ namespace ADSBackend
             Configuration = configuration;
             Env = env;
 
-            if (Env.IsDevelopment())
-                ConnString = Configuration.GetConnectionString("AppDevelopmentContext");
-            else if (Env.IsStaging())
-                ConnString = Configuration.GetConnectionString("AppStagingContext");
-            else if (Env.IsProduction())
-                ConnString = Configuration.GetConnectionString("AppProductionContext");
+            ConnString = Configuration.GetConnectionString("AppDatabaseContext");
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -95,6 +91,7 @@ namespace ADSBackend
 
             services.AddTransient<Services.ITokenRefresher, Services.TokenRefresher>();
             services.AddScoped<RefreshTokenFilter>();
+            services.AddScoped<IRazorViewRenderer, RazorViewRenderer>();
 
             services.AddSingleton<IHostedService, GameMonitor>();
 
@@ -171,6 +168,8 @@ namespace ADSBackend
                 options.Scope.Add(LichessAuthenticationConstants.Scopes.MessageWrite);
                 options.SaveTokens = true;
 
+                //options.UsePkce = true;
+                
                 options.Events.OnCreatingTicket = ctx =>
                 {
                     List<AuthenticationToken> tokens = ctx.Properties.GetTokens().ToList();
@@ -185,6 +184,7 @@ namespace ADSBackend
 
                     return Task.CompletedTask;
                 };
+
             });
 
             // configure DI for application services
@@ -219,6 +219,7 @@ namespace ADSBackend
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSession();
+            app.UseActivityTracker(); // Custom middleware to track logged in users
 
             app.UseEndpoints(endpoints =>
             {

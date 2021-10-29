@@ -23,8 +23,6 @@ namespace ADSBackend.Controllers
         {
             var viewModel = new ConfigurationViewModel
             {
-                RSSFeedUrl = Configuration.Get("RSSFeedUrl"),
-                PrivacyPolicyUrl = Configuration.Get("PrivacyPolicyUrl"),
                 SMTP_HOST = Configuration.Get("SMTP_HOST"),
                 SMTP_PORT = Configuration.Get("SMTP_PORT"),
                 SMTP_USER = Configuration.Get("SMTP_USER"),
@@ -41,8 +39,6 @@ namespace ADSBackend.Controllers
         {
             if (ModelState.IsValid)
             {
-                Configuration.Set("RSSFeedUrl", viewModel.RSSFeedUrl);
-                Configuration.Set("PrivacyPolicyUrl", viewModel.PrivacyPolicyUrl);
                 Configuration.Set("SMTP_HOST", viewModel.SMTP_HOST);
                 Configuration.Set("SMTP_PORT", viewModel.SMTP_PORT);
                 Configuration.Set("SMTP_USER", viewModel.SMTP_USER);

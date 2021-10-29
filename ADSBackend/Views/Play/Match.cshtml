@@ -11,7 +11,7 @@
     {
         foreach (var game in Model.Match.Games)
         {
-            if (!Model.Match.MatchStarted || (Model.Match.MatchStarted && (game.HomePlayer != null || game.AwayPlayer != null)))
+            if (!Model.Match.MatchStarted || (Model.Match.MatchStarted && (game.HomePlayer != null && game.AwayPlayer != null)))
             {
                 var gameColor = game.BoardPosition % 2 == 0 ? "black" : "white";
 
@@ -38,208 +38,276 @@
 
 <h2>Match: @ViewData["Title"]</h2>
 
-<div class="ibox">
-    <div class="ibox-title"><h4>Chess Match: @Model.Match.HomeSchool.ShortName vs @Model.Match.AwaySchool.ShortName</h4></div>
-    <div class="ibox-content">
-        @if (!Model.Match.MatchStarted && (!Model.Match.AwayRosterLocked || !Model.Match.HomeRosterLocked))
-        {
-            <div class="alert alert-danger" id="MatchNotification">
-                This match cannot begin until both home and away rosters are set up and locked. Both coaches will decide the final lineup before the start of match. Please check back again once the lineups are finalized.
-            </div>
+<div class="row">
 
-            <a asp-action="Index" class="btn btn-danger">Go Back</a>
-        }
-        else if (!Model.Match.MatchStarted)
-        {
-            <div class="alert alert-warning" id="MatchNotification">
-                Both home and away rosters have been locked for this match. The match will begin once either coach chooses to begin the match. Please check back during your regularly scheduled match time. <br /><br />
-            </div>
+    <div class="col-lg-9">
 
-            <a asp-action="Index" class="btn btn-danger">Go Back</a>
-        }
-
-        @if (!Model.Match.Completed)
-        {
-            <div class="alert alert-info" id="MatchEnding" style="@(!Model.Match.MatchStarted && !Model.Match.Completed ? "display:none" : "")">
-                The match is currently in progress.
-
-                @if (Model.Match.IsVirtual)
+        <div class="ibox">
+            <div class="ibox-title"><h4>Chess Match: @Model.Match.HomeSchool.ShortName vs @Model.Match.AwaySchool.ShortName</h4></div>
+            <div class="ibox-content">
+                @if (!Model.Match.MatchStarted && (!Model.Match.AwayRosterLocked || !Model.Match.HomeRosterLocked))
                 {
-                    <span>
-                        Please note that Lichess games are not presented live and may be a few minutes behind.
-                    </span>
+                    <div class="alert alert-danger" id="MatchNotification">
+                        This match cannot begin until both home and away rosters are set up and locked. Both coaches will decide the final lineup before the start of match. Please check back again once the lineups are finalized.
+                    </div>
+
+                    <a asp-action="Index" class="btn btn-danger">Go Back</a>
+                }
+                else if (!Model.Match.MatchStarted)
+                {
+                    <div class="alert alert-warning" id="MatchNotification">
+                        Both home and away rosters have been locked for this match. The match will begin once either coach chooses to begin the match. Please check back during your regularly scheduled match time. <br /><br />
+                    </div>
+
+                    <a asp-action="Index" class="btn btn-danger">Go Back</a>
                 }
 
-            </div>
-        }
-
-        @if (Model.Match.MatchStarted)
-        {
-
-            @foreach (var game in Model.Match.Games)
-            {
-                var prefix = "game" + game.GameId;
-                var progressid = prefix + "progress";
-                var linkid = prefix + "link";
-                var statusid = prefix + "status";
-                var homeplayerrating = prefix + "hprating";
-                var awayplayerrating = prefix + "aprating";
-                var homeplayerresult = prefix + "hpresult";
-                var awayplayerresult = prefix + "apresult";
-
-                @if (!Model.Match.MatchStarted || (Model.Match.MatchStarted && (game.HomePlayer != null || game.AwayPlayer != null)))
+                @if (!Model.Match.Completed)
                 {
-                    <div class="panel panel-default" data-seated="@((game.HomePlayer != null && game.AwayPlayer != null) || (game.HomePlayer != null && game.BoardPosition <= 7) || (game.AwayPlayer != null && game.BoardPosition <= 7))">
-                        <div class="panel-heading">
-                            <span class="boardcardheader">
-                                Board @game.BoardPosition
+                    <div class="alert alert-info" id="MatchEnding" style="@(!Model.Match.MatchStarted && !Model.Match.Completed ? "display:none" : "")">
+                        The match is currently in progress.
 
-                                @if (game.IsStarted && !game.Completed)
-                                {
-                                    <span id="@progressid"> - In Progress</span>
-                                }
-                                else if (game.IsStarted && game.Completed)
-                                {
-                                    <span id="@progressid"> - Completed</span>
-                                }
-                                else
-                                {
-                                    <span id="@progressid"> - Waiting to start</span>
-                                }
-                                @if (game.CheatingDetected)
-                                {
-                                    <span class="alert alert-danger" style="padding: 4px; margin-left: 20px">Possible Cheating Detected</span>
-                                }
+                        @if (Model.Match.IsVirtual)
+                        {
+                            <span>
+                                Please note that Lichess games are not presented live and may be a few minutes behind.
                             </span>
-                        </div>
-
-                        <div class="panel-body">
-                            <div class="col-lg-4">
-                                <table>
-                                    <tr>
-                                        <td width="190" style="vertical-align: middle; text-align: center">
-                                            @if (game.HomePlayer != null && Model.Match.MatchStarted)
-                                            {
-                                                @(game.HomePlayerFullName)
-                                                <span class="chessrating" id="@homeplayerrating">@(game.HomePlayerGameRating)</span>
-                                            }
-                                            else if (game.HomePlayer != null)
-                                            {
-                                                @(game.HomePlayerFullName)
-                                                <span class="chessrating" id="@homeplayerrating">(@(game.HomePlayer.Rating))</span>
-                                            }
-                                            else
-                                            {
-                                                <span>Unassigned</span>
-                                            }
-                                        </td>
-                                        <td class="boardcardresult">
-                                            <div id="@homeplayerresult">@game.HomePoints</div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align: center">vs</td>
-                                        <td>&nbsp;</td>
-                                    </tr>
-                                    <tr>
-                                        <td width="250" style="vertical-align: middle; text-align: center">
-                                            @if (game.AwayPlayer != null && Model.Match.MatchStarted)
-                                            {
-                                                @(game.AwayPlayerFullName)
-                                                <span class="chessrating" id="@awayplayerrating">@(game.AwayPlayerGameRating)</span>
-                                            }
-                                            else if (game.AwayPlayer != null)
-                                            {
-                                                @(game.AwayPlayerFullName)
-                                                <span class="chessrating" id="@awayplayerrating">(@(game.AwayPlayer.Rating))</span>
-                                            }
-                                            else
-                                            {
-                                                <span>Unassigned</span>
-                                            }
-                                        </td>
-                                        <td class="boardcardresult">
-                                            <div id="@awayplayerresult">@game.AwayPoints</div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center" colspan="2">
-                                            @if (game.IsStarted)
-                                            {
-                                                <a href="@game.ChallengeUrl" id="@linkid" class="btn btn-w-m btn-success" style="margin-top: 40px">View Game</a>
-
-                                                if (game.HomePlayer.User.Id == Model.ViewingUser.Id)
-                                                {
-                                                    <a asp-action="IssueChallenge" asp-route-id="@game.GameId" id="@statusid" class="btn btn-w-m btn-success" style="margin-top: 40px; margin-bottom: 20px; display: none">Challenge Opponent</a>
-                                                }
-                                            }
-                                            else if (!game.Completed)
-                                            {
-                                                <a href="@game.ChallengeUrl" id="@linkid" class="btn btn-w-m btn-success" style="margin-top: 40px;display: none;">View Game</a>
-
-                                                if (game.HomePlayer.User.Id == Model.ViewingUser.Id)
-                                                {
-                                                    <a asp-action="IssueChallenge" asp-route-id="@game.GameId" id="@statusid" class="btn btn-w-m btn-success" style="margin-top: 40px; margin-bottom: 20px;">Challenge Opponent</a>
-                                                }
-                                                else if (game.AwayPlayer.User.Id == Model.ViewingUser.Id)
-                                                {
-                                                    <div id="@statusid" style="margin-top: 30px" class="alert alert-warning">
-                                                        <span>Awaiting home team player to issue a challenge.</span>
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <div id="@statusid" style="margin-top: 30px" class="alert alert-warning">
-                                                        <span>Awaiting players to begin game</span>
-                                                    </div>
-                                                }
-                                            }
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-lg-6 text-center">
-                                @if (Model.Match.IsVirtual)
-                                {
-                                    <table>
-                                        <tr>
-                                            <td>
-                                                <strong>@game.HomePlayer.FirstName @game.HomePlayer.LastName</strong>
-                                                @if (!String.IsNullOrEmpty(game.HomePlayer.User?.LichessId))
-                                                {
-                                                    <span>
-                                                        (<a href="https://lichess.org/@@/@game.HomePlayer.User.LichessId" target="_blank">@game.HomePlayer.User.LichessId</a>)
-                                                    </span>
-                                                }
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div id="board_@game.GameId" style="width: 256px"></div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <strong>@game.AwayPlayer.FirstName @game.AwayPlayer.LastName</strong>
-                                                @if (!String.IsNullOrEmpty(game.AwayPlayer.User?.LichessId))
-                                                {
-                                                    <span>
-                                                        (<a href="https://lichess.org/@@/@game.AwayPlayer.User.LichessId" target="_blank">@game.AwayPlayer.User.LichessId</a>)
-                                                    </span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    </table>
-                                }
-                            </div>
-
-                        </div>
+                        }
 
                     </div>
                 }
-            }
-        }
 
+                @if (Model.Match.Completed)
+                {
+                    <div class="alert alert-info">
+                        <h4>@Model.Match.HomeSchool.Name (@Model.Match.HomePoints) vs @Model.Match.AwaySchool.Name (@Model.Match.AwayPoints)</h4>
+
+                        @if (Model.Match.HomePoints > Model.Match.AwayPoints)
+                        {
+                            <div>
+                                This match has concluded and @Model.Match.HomeSchool.Name was the winner.
+                            </div>
+                        }
+                        else if (Model.Match.HomePoints < Model.Match.AwayPoints)
+                        {
+                            <div>
+                                This match has concluded and @Model.Match.AwaySchool.Name was the winner.
+                            </div>
+                        }
+                        else
+                        {
+                            <div>
+                                This match has concluded and it was a draw.
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (Model.Match.MatchStarted)
+                {
+
+                    @foreach (var game in Model.Match.Games)
+                    {
+                        var prefix = "game" + game.GameId;
+                        var progressid = prefix + "progress";
+                        var linkid = prefix + "link";
+                        var statusid = prefix + "status";
+                        var homeplayerrating = prefix + "hprating";
+                        var awayplayerrating = prefix + "aprating";
+                        var homeplayerresult = prefix + "hpresult";
+                        var awayplayerresult = prefix + "apresult";
+
+                        @if (!Model.Match.MatchStarted || (Model.Match.MatchStarted && (game.HomePlayer != null || game.AwayPlayer != null)))
+                        {
+                            <div class="panel panel-default" data-seated="@((game.HomePlayer != null && game.AwayPlayer != null) || (game.HomePlayer != null && game.BoardPosition <= 7) || (game.AwayPlayer != null && game.BoardPosition <= 7))">
+                                <div class="panel-heading">
+                                    <span class="boardcardheader">
+                                        Board @game.BoardPosition
+
+                                        @if (game.IsStarted && !game.Completed)
+                                        {
+                                            <span id="@progressid"> - In Progress</span>
+                                        }
+                                        else if (game.IsStarted && game.Completed)
+                                        {
+                                            <span id="@progressid"> - Completed</span>
+                                        }
+                                        else
+                                        {
+                                            <span id="@progressid"> - Waiting to start</span>
+                                        }
+                                        @if (game.CheatingDetected)
+                                        {
+                                            <span class="alert alert-danger" style="padding: 4px; margin-left: 20px">Possible Cheating Detected</span>
+                                        }
+                                    </span>
+                                </div>
+
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <table>
+                                                <tr>
+                                                    <td width="190" style="vertical-align: middle; text-align: center">
+                                                        @if (game.HomePlayer != null && Model.Match.MatchStarted)
+                                                        {
+                                                            @(game.HomePlayerFullName)
+
+                                                            <span class="chessrating" id="@homeplayerrating">@(game.HomePlayerGameRating)</span>
+                                                        }
+                                                        else if (game.HomePlayer != null)
+                                                        {
+                                                            @(game.HomePlayerFullName)
+                                                            <span class="chessrating" id="@homeplayerrating">(@(game.HomePlayer.Rating))</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Unassigned</span>
+                                                        }
+                                                    </td>
+                                                    <td class="boardcardresult">
+                                                        <div id="@homeplayerresult">@game.HomePoints</div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="text-align: center">vs</td>
+                                                    <td>&nbsp;</td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="250" style="vertical-align: middle; text-align: center">
+                                                        @if (game.AwayPlayer != null && Model.Match.MatchStarted)
+                                                        {
+                                                            @(game.AwayPlayerFullName)
+                                                            <span class="chessrating" id="@awayplayerrating">@(game.AwayPlayerGameRating)</span>
+                                                        }
+                                                        else if (game.AwayPlayer != null)
+                                                        {
+                                                            @(game.AwayPlayerFullName)
+                                                            <span class="chessrating" id="@awayplayerrating">(@(game.AwayPlayer.Rating))</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Unassigned</span>
+                                                        }
+                                                    </td>
+                                                    <td class="boardcardresult">
+                                                        <div id="@awayplayerresult">@game.AwayPoints</div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center" colspan="2">
+                                                        @if (Model.Match.IsVirtual)
+                                                        {
+                                                            @if (game.IsStarted && game.HomePlayer != null)
+                                                            {
+                                                                <a href="@game.ChallengeUrl" id="@linkid" class="btn btn-w-m btn-success" style="margin-top: 40px">View Game</a>
+
+                                                                if (game.HomePlayer.User.Id == Model.ViewingUser.Id)
+                                                                {
+                                                                    <a asp-action="IssueChallenge" asp-route-id="@game.GameId" id="@statusid" class="ladda-button btn btn-w-m btn-success prevent_doubleclick" style="margin-top: 40px; margin-bottom: 20px; display: none">Challenge Opponent</a>
+                                                                }
+                                                            }
+                                                            else if (!game.Completed && game.HomePlayer != null & game.AwayPlayer != null)
+                                                            {
+                                                                <a href="@game.ChallengeUrl" id="@linkid" class="btn btn-w-m btn-success" style="margin-top: 40px; display: none;">View Game</a>
+
+                                                                if (game.HomePlayer.User.Id == Model.ViewingUser.Id)
+                                                                {
+                                                                    <a asp-action="IssueChallenge" asp-route-id="@game.GameId" id="@statusid" class="ladda-button btn btn-w-m btn-success prevent_doubleclick" style="margin-top: 40px; margin-bottom: 20px;">Challenge Opponent</a>
+                                                                }
+                                                                else if (game.AwayPlayer.User.Id == Model.ViewingUser.Id)
+                                                                {
+                                                                    <div id="@statusid" style="margin-top: 30px" class="alert alert-warning">
+                                                                        <span>Awaiting home team player to issue a challenge.</span>
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div id="@statusid" style="margin-top: 30px" class="alert alert-warning">
+                                                                        <span>Awaiting players to begin game</span>
+                                                                    </div>
+                                                                }
+                                                            }
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div class="col-lg-6 text-center">
+                                            @if (Model.Match.IsVirtual && game.HomePlayer != null && game.AwayPlayer != null)
+                                            {
+                                                <table>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="@game.HomePlayer.User?.OnlineStatusCss">
+                                                                <strong>@game.HomePlayer.FirstName @game.HomePlayer.LastName</strong>
+                                                                @if (!String.IsNullOrEmpty(game.HomePlayer.User?.LichessId))
+                                                                {
+                                                                    <span>
+                                                                        (<a href="https://lichess.org/@@/@game.HomePlayer.User.LichessId" target="_blank">@game.HomePlayer.User.LichessId</a>)
+                                                                    </span>
+                                                                }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div id="board_@game.GameId" style="width: 256px"></div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="@game.AwayPlayer.User?.OnlineStatusCss">
+
+                                                                <strong>@game.AwayPlayer.FirstName @game.AwayPlayer.LastName</strong>
+                                                                @if (!String.IsNullOrEmpty(game.AwayPlayer.User?.LichessId))
+                                                                {
+                                                                    <span>
+                                                                        (<a href="https://lichess.org/@@/@game.AwayPlayer.User.LichessId" target="_blank">@game.AwayPlayer.User.LichessId</a>)
+                                                                    </span>
+                                                                }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        }
+                    }
+                }
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-3">
+        <div class="ibox sticky-top">
+            <div class="ibox-title">Match Chat</div>
+            <div class="ibox-content" id="chatBox" style="">
+                <ul id="messagesList">
+                    @if (Model.Chat != null) 
+                    {
+                        @foreach (var chat in Model.Chat)
+                        {
+                            <li><strong>@chat.User.FullName</strong>: @chat.Message</li>
+                        }
+                    }
+                </ul>
+            </div>
+            <div class="input-group mb-3" style="margin-bottom: 0px !important;">
+                <input type="text" class="form-control" placeholder="Please be polite!" maxlength="255" id="sendMessage">
+                <div class="input-group-append">
+                    <button class="btn btn-success btn-outline-secondary" type="button" id="sendButton">Send</button>
+                </div>
+            </div>
+        </div>
 
     </div>
 
@@ -248,8 +316,24 @@
 @section Styles
 {
     <link href="~/lib/chessboardjs/css/chessboard-1.0.0.min.css" rel="stylesheet">
-    
+    <link href="~/lib/ladda/dist/ladda-themeless.min.css" rel="stylesheet">
+
     <style type="text/css">
+
+        #chatBox {
+            min-height: 250px;
+            padding: 5px 20px 5px 15px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            cursor: initial;
+            font-size: 0.9em;
+        }
+
+        #messagesList {
+            padding-inline-start: 0px;
+            list-style-type: none;
+        }
+
         .boardcardheader {
             font-size: 18px;
             font-weight: bold;
@@ -268,13 +352,20 @@
 
     <script src="~/lib/signalr/signalr.min.js"></script>
     <script src="~/lib/chessboardjs/js/chessboard-1.0.0.min.js"></script>
+    <script src="~/lib/ladda/dist/spin.min.js"></script>
+    <script src="~/lib/ladda/dist/ladda.min.js"></script>
+    <script src="~/lib/ladda/dist/ladda.jquery.min.js"></script>
 
     <script type="text/javascript">
 
         var connection = new signalR.HubConnectionBuilder().withUrl("/gamehub").build();
 
+        connection.on("ReceiveMessage", function (user, message) {
+            postMessageToChatBox(user, message);
+        });
+
         connection.on("UpdateMatches",
-            function (gameJson) {
+            function(gameJson) {
                 if (gameJson !== null) {
                     if (gameJson.games !== null) {
                         gameJson.games.forEach(function(game) {
@@ -292,7 +383,7 @@
                             var awayplayerresult = prefix + "apresult";
 
                             if (game.isStarted) {
-                                $(linkid).attr("href", game.challengeUrl); 
+                                $(linkid).attr("href", game.challengeUrl);
                                 $(linkid).show();
                                 $(statusid).hide();
                             } else {
@@ -302,8 +393,7 @@
 
                             if (game.isStarted && !game.completed) {
                                 $(progressid).html("- In Progress");
-                            }
-                            else if (game.isStarted && game.completed) {
+                            } else if (game.isStarted && game.completed) {
                                 $(progressid).html("- Completed");
 
                                 $(homeplayerrating).html(game.homePlayerRating);
@@ -317,8 +407,8 @@
                                 $(linkid).hide();
                                 $(statusid).show();
                             }
-                            
-                                
+
+
                         });
                     }
                 }
@@ -326,8 +416,12 @@
 
         async function start() {
             try {
+                document.getElementById("sendButton").disabled = true;
+
                 await connection.start();
                 await connection.invoke("JoinMatch", "@Model.Match.MatchId");
+
+                document.getElementById("sendButton").disabled = false;
 
                 console.log("SignalR Connected.");
 
@@ -346,16 +440,6 @@
         // Start the connection.
         start();
 
-        /*
-        document.getElementById("sendButton").addEventListener("click", function (event) {
-            var user = document.getElementById("userInput").value;
-            var message = document.getElementById("messageInput").value;
-            connection.invoke("SendMessage", user, message).catch(function (err) {
-                return console.error(err.toString());
-            });
-            event.preventDefault();
-        });
-        */
         var games = {};
 
         var config = {
@@ -363,7 +447,78 @@
             position: 'start'
         }
 
-        @Html.Raw(gameInitCode)
+        @if (Model.Match.MatchStarted)
+        {
+            @Html.Raw(gameInitCode)
+        }
+
+        function resizeChatBox() {
+            $('#chatBox').height(function (index, height) {
+                return window.innerHeight - $(this).offset().top - 100;
+            });
+            scrollChatBox(0);
+        }
+
+        function scrollChatBox(duration) {
+            $("#chatBox").stop().animate({ scrollTop: $("#chatBox")[0].scrollHeight }, duration);
+        }
+
+        function postMessageToChatBox(user, message) {
+
+            var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            var encodedMsg = "<strong>" + user + "</strong>: " + msg;
+            var li = document.createElement("li");
+            //li.textContent = encodedMsg;
+            li.innerHTML = encodedMsg;
+            document.getElementById("messagesList").appendChild(li);
+
+            $("#sendMessage").val("");
+            scrollChatBox(1000);
+        }
+
+        $(window).resize(function () {
+            resizeChatBox();
+        });
+
+        $("#sendButton").on("click", function () {
+
+            var message = $("#sendMessage").val();
+            connection.invoke("SendMessage", "@Model.Match.MatchId", message).catch(function (err) {
+                return console.error(err.toString());
+            });
+
+        });
+
+        $('#sendMessage').keyup(function (event) {
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if (keycode === 13) {
+
+                var message = $("#sendMessage").val();
+                connection.invoke("SendMessage",  "@Model.Match.MatchId",  message).catch(function (err) {
+                    return console.error(err.toString());
+                });
+
+            }
+        });
+
+        $(document).ready(function() {
+
+            $('.prevent_doubleclick').on('click',
+                null,
+                function(e) {
+                    var isDisabled = e.currentTarget.hasAttribute('disabled');
+
+                    if (isDisabled) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+
+            // Bind normal buttons
+            Ladda.bind('.ladda-button', { timeout: 5000 });
+
+            resizeChatBox();
+        });
 
     </script>
 } 

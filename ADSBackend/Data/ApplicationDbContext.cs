@@ -23,7 +23,14 @@ namespace ADSBackend.Data
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
+            builder.Entity<UserSchool>()
+                .HasOne(us => us.User)
+                .WithMany(t => t.Schools)
+                .HasForeignKey(t => t.UserId);
+
         }
+
+        public DbSet<UserSchool> UserSchool { get; set; }
 
         public DbSet<ADSBackend.Models.MessagesModels.Message> Message { get; set; }
 
@@ -42,6 +49,7 @@ namespace ADSBackend.Data
         public DbSet<ADSBackend.Models.RatingEvent> RatingEvent { get; set; }
         // This maps to the table that stores keys.
         public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+        public DbSet<MatchChat> MatchChat { get; set; }
 
     }
 }

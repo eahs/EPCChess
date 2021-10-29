@@ -1,4 +1,5 @@
-﻿using ADSBackend.Data;
+﻿using System.Collections.Generic;
+using ADSBackend.Data;
 using ADSBackend.Models.Identity;
 using ADSBackend.Models.AdminViewModels;
 using ADSBackend.Services;
@@ -9,6 +10,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
+using ADSBackend.Models;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ADSBackend.Controllers
 {
@@ -19,32 +22,42 @@ namespace ADSBackend.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IEmailSender _emailSender;
+        private readonly DataService _dataService;
 
-        public UsersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IEmailSender emailSender)
+        public UsersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IEmailSender emailSender, DataService dataService)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _emailSender = emailSender;
+            _dataService = dataService;
         }
 
-        public async Task<SelectList> GetSchoolSelectList ()
+        public async Task<MultiSelectList> GetSchoolSelectList (List<int> schoolIds = null)
         {
             var schools = await _context.School.Include(s => s.Season)
-                                               .OrderByDescending(s => s.Season.EndDate)
-                                               .ThenBy(x => x.Name)
+                                               .OrderBy(x => x.Name)
+                                               .ThenByDescending(s => s.Season.EndDate)
                                                .ToListAsync();
 
-            return new SelectList(schools.Select(a => new SelectListItem
+            return new MultiSelectList(schools.Select(a => new SelectListItem
                                                             {
                                                                 Text = a.Name + " (" + a.Season.Name + ")",
                                                                 Value = "" + a.SchoolId
-                                                            }), "Value", "Text");
+                                                            }), "Value", "Text", schoolIds ?? new List<int>());
         }
 
         public async Task<IActionResult> Index()
         {
-            var users = await _context.Users.Include(x => x.School).OrderBy(x => x.LastName).ToListAsync();
+            var users = await _context.Users.Include(x => x.Schools).ThenInclude(x => x.School).OrderBy(x => x.LastName).ToListAsync();
+            var userRoles = await _context.UserRoles.ToListAsync();
+            var roleNames = new Dictionary<int, string>();
+
+            var rnames = await _context.Roles.ToListAsync();
+            foreach (var rname in rnames)
+            {
+                roleNames.Add(rname.Id, rname.Name);
+            }
 
             var viewModel = users.Select(x => new UserViewModel
             {
@@ -52,9 +65,9 @@ namespace ADSBackend.Controllers
                 Email = x.Email,
                 FirstName = x.FirstName,
                 LastName = x.LastName,
-                Role = _userManager.GetRolesAsync(x).Result.FirstOrDefault(),
-                SchoolId = x.SchoolId,
-                School = x.School
+                Role = roleNames[userRoles.Where(u => u.UserId == x.Id).Select(x => x.RoleId).FirstOrDefault()],
+                SchoolIds = x.Schools.Select(x => x.SchoolId).ToList(),
+                Schools = x.Schools.Select(x => x.School).ToList()
             }).ToList();
 
             return View(viewModel);
@@ -70,7 +83,7 @@ namespace ADSBackend.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Email,FirstName,LastName,Role,SchoolId,Password,ConfirmPassword")] UserViewModel viewModel)
+        public async Task<IActionResult> Create([Bind("Email,FirstName,LastName,Role,SchoolIds,Password,ConfirmPassword")] UserViewModel viewModel)
         {
             if (string.IsNullOrEmpty(viewModel.Password))
             {
@@ -84,14 +97,18 @@ namespace ADSBackend.Controllers
                     UserName = viewModel.Email,
                     Email = viewModel.Email,
                     FirstName = viewModel.FirstName,
-                    LastName = viewModel.LastName,
-                    SchoolId = viewModel.SchoolId
+                    LastName = viewModel.LastName
                 };
 
                 user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, viewModel.Password);
 
                 // create user
                 await _userManager.CreateAsync(user);
+
+                foreach (var schoolId in viewModel.SchoolIds)
+                {
+                    await _dataService.AddUserToSchoolAsync(user, schoolId);
+                }
 
                 // assign new role
                 await _userManager.AddToRoleAsync(user, viewModel.Role);
@@ -111,11 +128,8 @@ namespace ADSBackend.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users.Include(x => x.Schools).ThenInclude(x => x.School).FirstOrDefaultAsync(x => x.Id == id);
             var role = await _userManager.GetRolesAsync(user);
-
-            ViewBag.Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Name", "Name");
-            ViewBag.Schools = await GetSchoolSelectList();
 
             var viewModel = new UserViewModel
             {
@@ -123,16 +137,20 @@ namespace ADSBackend.Controllers
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                SchoolId = user.SchoolId,
+                SchoolIds = user.Schools.Select(x => x.SchoolId).ToList(),
+                Schools = user.Schools.Select(x => x.School).ToList(),
                 Role = role.FirstOrDefault()
             };
+
+            ViewBag.Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Name", "Name");
+            ViewBag.Schools = await GetSchoolSelectList(viewModel.SchoolIds);
 
             return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Email,FirstName,LastName,Role,SchoolId,Password,ConfirmPassword")] UserViewModel viewModel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Email,FirstName,LastName,Role,SchoolIds,Password,ConfirmPassword")] UserViewModel viewModel)
         {
             if (id != viewModel.Id)
             {
@@ -148,7 +166,12 @@ namespace ADSBackend.Controllers
                     user.Email = viewModel.Email;
                     user.FirstName = viewModel.FirstName;
                     user.LastName = viewModel.LastName;
-                    user.SchoolId = viewModel.SchoolId;
+
+                    user.Schools = viewModel.SchoolIds.Select(x => new UserSchool
+                    {
+                        UserId = user.Id,
+                        SchoolId = x
+                    }).ToList();
 
                     if (!string.IsNullOrEmpty(viewModel.Password))
                     {
@@ -156,7 +179,7 @@ namespace ADSBackend.Controllers
                         user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, viewModel.Password);
                     }
 
-                    // upadate user
+                    // update user
                     _context.Update(user);
                     await _context.SaveChangesAsync();
 
@@ -182,6 +205,7 @@ namespace ADSBackend.Controllers
             }
 
             ViewBag.Roles = new SelectList(await _roleManager.Roles.ToListAsync(), "Name", "Name");
+            ViewBag.Schools = await GetSchoolSelectList(viewModel.SchoolIds);
 
             return View(viewModel);
         }

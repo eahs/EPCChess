@@ -46,10 +46,10 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> Index()
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
 
             if (schoolId == -1)
-                return NotFound();
+                return RedirectToAction("Index", "Admin");
 
             var matches = await _context.Match.Include(m => m.HomeSchool).ThenInclude(m => m.Season)
                 .Include(m => m.AwaySchool).ThenInclude(m => m.Season)
@@ -65,11 +65,11 @@ namespace ADSBackend.Controllers
         public async Task<IActionResult> Match(int? id)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
-            var schoolId = await _dataService.GetSchoolIdAsync(User);
-            var user = await _userManager.GetUserAsync(User);
+            var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
+            var user = await _dataService.GetUserAsync(User);
 
             if (schoolId == -1)
-                return NotFound();
+                return RedirectToAction("Index", "Admin");
 
             if (id == null)
             {
@@ -83,10 +83,17 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
+            var chat = await _context.MatchChat.Where(m => m.MatchId == match.MatchId)
+                .Include(m => m.Match)
+                .Include(m => m.User)
+                .OrderBy(m => m.MessageDate)
+                .ToListAsync();
+
             MatchViewModel viewmodel = new MatchViewModel
             {
                 Match = match,
-                ViewingUser = user
+                ViewingUser = user,
+                Chat = chat ?? new List<MatchChat>()
             };
 
             return View(viewmodel);
@@ -99,7 +106,7 @@ namespace ADSBackend.Controllers
                 return NotFound();
             }
 
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _dataService.GetUserAsync(User);
             var game = await _context.Game.Include(g => g.HomePlayer.User)
                 .Include(g => g.AwayPlayer.User)
                 .Include(g => g.Match)
@@ -114,9 +121,9 @@ namespace ADSBackend.Controllers
 
             bool userRefreshed = false, awayRefreshed = false;
 
-            userRefreshed = await _tokenRefresher.RefreshTokens(user, false);
-            awayRefreshed = await _tokenRefresher.RefreshTokens(awayUser, false);
-            
+            userRefreshed = user.ExpiresAt > DateTime.Now.AddMinutes(60);
+            awayRefreshed = awayUser.ExpiresAt > DateTime.Now.AddMinutes(60);
+
             if (!userRefreshed)
             {
                 Log.Information("User access token expired");

@@ -4,14 +4,6 @@ namespace ADSBackend.Models.ConfigurationViewModels
 {
     public class ConfigurationViewModel
     {
-        [DataType(DataType.Url)]
-        [Display(Name = "Feed URL")]
-        public string RSSFeedUrl { get; set; }
-
-        [DataType(DataType.Url)]
-        [Display(Name = "Mobile App Privacy Policy URL")]
-        public string PrivacyPolicyUrl { get; set; }
-
         [Required]
         [Display(Name = "SMTP Host")]
         public string SMTP_HOST { get; set; }

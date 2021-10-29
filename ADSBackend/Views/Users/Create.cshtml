@@ -15,7 +15,7 @@
                 <form asp-action="Create">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-group">
-                        <select asp-for="SchoolId" asp-items="ViewBag.Schools" class="form-control"></select>
+                        <select multiple="" asp-for="SchoolIds" asp-items="ViewBag.Schools" class="form-control"></select>
                     </div>
                     <div class="form-group">
                         <label asp-for="Email" class="control-label"></label>

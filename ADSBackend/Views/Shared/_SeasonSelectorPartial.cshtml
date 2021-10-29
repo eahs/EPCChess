@@ -22,14 +22,13 @@
     */
     var seasonId = await _dataService.GetCurrentSeasonId();
     var seasonsSelect = await _dataService.GetSeasonSelectList(seasonId);
+    
 }
 <form asp-controller="SeasonSwitcher" asp-action="Switch" method="post" id="seasonSwitch" class="navbar-right">
-    <ul class="nav navbar-top-links navbar-left">
         <li>
             <a href="">Current Season: </a>
         </li>
-        <li>
+        <li style="margin-right: 60px;">
             <select name="seasonId" asp-items="@seasonsSelect" onchange="$.post('/SeasonSwitcher/Switch/' + $('select[name=seasonId]').val(), function (data) { location.reload(); })" class="form-control"></select>
         </li>
-    </ul>
 </form>
