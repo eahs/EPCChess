@@ -229,9 +229,16 @@ namespace ADSBackend.Controllers
 
             if (canDelete)
             {
-                var user = await _userManager.FindByIdAsync(player.UserId+"");
+                if (player?.UserId is not null)
+                {
+                    var user = await _userManager.FindByIdAsync(player.UserId + "");
 
-                await _dataService.RemoveUserFromSchool(user, player.PlayerSchoolId);
+                    if (user is not null)
+                    {
+                        await _dataService.RemoveUserFromSchool(user, player.PlayerSchoolId);
+                    }
+                }
+
                 player.PlayerSchoolId = 1;
                 await _context.SaveChangesAsync();
             }
