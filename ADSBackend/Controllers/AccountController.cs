@@ -66,6 +66,11 @@ namespace ADSBackend.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+
+                    var user = await _userManager.FindByNameAsync(model.Username);
+                    user.ExpiresAt = DateTime.Now.AddDays(30);
+                    await _userManager.UpdateAsync(user);
+
                     return RedirectToLocal(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
