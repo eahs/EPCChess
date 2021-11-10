@@ -240,8 +240,20 @@ namespace ADSBackend.Services
                                 }
 
                                 context.Game.Update(game);
-                                await context.SaveChangesAsync();
 
+                                try
+                                {
+                                    await context.SaveChangesAsync();
+                                }
+                                catch (DbUpdateConcurrencyException dbce)
+                                {
+                                    Log.Error(dbce, "GameMonitor ProcessGames Database concurrency issue - Game changed prior to updating from server");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log.Error(ex, "Error updating game in GameMonitor");
+                                }                                
+                                
                                 // Add game to json output
                                 vms[game.MatchId].Games.Add(MapGameToJson(game));
 
