@@ -163,6 +163,11 @@ namespace ADSBackend.Controllers
                 {
                     var user = await _context.Users.FindAsync(id);
 
+                    var oldSchools = await _context.UserSchool.Where(x => x.UserId == user.Id).ToListAsync();
+                    _context.UserSchool.RemoveRange(oldSchools);
+                    await _context.SaveChangesAsync();
+
+
                     user.Email = viewModel.Email;
                     user.FirstName = viewModel.FirstName;
                     user.LastName = viewModel.LastName;

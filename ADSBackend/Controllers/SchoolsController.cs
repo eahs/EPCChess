@@ -97,8 +97,8 @@ namespace ADSBackend.Controllers
                 if (school.Abbreviation != null)
                 {
                     school.Abbreviation = school.Abbreviation.ToUpper();
-                    if (school.Abbreviation.Length > 2)
-                        school.Abbreviation = school.Abbreviation.Substring(0, 2);
+                    if (school.Abbreviation.Length > 3)
+                        school.Abbreviation = school.Abbreviation.Substring(0, 3);
                 }
 
                 _context.Add(school);
@@ -164,6 +164,10 @@ namespace ADSBackend.Controllers
                 if (school.Abbreviation != null)
                 {
                     _school.Abbreviation = school.Abbreviation.ToUpper();
+
+                    if (school.Abbreviation.Length > 3)
+                        school.Abbreviation = school.Abbreviation.Substring(0, 3);
+
                 }
 
                 try
