@@ -151,6 +151,7 @@ namespace ADSBackend.Services
                         {
                             Chess chess = new Chess();
 
+
                             if (!String.IsNullOrEmpty(ligame.Moves))
                             {
                                 try
@@ -169,10 +170,12 @@ namespace ADSBackend.Services
 
                                 string fen = chess.Fen();
 
+
                                 game.CurrentFen = fen;
                                 game.LastMove = ligame.LastMoveAt;
                                 game.ChallengeStatus = ligame.Status.ToEnumString();
                                 game.ChallengeMoves = ligame.Moves ?? "";
+
 
                                 if (ligame.Status == GameStatus.Timeout ||
                                     ligame.Status == GameStatus.Aborted)
@@ -215,6 +218,7 @@ namespace ADSBackend.Services
                                             : GameResult.Player2Wins;
                                     }
 
+
                                     // Everything beyond board 7 has flipped colors
                                     if (game.BoardPosition > 7)
                                     {
@@ -254,6 +258,7 @@ namespace ADSBackend.Services
                                     Log.Error(ex, "Error updating game in GameMonitor");
                                 }                                
                                 
+
                                 // Add game to json output
                                 vms[game.MatchId].Games.Add(MapGameToJson(game));
 
