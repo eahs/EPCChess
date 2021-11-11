@@ -343,7 +343,7 @@ namespace ADSBackend.Services
         }
 
         // Returns Match matching matchid id and seasonId and optionally matches a schoolId
-        public async Task<Match> GetMatchAsync(int? id, int seasonId, int schoolId)
+        public async Task<Match> GetMatchAsync(int? id, int seasonId, int schoolId = -1)
         {
             if (id == null)
                 return null;
@@ -353,7 +353,7 @@ namespace ADSBackend.Services
                 .Include(m => m.Games).ThenInclude(g => g.HomePlayer).ThenInclude(p => p.User)
                 .Include(m => m.Games).ThenInclude(g => g.AwayPlayer).ThenInclude(p => p.User)
                 .Where(m => m.MatchId == id && m.HomeSchool.SeasonId == seasonId && 
-                            (m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId) )
+                            (schoolId == -1 || m.HomeSchoolId == schoolId || m.AwaySchoolId == schoolId) )
                 .FirstOrDefaultAsync();
 
             return match;

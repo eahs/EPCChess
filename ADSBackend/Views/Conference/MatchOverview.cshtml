@@ -1,0 +1,296 @@
+﻿@using LichessApi.Web.Api.Games
+@model ADSBackend.Models.PlayViewModels.MatchViewModel
+
+@{
+
+    ViewData["Title"] = Model.Match.HomeSchool.Name + " vs " + Model.Match.AwaySchool.Name;
+
+    var gameInitCode = "";
+
+    if (Model.Match.IsVirtual)
+    {
+        foreach (var game in Model.Match.Games)
+        {
+            if (!Model.Match.MatchStarted || (Model.Match.MatchStarted && (game.HomePlayer != null && game.AwayPlayer != null)))
+            {
+                var gameColor = game.BoardPosition % 2 == 0 ? "black" : "white";
+
+                gameInitCode += "\ngames[\"" + game.GameId + "\"] = Chessboard('board_" + game.GameId + "', config);\n";
+                gameInitCode += "\ngames[\"" + game.GameId + "\"].position(\"" + game.CurrentFen + "\");\n";
+                gameInitCode += "\ngames[\"" + game.GameId + "\"].orientation(\"" + gameColor + "\");\n";
+            }
+
+        }
+    }
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a asp-controller="Admin" asp-action="Index">Home</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a asp-controller="Conference" asp-action="MatchResults">Match Results</a>
+    </li>
+    <li class="breadcrumb-item active">
+        <strong>@ViewData["Title"]</strong>
+    </li>
+</ol>
+
+<h2>Match: @ViewData["Title"]</h2>
+
+<div class="row">
+
+    <div class="col-lg-9">
+
+        <div class="ibox">
+            <div class="ibox-title"><h4>Chess Match: @Model.Match.HomeSchool.ShortName vs @Model.Match.AwaySchool.ShortName</h4></div>
+            <div class="ibox-content">
+
+                @if (Model.Match.Completed)
+                {
+                    <div class="alert alert-info">
+                        <h4>@Model.Match.HomeSchool.Name (@Model.Match.HomePoints) vs @Model.Match.AwaySchool.Name (@Model.Match.AwayPoints)</h4>
+
+                        @if (Model.Match.HomePoints > Model.Match.AwayPoints)
+                        {
+                            <div>
+                                This match has concluded and @Model.Match.HomeSchool.Name was the winner.
+                            </div>
+                        }
+                        else if (Model.Match.HomePoints < Model.Match.AwayPoints)
+                        {
+                            <div>
+                                This match has concluded and @Model.Match.AwaySchool.Name was the winner.
+                            </div>
+                        }
+                        else
+                        {
+                            <div>
+                                This match has concluded and it was a draw.
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (Model.Match.MatchStarted)
+                {
+
+                    @foreach (var game in Model.Match.Games)
+                    {
+                        if (!game.IsStarted && !game.Completed && game.BoardPosition > 7) continue;
+
+                        var prefix = "game" + game.GameId;
+                        var progressid = prefix + "progress";
+                        var linkid = prefix + "link";
+                        var statusid = prefix + "status";
+                        var homeplayerrating = prefix + "hprating";
+                        var awayplayerrating = prefix + "aprating";
+                        var homeplayerresult = prefix + "hpresult";
+                        var awayplayerresult = prefix + "apresult";
+
+                        @if (!Model.Match.MatchStarted || (Model.Match.MatchStarted && (game.HomePlayer != null || game.AwayPlayer != null)))
+                        {
+                            <div class="panel panel-default" data-seated="@((game.HomePlayer != null && game.AwayPlayer != null) || (game.HomePlayer != null && game.BoardPosition <= 7) || (game.AwayPlayer != null && game.BoardPosition <= 7))">
+                                <div class="panel-heading">
+                                    <span class="boardcardheader">
+                                        Board @game.BoardPosition
+
+                                        @if (game.IsStarted && !game.Completed)
+                                        {
+                                            <span id="@progressid"> - In Progress</span>
+                                        }
+                                        else if (game.IsStarted && game.Completed)
+                                        {
+                                            <span id="@progressid"> - Completed</span>
+                                        }
+                                        else
+                                        {
+                                            <span id="@progressid"> @if (game.BoardPosition <= 7)
+                                                                    {
+                                                                        <span> - Forfeit</span>
+                                                                    }</span>
+                                        }
+                                        @if (game.CheatingDetected)
+                                        {
+                                            <span class="alert alert-danger" style="padding: 4px; margin-left: 20px">Possible Cheating Detected</span>
+                                        }
+                                    </span>
+                                </div>
+
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <table>
+                                                <tr>
+                                                    <td width="190" style="vertical-align: middle; text-align: center">
+                                                        @if (game.HomePlayer != null && Model.Match.MatchStarted)
+                                                        {
+                                                            @(game.HomePlayerFullName)
+
+                                                            <span class="chessrating" id="@homeplayerrating">@(game.HomePlayerGameRating)</span>
+                                                        }
+                                                        else if (game.HomePlayer != null)
+                                                        {
+                                                            @(game.HomePlayerFullName)
+                                                            <span class="chessrating" id="@homeplayerrating">(@(game.HomePlayer.Rating))</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Unassigned</span>
+                                                        }
+                                                    </td>
+                                                    <td class="boardcardresult">
+                                                        <div id="@homeplayerresult">@game.HomePoints</div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="text-align: center">vs</td>
+                                                    <td>&nbsp;</td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="250" style="vertical-align: middle; text-align: center">
+                                                        @if (game.AwayPlayer != null && Model.Match.MatchStarted)
+                                                        {
+                                                            @(game.AwayPlayerFullName)
+                                                            <span class="chessrating" id="@awayplayerrating">@(game.AwayPlayerGameRating)</span>
+                                                        }
+                                                        else if (game.AwayPlayer != null)
+                                                        {
+                                                            @(game.AwayPlayerFullName)
+                                                            <span class="chessrating" id="@awayplayerrating">(@(game.AwayPlayer.Rating))</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Unassigned</span>
+                                                        }
+                                                    </td>
+                                                    <td class="boardcardresult">
+                                                        <div id="@awayplayerresult">@game.AwayPoints</div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center" colspan="2">
+                                                        @if (game.IsStarted && game.Completed && Model.Match.IsVirtual)
+                                                        {
+                                                            <a href="@game.ChallengeUrl" id="@linkid" class="btn btn-w-m btn-success" style="margin-top: 40px">View Game</a>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div class="col-lg-6 text-center">
+                                            @if (Model.Match.IsVirtual && game.HomePlayer != null && game.AwayPlayer != null)
+                                            {
+                                                <table>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="@game.HomePlayer.User?.OnlineStatusCss">
+                                                                <strong>@game.HomePlayer.FirstName @game.HomePlayer.LastName</strong>
+                                                                @if (!String.IsNullOrEmpty(game.HomePlayer.User?.LichessId))
+                                                                {
+                                                                    <span>
+                                                                        (<a href="https://lichess.org/@@/@game.HomePlayer.User.LichessId" target="_blank">@game.HomePlayer.User.LichessId</a>)
+                                                                    </span>
+                                                                }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div id="board_@game.GameId" style="width: 256px"></div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="@game.AwayPlayer.User?.OnlineStatusCss">
+
+                                                                <strong>@game.AwayPlayer.FirstName @game.AwayPlayer.LastName</strong>
+                                                                @if (!String.IsNullOrEmpty(game.AwayPlayer.User?.LichessId))
+                                                                {
+                                                                    <span>
+                                                                        (<a href="https://lichess.org/@@/@game.AwayPlayer.User.LichessId" target="_blank">@game.AwayPlayer.User.LichessId</a>)
+                                                                    </span>
+                                                                }
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        }
+                    }
+                }
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Styles
+{
+    <link href="~/lib/chessboardjs/css/chessboard-1.0.0.min.css" rel="stylesheet">
+    <link href="~/lib/ladda/dist/ladda-themeless.min.css" rel="stylesheet">
+
+    <style type="text/css">
+
+        #chatBox {
+            min-height: 250px;
+            padding: 5px 20px 5px 15px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            cursor: initial;
+            font-size: 0.9em;
+        }
+
+        #messagesList {
+            padding-inline-start: 0px;
+            list-style-type: none;
+        }
+
+        .boardcardheader {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .boardcardresult {
+            width: 100px;
+            text-align: right;
+            font-weight: bold;
+        }
+    </style>
+}
+
+
+@section Scripts {
+
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <script src="~/lib/chessboardjs/js/chessboard-1.0.0.min.js"></script>
+    <script src="~/lib/ladda/dist/spin.min.js"></script>
+    <script src="~/lib/ladda/dist/ladda.min.js"></script>
+    <script src="~/lib/ladda/dist/ladda.jquery.min.js"></script>
+
+    <script type="text/javascript">
+        
+        var games = {};
+
+        var config = {
+            pieceTheme: '/lib/chessboardjs/img/chesspieces/wikipedia/{piece}.png',
+            position: 'start'
+        }
+
+        @if (Model.Match.MatchStarted)
+        {
+            @Html.Raw(gameInitCode)
+        }
+        
+
+    </script>
+} 

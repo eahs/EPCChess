@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ADSBackend.Data;
+using ADSBackend.Models;
 using ADSBackend.Models.ConferenceViewModels;
+using ADSBackend.Models.PlayViewModels;
 using ADSBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -53,12 +55,48 @@ namespace ADSBackend.Controllers
             int currentSeason = await _dataService.GetCurrentSeasonId();
 
             var players = await _context.Player.Include(p => p.PlayerSchool)
+                                               .Include(p => p.User)
                                                .Where(x => x.PlayerSchool.SeasonId == currentSeason)
                                                .OrderByDescending(x => x.Rating)
                                                .ToListAsync();
 
 
             return View(players);
+        }
+
+        public async Task<IActionResult> MatchOverview(int? id)
+        {
+            var currentSeason = await _dataService.GetCurrentSeasonId();
+            var user = await _dataService.GetUserAsync(User);
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var match = await _dataService.GetMatchAsync(id, currentSeason);
+
+            if (match == null || !match.Completed)
+            {
+                return NotFound();
+            }
+
+            var chat = await _context.MatchChat.Where(m => m.MatchId == match.MatchId)
+                .Include(m => m.Match)
+                .Include(m => m.User)
+                .OrderBy(m => m.MessageDate)
+                .ToListAsync();
+
+            MatchViewModel viewmodel = new MatchViewModel
+            {
+                Match = match,
+                ViewingUser = user,
+                Chat = chat ?? new List<MatchChat>()
+            };
+
+            return View(viewmodel);
+
+
         }
 
         public async Task<IActionResult> Profile(int? id)

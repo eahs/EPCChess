@@ -23,6 +23,7 @@ namespace ADSBackend.Services
         Task<ApplicationUser> GetUserByIdAsync(int userId);
         Task RemoveUserFromSchool(ClaimsPrincipal User, int schoolId);
         Task RemoveUserFromSchool(ApplicationUser User, int schoolId);
+        Task<Match> GetMatchAsync(int? id, int seasonId, int schoolId = -1);
 
     }
 }
