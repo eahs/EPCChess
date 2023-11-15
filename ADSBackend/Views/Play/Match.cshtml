@@ -198,35 +198,9 @@
                                                     <td class="text-center" colspan="2">
                                                         @if (Model.Match.IsVirtual)
                                                         {
-                                                            @if (game.IsStarted && game.HomePlayer != null)
+                                                            @if (game.IsStarted && !string.IsNullOrEmpty(game.ChallengeUrl))
                                                             {
                                                                 <a href="@game.ChallengeUrl" id="@linkid" class="btn btn-w-m btn-success" style="margin-top: 40px">View Game</a>
-
-                                                                if (game.HomePlayer.User.Id == Model.ViewingUser.Id)
-                                                                {
-                                                                    <a asp-action="IssueChallenge" asp-route-id="@game.GameId" id="@statusid" class="ladda-button btn btn-w-m btn-success prevent_doubleclick" style="margin-top: 40px; margin-bottom: 20px; display: none">Challenge Opponent</a>
-                                                                }
-                                                            }
-                                                            else if (!game.Completed && game.HomePlayer != null & game.AwayPlayer != null)
-                                                            {
-                                                                <a href="@game.ChallengeUrl" id="@linkid" class="btn btn-w-m btn-success" style="margin-top: 40px; display: none;">View Game</a>
-
-                                                                if (game.HomePlayer.User.Id == Model.ViewingUser.Id)
-                                                                {
-                                                                    <a asp-action="IssueChallenge" asp-route-id="@game.GameId" id="@statusid" class="ladda-button btn btn-w-m btn-success prevent_doubleclick" style="margin-top: 40px; margin-bottom: 20px;">Challenge Opponent</a>
-                                                                }
-                                                                else if (game.AwayPlayer.User.Id == Model.ViewingUser.Id)
-                                                                {
-                                                                    <div id="@statusid" style="margin-top: 30px" class="alert alert-warning">
-                                                                        <span>Awaiting home team player to issue a challenge.</span>
-                                                                    </div>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <div id="@statusid" style="margin-top: 30px" class="alert alert-warning">
-                                                                        <span>Awaiting players to begin game</span>
-                                                                    </div>
-                                                                }
                                                             }
                                                         }
                                                     </td>
@@ -472,7 +446,6 @@
             li.innerHTML = encodedMsg;
             document.getElementById("messagesList").appendChild(li);
 
-            $("#sendMessage").val("");
             scrollChatBox(1000);
         }
 
@@ -494,6 +467,7 @@
             if (keycode === 13) {
 
                 var message = $("#sendMessage").val();
+                $("#sendMessage").val("");
                 connection.invoke("SendMessage",  "@Model.Match.MatchId",  message).catch(function (err) {
                     return console.error(err.toString());
                 });

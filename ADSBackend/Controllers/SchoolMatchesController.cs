@@ -7,13 +7,20 @@ using ADSBackend.Models;
 using ADSBackend.Models.Identity;
 using ADSBackend.Services;
 using ADSBackend.Util;
+using LichessApi;
+using LichessApi.Web.Api.BulkPairings.Request;
+using LichessApi.Web.Api.Games;
+using LichessApi.Web.Entities.Enum;
+using LichessApi.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
+using Game = ADSBackend.Models.Game;
 
 namespace ADSBackend.Controllers
 {
@@ -23,12 +30,14 @@ namespace ADSBackend.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly DataService _dataService;
+        private readonly IConfiguration _configuration;
 
-        public SchoolMatchesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, DataService dataService)
+        public SchoolMatchesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, DataService dataService, IConfiguration configuration)
         {
             _context = context;
             _userManager = userManager;
             _dataService = dataService;
+            _configuration = configuration;
         }
 
         public async Task<string> UpdatePlayers()
@@ -193,8 +202,9 @@ namespace ADSBackend.Controllers
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
             var schoolId = await _dataService.GetSchoolIdAsync(User, currentSeason);
+            var user = await _dataService.GetUserAsync(User);
 
-            if (schoolId == -1)
+			if (schoolId == -1)
                 return "SCHOOL NOT FOUND";
 
             string _id = "";
@@ -229,8 +239,72 @@ namespace ADSBackend.Controllers
 
             match.MatchStarted = true;
             match.MatchStartTime = DateTime.Now;
-            
-            foreach (Game g in match.Games)
+
+            var lichessAuthNSection = _configuration.GetSection("Authentication:Lichess");
+
+            var accessToken = lichessAuthNSection["ApiToken"];
+
+			if (!string.IsNullOrEmpty(accessToken))
+            {
+	            LichessApi.LichessApiClient client = new LichessApiClient(accessToken);
+
+	            var players = new List<string>();
+
+	            foreach (Game g in match.Games)
+	            {
+		            if (g.HomePlayer != null && g.AwayPlayer != null)
+		            {
+			            // If odd board home player is black
+			            var homeBlack = g.BoardPosition % 2 == 1;
+
+			            // If JV it's flipped
+			            if (g.BoardPosition > 7)
+				            homeBlack = !homeBlack;
+
+			            players.Add(homeBlack
+				            ? $"{g.AwayPlayer.User.AccessToken}:{g.HomePlayer.User.AccessToken}"
+				            : $"{g.HomePlayer.User.AccessToken}:{g.AwayPlayer.User.AccessToken}");
+		            }
+	            }
+
+	            if (players.Count > 0)
+	            {
+		            var request = new BulkPairingRequest
+		            {
+			            Players = String.Join(",", players),
+			            ClockLimit = match.ClockTimeLimit,
+			            ClockIncrement = match.ClockIncrement,
+			            Variant = GameVariant.Standard,
+			            StartClocksAt = null,
+                        PairAt = DateTime.UtcNow,
+			            Rated = true,
+			            Message = "Your EPC team game with {opponent} is ready: {game}."
+		            };
+
+		            var response = await client.BulkPairings.CreateBulkPairing(request);
+
+		            if (response?.Games?.Count > 0)
+		            {
+			            foreach (var bulkGame in response.Games)
+			            {
+				            var game = match.Games.Find(x => x.HomePlayer.User.LichessId == bulkGame.BlackPlayer ||
+				                                             x.HomePlayer.User.LichessId == bulkGame.WhitePlayer);
+
+				            if (game != null)
+				            {
+					            game.ChallengeId = bulkGame.Id;
+					            game.ChallengeUrl = $"https://lichess.org/{bulkGame.Id}";
+					            game.IsStarted = true;
+					            game.CurrentFen = request.Fen;
+
+					            _context.Update(game);
+				            }
+			            }
+		            }
+	            }
+			}
+
+			foreach (Game g in match.Games)
             {
                 bool update = false;
 
