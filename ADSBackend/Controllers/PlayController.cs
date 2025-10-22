@@ -99,6 +99,7 @@ namespace ADSBackend.Controllers
             return View(viewmodel);
         }
 
+        /*
         public async Task<IActionResult> IssueChallenge(int? id)
         {
             if (id is null)
@@ -149,7 +150,7 @@ namespace ADSBackend.Controllers
                 HomePoints = game.HomePoints.ToString(),
                 AwayPoints = game.AwayPoints.ToString()
             };
-
+            
             // If JV, colors are swapped
             if (game.BoardPosition > 7)
             {
@@ -282,6 +283,6 @@ namespace ADSBackend.Controllers
 
             return Redirect(game.ChallengeUrl);
         }
-
+        */
     }
 }

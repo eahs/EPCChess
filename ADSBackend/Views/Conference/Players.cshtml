@@ -58,7 +58,11 @@
                     </td>
 
                     <td style="vertical-align: middle" nowrap>
-                        @player.LastName, @player.FirstName
+                        @player.LastName, @player.FirstName 
+                        @if (player.User?.LichessId is not null)
+                        {
+                            <span>(<a href="https://lichess.org/@@/@player.User.LichessId" target="_blank">@player.User.LichessId</a>)</span>
+                        }
                     </td>
                     <td style="vertical-align: middle">
                         @player.PlayerSchool.ShortName

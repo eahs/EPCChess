@@ -29,7 +29,7 @@
         <a asp-controller="Admin" asp-action="Index">Home</a>
     </li>
     <li class="breadcrumb-item">
-        <a asp-controller="Play" asp-action="Index">My Team Matches</a>
+        <a asp-controller="Conference" asp-action="MatchResults">Match Results</a>
     </li>
     <li class="breadcrumb-item active">
         <strong>@ViewData["Title"]</strong>
@@ -45,37 +45,6 @@
         <div class="ibox">
             <div class="ibox-title"><h4>Chess Match: @Model.Match.HomeSchool.ShortName vs @Model.Match.AwaySchool.ShortName</h4></div>
             <div class="ibox-content">
-                @if (!Model.Match.MatchStarted && (!Model.Match.AwayRosterLocked || !Model.Match.HomeRosterLocked))
-                {
-                    <div class="alert alert-danger" id="MatchNotification">
-                        This match cannot begin until both home and away rosters are set up and locked. Both coaches will decide the final lineup before the start of match. Please check back again once the lineups are finalized.
-                    </div>
-
-                    <a asp-action="Index" class="btn btn-danger">Go Back</a>
-                }
-                else if (!Model.Match.MatchStarted)
-                {
-                    <div class="alert alert-warning" id="MatchNotification">
-                        Both home and away rosters have been locked for this match. The match will begin once either coach chooses to begin the match. Please check back during your regularly scheduled match time. <br /><br />
-                    </div>
-
-                    <a asp-action="Index" class="btn btn-danger">Go Back</a>
-                }
-
-                @if (!Model.Match.Completed)
-                {
-                    <div class="alert alert-info" id="MatchEnding" style="@(!Model.Match.MatchStarted && !Model.Match.Completed ? "display:none" : "")">
-                        The match is currently in progress.
-
-                        @if (Model.Match.IsVirtual)
-                        {
-                            <span>
-                                Please note that Lichess games are not presented live and may be a few minutes behind.
-                            </span>
-                        }
-
-                    </div>
-                }
 
                 @if (Model.Match.Completed)
                 {
@@ -108,6 +77,8 @@
 
                     @foreach (var game in Model.Match.Games)
                     {
+                        if (!game.IsStarted && !game.Completed && game.BoardPosition > 7) continue;
+
                         var prefix = "game" + game.GameId;
                         var progressid = prefix + "progress";
                         var linkid = prefix + "link";
@@ -134,7 +105,10 @@
                                         }
                                         else
                                         {
-                                            <span id="@progressid"> - Waiting to start</span>
+                                            <span id="@progressid"> @if (game.BoardPosition <= 7)
+                                                                    {
+                                                                        <span> - Forfeit</span>
+                                                                    }</span>
                                         }
                                         @if (game.CheatingDetected)
                                         {
@@ -196,12 +170,9 @@
                                                 </tr>
                                                 <tr>
                                                     <td class="text-center" colspan="2">
-                                                        @if (Model.Match.IsVirtual)
+                                                        @if (game.IsStarted && game.Completed && Model.Match.IsVirtual)
                                                         {
-                                                            @if (game.IsStarted && !string.IsNullOrEmpty(game.ChallengeUrl))
-                                                            {
-                                                                <a href="@game.ChallengeUrl" id="@linkid" class="btn btn-w-m btn-success" style="margin-top: 40px">View Game</a>
-                                                            }
+                                                            <a href="@game.ChallengeUrl" id="@linkid" class="btn btn-w-m btn-success" style="margin-top: 40px">View Game</a>
                                                         }
                                                     </td>
                                                 </tr>
@@ -261,30 +232,6 @@
 
     </div>
 
-    <div class="col-lg-3">
-        <div class="ibox sticky-top">
-            <div class="ibox-title">Match Chat</div>
-            <div class="ibox-content" id="chatBox" style="">
-                <ul id="messagesList">
-                    @if (Model.Chat != null) 
-                    {
-                        @foreach (var chat in Model.Chat)
-                        {
-                            <li><strong>@chat.User.FullName</strong>: @chat.Message</li>
-                        }
-                    }
-                </ul>
-            </div>
-            <div class="input-group mb-3" style="margin-bottom: 0px !important;">
-                <input type="text" class="form-control" placeholder="Please be polite!" maxlength="255" id="sendMessage">
-                <div class="input-group-append">
-                    <button class="btn btn-success btn-outline-secondary" type="button" id="sendButton">Send</button>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
 </div>
 
 @section Styles
@@ -331,89 +278,7 @@
     <script src="~/lib/ladda/dist/ladda.jquery.min.js"></script>
 
     <script type="text/javascript">
-
-        var connection = new signalR.HubConnectionBuilder().withUrl("/gamehub").build();
-
-        connection.on("ReceiveMessage", function (user, message) {
-            postMessageToChatBox(user, message);
-        });
-
-        connection.on("UpdateMatches",
-            function(gameJson) {
-                if (gameJson !== null) {
-                    if (gameJson.games !== null) {
-                        gameJson.games.forEach(function(game) {
-                            if (games !== null && games[game.gameId] !== "undefined") {
-                                games[game.gameId].position(game.fen);
-                            }
-
-                            var prefix = "#game" + game.gameId;
-                            var progressid = prefix + "progress";
-                            var linkid = prefix + "link";
-                            var statusid = prefix + "status";
-                            var homeplayerrating = prefix + "hprating";
-                            var awayplayerrating = prefix + "aprating";
-                            var homeplayerresult = prefix + "hpresult";
-                            var awayplayerresult = prefix + "apresult";
-
-                            if (game.isStarted) {
-                                $(linkid).attr("href", game.challengeUrl);
-                                $(linkid).show();
-                                $(statusid).hide();
-                            } else {
-                                $(linkid).hide();
-                                $(statusid).show();
-                            }
-
-                            if (game.isStarted && !game.completed) {
-                                $(progressid).html("- In Progress");
-                            } else if (game.isStarted && game.completed) {
-                                $(progressid).html("- Completed");
-
-                                $(homeplayerrating).html(game.homePlayerRating);
-                                $(awayplayerrating).html(game.awayPlayerRating);
-
-                                $(homeplayerresult).html(game.homePoints);
-                                $(awayplayerresult).html(game.awayPoints);
-
-                            } else {
-                                $(progressid).html("- Waiting to start");
-                                $(linkid).hide();
-                                $(statusid).show();
-                            }
-
-
-                        });
-                    }
-                }
-            });
-
-        async function start() {
-            try {
-                document.getElementById("sendButton").disabled = true;
-
-                await connection.start();
-                await connection.invoke("JoinMatch", "@Model.Match.MatchId");
-
-                document.getElementById("sendButton").disabled = false;
-
-                console.log("SignalR Connected.");
-
-            } catch (err) {
-
-                console.log(err);
-
-                if (connection.state !== "Connected") {
-                    setTimeout(start, 5000);
-                }
-            }
-        };
-
-        connection.onclose(start);
-
-        // Start the connection.
-        start();
-
+        
         var games = {};
 
         var config = {
@@ -425,74 +290,7 @@
         {
             @Html.Raw(gameInitCode)
         }
-
-        function resizeChatBox() {
-            $('#chatBox').height(function (index, height) {
-                return window.innerHeight - $(this).offset().top - 100;
-            });
-            scrollChatBox(0);
-        }
-
-        function scrollChatBox(duration) {
-            $("#chatBox").stop().animate({ scrollTop: $("#chatBox")[0].scrollHeight }, duration);
-        }
-
-        function postMessageToChatBox(user, message) {
-
-            var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            var encodedMsg = "<strong>" + user + "</strong>: " + msg;
-            var li = document.createElement("li");
-            //li.textContent = encodedMsg;
-            li.innerHTML = encodedMsg;
-            document.getElementById("messagesList").appendChild(li);
-
-            scrollChatBox(1000);
-        }
-
-        $(window).resize(function () {
-            resizeChatBox();
-        });
-
-        $("#sendButton").on("click", function () {
-
-            var message = $("#sendMessage").val();
-            connection.invoke("SendMessage", "@Model.Match.MatchId", message).catch(function (err) {
-                return console.error(err.toString());
-            });
-
-        });
-
-        $('#sendMessage').keyup(function (event) {
-            var keycode = (event.keyCode ? event.keyCode : event.which);
-            if (keycode === 13) {
-
-                var message = $("#sendMessage").val();
-                $("#sendMessage").val("");
-                connection.invoke("SendMessage",  "@Model.Match.MatchId",  message).catch(function (err) {
-                    return console.error(err.toString());
-                });
-
-            }
-        });
-
-        $(document).ready(function() {
-
-            $('.prevent_doubleclick').on('click',
-                null,
-                function(e) {
-                    var isDisabled = e.currentTarget.hasAttribute('disabled');
-
-                    if (isDisabled) {
-                        e.preventDefault();
-                        return false;
-                    }
-                });
-
-            // Bind normal buttons
-            Ladda.bind('.ladda-button', { timeout: 5000 });
-
-            resizeChatBox();
-        });
+        
 
     </script>
 } 
