@@ -4,9 +4,6 @@ using ADSBackend.Helpers;
 using ADSBackend.Models.Identity;
 using ADSBackend.Services;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -16,18 +13,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Reflection;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using ADSBackend.Hubs;
 using ADSBackend.Util;
@@ -89,7 +80,6 @@ namespace ADSBackend
             services.AddTransient<Services.Cache>();
             services.AddTransient<Services.Configuration>();
 
-            services.AddTransient<Services.ITokenRefresher, Services.TokenRefresher>();
             services.AddScoped<RefreshTokenFilter>();
             services.AddScoped<IRazorViewRenderer, RazorViewRenderer>();
 
