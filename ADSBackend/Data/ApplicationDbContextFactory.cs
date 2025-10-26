@@ -1,4 +1,5 @@
-﻿using System;
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,8 +11,15 @@ using Microsoft.Extensions.Configuration;
 namespace ADSBackend.Data
 {
     
+    /// <summary>
+    /// Factory for creating instances of <see cref="ApplicationDbContext"/> during design time.
+    /// </summary>
     public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
     {
+        /// <summary>
+        /// Builds the application configuration.
+        /// </summary>
+        /// <returns>The application configuration root.</returns>
         public static IConfigurationRoot BuildConfiguration()
         {
             // Get environment
@@ -28,6 +36,11 @@ namespace ADSBackend.Data
             return config;
         }
 
+        /// <summary>
+        /// Creates a new instance of the application database context.
+        /// </summary>
+        /// <param name="args">Arguments provided by the design-time service.</param>
+        /// <returns>A new instance of <see cref="ApplicationDbContext"/>.</returns>
         public ApplicationDbContext CreateDbContext(string[] args)
         {
             var config = BuildConfiguration();

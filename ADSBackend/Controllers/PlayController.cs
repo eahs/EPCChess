@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,9 @@ using Serilog;
 
 namespace ADSBackend.Controllers
 {
+    /// <summary>
+    /// Controller for handling gameplay actions.
+    /// </summary>
     [Authorize(Roles = "Admin,Advisor,Player")]
     public class PlayController : Controller
     {
@@ -32,6 +36,14 @@ namespace ADSBackend.Controllers
         private readonly DataService _dataService;
         private readonly IHubContext<GameHub> _hubContext;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PlayController"/> class.
+        /// </summary>
+        /// <param name="context">The database context.</param>
+        /// <param name="userManager">The user manager.</param>
+        /// <param name="signInManager">The sign-in manager.</param>
+        /// <param name="dataService">The data service.</param>
+        /// <param name="hubContext">The SignalR hub context for game communication.</param>
         public PlayController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, DataService dataService, IHubContext<GameHub> hubContext)
         {
             _context = context;
@@ -41,6 +53,10 @@ namespace ADSBackend.Controllers
             _hubContext = hubContext;
         }
 
+        /// <summary>
+        /// Displays the list of matches for the user's school.
+        /// </summary>
+        /// <returns>The index view with a list of matches.</returns>
         public async Task<IActionResult> Index()
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
@@ -60,6 +76,11 @@ namespace ADSBackend.Controllers
             return View(matches);
         }
 
+        /// <summary>
+        /// Displays the details of a specific match.
+        /// </summary>
+        /// <param name="id">The ID of the match.</param>
+        /// <returns>The match view with match details.</returns>
         public async Task<IActionResult> Match(int? id)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();

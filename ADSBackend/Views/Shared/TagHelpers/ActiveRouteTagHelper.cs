@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using System;
@@ -7,6 +8,9 @@ using System.Linq;
 
 namespace ADSBackend.Views.Shared.TagHelpers
 {
+    /// <summary>
+    /// A tag helper that adds the "active" class to an element if its route values match the current route.
+    /// </summary>
     [HtmlTargetElement(Attributes = "is-active-route")]
     public class ActiveRouteTagHelper : TagHelper
     {
@@ -43,6 +47,11 @@ namespace ADSBackend.Views.Shared.TagHelpers
         [ViewContext]
         public ViewContext ViewContext { get; set; }
 
+        /// <summary>
+        /// Processes the tag helper.
+        /// </summary>
+        /// <param name="context">The tag helper context.</param>
+        /// <param name="output">The tag helper output.</param>
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             base.Process(context, output);
@@ -99,4 +108,3 @@ namespace ADSBackend.Views.Shared.TagHelpers
         }
     }
 }
-

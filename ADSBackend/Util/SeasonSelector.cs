@@ -1,4 +1,5 @@
-﻿using ADSBackend.Data;
+
+using ADSBackend.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;

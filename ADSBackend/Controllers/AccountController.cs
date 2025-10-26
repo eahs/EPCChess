@@ -1,4 +1,5 @@
-﻿using ADSBackend.Models.AccountViewModels;
+
+using ADSBackend.Models.AccountViewModels;
 using ADSBackend.Models.Identity;
 using ADSBackend.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -19,6 +20,9 @@ using ADSBackend.Models;
 
 namespace ADSBackend.Controllers
 {
+    /// <summary>
+    /// Controller for handling user account actions like login, logout, and registration.
+    /// </summary>
     [Authorize]
     [Route("[controller]/[action]")]
     public class AccountController : Controller
@@ -29,6 +33,14 @@ namespace ADSBackend.Controllers
         private readonly ILogger _logger;
         private readonly ApplicationDbContext _context;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AccountController"/> class.
+        /// </summary>
+        /// <param name="userManager">The user manager for user-related operations.</param>
+        /// <param name="signInManager">The sign-in manager for handling user authentication.</param>
+        /// <param name="emailSender">The service for sending emails.</param>
+        /// <param name="logger">The logger for logging messages.</param>
+        /// <param name="context">The database context.</param>
         public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, ILogger<AccountController> logger, ApplicationDbContext context)
         {
             _userManager = userManager;
@@ -38,9 +50,17 @@ namespace ADSBackend.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Gets or sets the error message to be displayed.
+        /// </summary>
         [TempData]
         public string ErrorMessage { get; set; }
 
+        /// <summary>
+        /// Displays the login page.
+        /// </summary>
+        /// <param name="returnUrl">The URL to return to after a successful login.</param>
+        /// <returns>The login view.</returns>
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Login(string returnUrl = null)
@@ -52,6 +72,12 @@ namespace ADSBackend.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Handles the login form submission.
+        /// </summary>
+        /// <param name="model">The login view model containing user credentials.</param>
+        /// <param name="returnUrl">The URL to return to after a successful login.</param>
+        /// <returns>A redirect to the return URL on success, or the login view with errors on failure.</returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -93,6 +119,12 @@ namespace ADSBackend.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Displays the two-factor authentication login page.
+        /// </summary>
+        /// <param name="rememberMe">Whether to remember the user.</param>
+        /// <param name="returnUrl">The URL to return to after a successful login.</param>
+        /// <returns>The two-factor authentication login view.</returns>
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> LoginWith2fa(bool rememberMe, string returnUrl = null)
@@ -111,6 +143,13 @@ namespace ADSBackend.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Handles the two-factor authentication form submission.
+        /// </summary>
+        /// <param name="model">The two-factor login view model.</param>
+        /// <param name="rememberMe">Whether to remember the user.</param>
+        /// <param name="returnUrl">The URL to return to after a successful login.</param>
+        /// <returns>A redirect to the return URL on success, or the view with errors on failure.</returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -149,6 +188,11 @@ namespace ADSBackend.Controllers
             }
         }
 
+        /// <summary>
+        /// Displays the login with recovery code page.
+        /// </summary>
+        /// <param name="returnUrl">The URL to return to after a successful login.</param>
+        /// <returns>The login with recovery code view.</returns>
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> LoginWithRecoveryCode(string returnUrl = null)
@@ -165,6 +209,12 @@ namespace ADSBackend.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Handles the login with recovery code form submission.
+        /// </summary>
+        /// <param name="model">The login with recovery code view model.</param>
+        /// <param name="returnUrl">The URL to return to after a successful login.</param>
+        /// <returns>A redirect to the return URL on success, or the view with errors on failure.</returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -203,6 +253,10 @@ namespace ADSBackend.Controllers
             }
         }
 
+        /// <summary>
+        /// Displays the account lockout page.
+        /// </summary>
+        /// <returns>The lockout view.</returns>
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Lockout()
@@ -210,6 +264,11 @@ namespace ADSBackend.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Displays the registration page.
+        /// </summary>
+        /// <param name="returnUrl">The URL to return to after a successful registration.</param>
+        /// <returns>The registration view.</returns>
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Register(string returnUrl = null)
@@ -218,6 +277,12 @@ namespace ADSBackend.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Handles the registration form submission.
+        /// </summary>
+        /// <param name="model">The registration view model.</param>
+        /// <param name="returnUrl">The URL to return to after a successful registration.</param>
+        /// <returns>A redirect to the return URL on success, or the registration view with errors on failure.</returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -247,6 +312,10 @@ namespace ADSBackend.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Handles user logout.
+        /// </summary>
+        /// <returns>A redirect to the home page.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
@@ -256,6 +325,12 @@ namespace ADSBackend.Controllers
             return RedirectToAction(nameof(AdminController.Index), "Home");
         }
 
+        /// <summary>
+        /// Initiates an external login process.
+        /// </summary>
+        /// <param name="provider">The external login provider.</param>
+        /// <param name="returnUrl">The URL to return to after a successful login.</param>
+        /// <returns>A challenge result that redirects to the external provider.</returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -267,6 +342,12 @@ namespace ADSBackend.Controllers
             return Challenge(properties, provider);
         }
 
+        /// <summary>
+        /// Handles the callback from an external login provider.
+        /// </summary>
+        /// <param name="returnUrl">The URL to return to after a successful login.</param>
+        /// <param name="remoteError">Any error message from the external provider.</param>
+        /// <returns>A redirect to the appropriate page based on the login result.</returns>
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
@@ -330,6 +411,12 @@ namespace ADSBackend.Controllers
             }
         }
 
+        /// <summary>
+        /// Handles the confirmation of an external login, creating a new user if necessary.
+        /// </summary>
+        /// <param name="model">The external login view model.</param>
+        /// <param name="returnUrl">The URL to return to after a successful confirmation.</param>
+        /// <returns>A redirect to the return URL on success, or the view with errors on failure.</returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -407,6 +494,12 @@ namespace ADSBackend.Controllers
             return View(nameof(ExternalLogin), model);
         }
 
+        /// <summary>
+        /// Confirms a user's email address.
+        /// </summary>
+        /// <param name="userId">The user ID.</param>
+        /// <param name="code">The confirmation code.</param>
+        /// <returns>The confirmation view.</returns>
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string userId, string code)
@@ -424,6 +517,10 @@ namespace ADSBackend.Controllers
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
+        /// <summary>
+        /// Displays the forgot password page.
+        /// </summary>
+        /// <returns>The forgot password view.</returns>
         [HttpGet]
         [AllowAnonymous]
         public IActionResult ForgotPassword()
@@ -431,6 +528,11 @@ namespace ADSBackend.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Handles the forgot password form submission.
+        /// </summary>
+        /// <param name="model">The forgot password view model.</param>
+        /// <returns>A redirect to the forgot password confirmation page.</returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -457,6 +559,10 @@ namespace ADSBackend.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Displays the forgot password confirmation page.
+        /// </summary>
+        /// <returns>The forgot password confirmation view.</returns>
         [HttpGet]
         [AllowAnonymous]
         public IActionResult ForgotPasswordConfirmation()
@@ -464,6 +570,11 @@ namespace ADSBackend.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Displays the reset password page.
+        /// </summary>
+        /// <param name="code">The password reset code.</param>
+        /// <returns>The reset password view.</returns>
         [HttpGet]
         [AllowAnonymous]
         public IActionResult ResetPassword(string code = null)
@@ -476,6 +587,11 @@ namespace ADSBackend.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Handles the reset password form submission.
+        /// </summary>
+        /// <param name="model">The reset password view model.</param>
+        /// <returns>A redirect to the reset password confirmation page on success, or the view with errors on failure.</returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -500,6 +616,10 @@ namespace ADSBackend.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Displays the reset password confirmation page.
+        /// </summary>
+        /// <returns>The reset password confirmation view.</returns>
         [HttpGet]
         [AllowAnonymous]
         public IActionResult ResetPasswordConfirmation()
@@ -508,6 +628,10 @@ namespace ADSBackend.Controllers
         }
 
 
+        /// <summary>
+        /// Displays the access denied page.
+        /// </summary>
+        /// <returns>The access denied view.</returns>
         [HttpGet]
         public IActionResult AccessDenied()
         {

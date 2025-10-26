@@ -1,4 +1,5 @@
-﻿using ADSBackend.Data;
+
+using ADSBackend.Data;
 using ADSBackend.Models;
 using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Generic;
@@ -7,17 +8,30 @@ using System.Threading.Tasks;
 
 namespace ADSBackend.Services
 {
+    /// <summary>
+    /// Service for managing application configuration stored in the database.
+    /// </summary>
     public class Configuration
     {
         private readonly ApplicationDbContext _context;
         private readonly IMemoryCache _cache;
         
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Configuration"/> class.
+        /// </summary>
+        /// <param name="context">The database context.</param>
+        /// <param name="cache">The memory cache.</param>
         public Configuration(ApplicationDbContext context, IMemoryCache cache)
         {
             _context = context;
             _cache = cache;
         }
 
+        /// <summary>
+        /// Gets a configuration value by its key.
+        /// </summary>
+        /// <param name="key">The configuration key.</param>
+        /// <returns>The configuration value.</returns>
         public string Get(string key)
         {
             var config = _cache.Get<List<ConfigurationItem>>("Configuration");
@@ -30,6 +44,11 @@ namespace ADSBackend.Services
             return config.FirstOrDefault(x => x.Key == key)?.Value;
         }
 
+        /// <summary>
+        /// Sets a configuration value.
+        /// </summary>
+        /// <param name="key">The configuration key.</param>
+        /// <param name="value">The configuration value.</param>
         public void Set(string key, string value)
         {
             var configItem = new ConfigurationItem
@@ -48,6 +67,10 @@ namespace ADSBackend.Services
             _context.AddOrUpdate(configItem);
         }
 
+        /// <summary>
+        /// Asynchronously saves changes to the configuration in the database.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous save operation.</returns>
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

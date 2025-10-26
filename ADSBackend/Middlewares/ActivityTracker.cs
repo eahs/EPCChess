@@ -1,4 +1,5 @@
-﻿using System;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -16,16 +17,30 @@ using Serilog;
 
 namespace ADSBackend.Middlewares
 {
+    /// <summary>
+    /// Middleware for tracking user activity.
+    /// </summary>
     // You may need to install the Microsoft.AspNetCore.Http.Abstractions package into your project
     public class ActivityTracker
     {
         private readonly RequestDelegate _next;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ActivityTracker"/> class.
+        /// </summary>
+        /// <param name="next">The next middleware in the pipeline.</param>
         public ActivityTracker(RequestDelegate next)
         {
             _next = next;
         }
 
+        /// <summary>
+        /// Invokes the middleware to track user activity.
+        /// </summary>
+        /// <param name="httpContext">The HTTP context.</param>
+        /// <param name="context">The application database context.</param>
+        /// <param name="userManager">The user manager.</param>
+        /// <returns>A task that represents the completion of request processing.</returns>
         public async Task InvokeAsync(HttpContext httpContext, ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             try
@@ -59,9 +74,17 @@ namespace ADSBackend.Middlewares
         }
     }
 
+    /// <summary>
+    /// Extension methods for adding the <see cref="ActivityTracker"/> middleware.
+    /// </summary>
     // Extension method used to add the middleware to the HTTP request pipeline.
     public static class ActivityTrackerExtensions
     {
+        /// <summary>
+        /// Adds the <see cref="ActivityTracker"/> middleware to the application's request pipeline.
+        /// </summary>
+        /// <param name="builder">The <see cref="IApplicationBuilder"/> instance.</param>
+        /// <returns>The <see cref="IApplicationBuilder"/> instance.</returns>
         public static IApplicationBuilder UseActivityTracker(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<ActivityTracker>();

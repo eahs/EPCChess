@@ -1,4 +1,5 @@
-﻿using ADSBackend.Data;
+
+using ADSBackend.Data;
 using ADSBackend.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -13,8 +14,16 @@ using ADSBackend.Services;
 
 namespace ADSBackend.Configuration
 {
+    /// <summary>
+    /// Seeds the database with initial data from JSON files.
+    /// </summary>
     public class ApplicationDbSeed : ISeeder
     {
+        /// <summary>
+        /// Reads the content of a JSON seed file.
+        /// </summary>
+        /// <param name="seedFile">The name of the seed file.</param>
+        /// <returns>The JSON content as a string.</returns>
         public string GetJson(string seedFile)
         {
             var file = System.IO.File.ReadAllText(Path.Combine("Configuration", "SeedData", seedFile));
@@ -26,6 +35,7 @@ namespace ADSBackend.Configuration
         /// Inserts all the records from a json file into an empty database
         /// </summary>
         /// <typeparam name="TEntity">Model for each record in json file</typeparam>
+        /// <param name="_context">The database context.</param>
         /// <param name="jsonFile">JSON encoded array of database records</param>
         /// <param name="dbset">Database dbset to insert into</param>
         /// <param name="preserveOrder">Make sure order is maintained when inserting into database</param>
@@ -56,6 +66,7 @@ namespace ADSBackend.Configuration
         /// that are not currently in the database if they are found
         /// </summary>
         /// <typeparam name="TEntity">Model for each record in json file</typeparam>
+        /// <param name="_context">The database context.</param>
         /// <param name="jsonFile">JSON encoded array of database records</param>
         /// <param name="dbset">Database dbset to insert into</param>
         /// <param name="matchingProperty">Json files will not have primary id keys, so this is used to check to see if a record already exists in table</param>
@@ -87,6 +98,12 @@ namespace ADSBackend.Configuration
 
         }
 
+        /// <summary>
+        /// Asynchronously seeds the database with initial data.
+        /// </summary>
+        /// <param name="dbContext">The database context.</param>
+        /// <param name="serviceProvider">The service provider.</param>
+        /// <returns>A task that represents the asynchronous seed operation.</returns>
         public Task SeedAsync(ApplicationDbContext dbContext, IServiceProvider serviceProvider)
         {
             SeedDatabaseOrUpdate<Season>(dbContext, "seasons.json", dbContext.Season, "SeasonId");

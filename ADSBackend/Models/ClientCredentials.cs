@@ -1,10 +1,14 @@
-﻿using System;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace ADSBackend.Models
 {
+    /// <summary>
+    /// Represents client credentials for OAuth authentication.
+    /// </summary>
     public class ClientCredentials
     {
         /// <summary>
@@ -15,6 +19,9 @@ namespace ADSBackend.Models
         /// OBSOLETE: No longer used by LiChess
         /// </summary>
         public string ClientSecret { get; set; }
+        /// <summary>
+        /// Gets or sets the application token.
+        /// </summary>
         public string AppToken { get; set; }
     }
 }

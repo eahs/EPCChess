@@ -1,4 +1,5 @@
-﻿using System;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,18 +13,30 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ADSBackend.Controllers
 {
+    /// <summary>
+    /// Controller for managing schools.
+    /// </summary>
     [Authorize(Roles = "Admin")]
     public class SchoolsController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly DataService _dataService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SchoolsController"/> class.
+        /// </summary>
+        /// <param name="context">The database context.</param>
+        /// <param name="dataService">The data service.</param>
         public SchoolsController(ApplicationDbContext context, DataService dataService)
         {
             _context = context;
             _dataService = dataService;
         }
 
+        /// <summary>
+        /// Displays a list of schools for the current season.
+        /// </summary>
+        /// <returns>The index view with a list of schools.</returns>
         // GET: Schools
         public async Task<IActionResult> Index()
         {
@@ -40,6 +53,11 @@ namespace ADSBackend.Controllers
             return View(schools);
         }
 
+        /// <summary>
+        /// Retrieves a school model by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the school.</param>
+        /// <returns>The school model, or null if not found.</returns>
         public async Task<School> GetModel (int ?id)
         {
             if (id == null)
@@ -56,6 +74,11 @@ namespace ADSBackend.Controllers
 
         }
 
+        /// <summary>
+        /// Displays the details of a specific school.
+        /// </summary>
+        /// <param name="id">The ID of the school.</param>
+        /// <returns>The details view for the school.</returns>
         // GET: Schools/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -69,6 +92,10 @@ namespace ADSBackend.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Displays the form for creating a new school.
+        /// </summary>
+        /// <returns>The create view.</returns>
         // GET: Schools/Create
         public async Task<IActionResult> Create()
         {
@@ -85,6 +112,11 @@ namespace ADSBackend.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Handles the creation of a new school.
+        /// </summary>
+        /// <param name="school">The school to create.</param>
+        /// <returns>A redirect to the index page on success, or the create view with errors on failure.</returns>
         // POST: Schools/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -108,6 +140,11 @@ namespace ADSBackend.Controllers
             return View(school);
         }
 
+        /// <summary>
+        /// Displays the form for editing an existing school.
+        /// </summary>
+        /// <param name="id">The ID of the school to edit.</param>
+        /// <returns>The edit view for the school.</returns>
         // GET: Schools/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -136,6 +173,12 @@ namespace ADSBackend.Controllers
             return View(school);
         }
 
+        /// <summary>
+        /// Handles the update of an existing school.
+        /// </summary>
+        /// <param name="id">The ID of the school to edit.</param>
+        /// <param name="school">The updated school data.</param>
+        /// <returns>A redirect to the index page on success, or the edit view with errors on failure.</returns>
         // POST: Schools/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -191,6 +234,11 @@ namespace ADSBackend.Controllers
             return View(school);
         }
 
+        /// <summary>
+        /// Displays the confirmation page for deleting a school.
+        /// </summary>
+        /// <param name="id">The ID of the school to delete.</param>
+        /// <returns>The delete confirmation view.</returns>
         // GET: Schools/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -211,6 +259,11 @@ namespace ADSBackend.Controllers
             return View(school);
         }
 
+        /// <summary>
+        /// Handles the deletion of a school.
+        /// </summary>
+        /// <param name="id">The ID of the school to delete.</param>
+        /// <returns>A redirect to the index page.</returns>
         // POST: Schools/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

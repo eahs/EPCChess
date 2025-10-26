@@ -1,4 +1,5 @@
-﻿using System;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,6 +25,9 @@ using Game = ADSBackend.Models.Game;
 
 namespace ADSBackend.Controllers
 {
+    /// <summary>
+    /// Controller for managing school matches.
+    /// </summary>
     [Authorize(Roles = "Admin,Advisor")]
     public class SchoolMatchesController : Controller
     {
@@ -32,6 +36,13 @@ namespace ADSBackend.Controllers
         private readonly DataService _dataService;
         private readonly IConfiguration _configuration;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SchoolMatchesController"/> class.
+        /// </summary>
+        /// <param name="context">The database context.</param>
+        /// <param name="userManager">The user manager.</param>
+        /// <param name="dataService">The data service.</param>
+        /// <param name="configuration">The configuration.</param>
         public SchoolMatchesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, DataService dataService, IConfiguration configuration)
         {
             _context = context;
@@ -40,6 +51,10 @@ namespace ADSBackend.Controllers
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// Updates the win/loss/draw records for all players.
+        /// </summary>
+        /// <returns>A string indicating the result of the operation.</returns>
         public async Task<string> UpdatePlayers()
         {
             await _dataService.UpdatePlayerRecords();
@@ -47,6 +62,10 @@ namespace ADSBackend.Controllers
             return "OK";
         }
 
+        /// <summary>
+        /// Displays a list of matches for the advisor's school.
+        /// </summary>
+        /// <returns>The index view with a list of matches.</returns>
         public async Task<IActionResult> Index()
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
@@ -68,6 +87,11 @@ namespace ADSBackend.Controllers
             return View(matches);
         }
 
+        /// <summary>
+        /// Displays the management page for a specific match.
+        /// </summary>
+        /// <param name="id">The ID of the match.</param>
+        /// <returns>The manage view for the match.</returns>
         public async Task<IActionResult> Manage(int? id)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
@@ -119,6 +143,11 @@ namespace ADSBackend.Controllers
         }
 
 
+        /// <summary>
+        /// Displays the setup page for a specific match.
+        /// </summary>
+        /// <param name="id">The ID of the match.</param>
+        /// <returns>The match setup view.</returns>
         public async Task<IActionResult> MatchSetup(int? id)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
@@ -180,6 +209,12 @@ namespace ADSBackend.Controllers
             return JsonConvert.SerializeObject(new {Status = message});
         }
 
+        /// <summary>
+        /// Converts a game result enum to points won.
+        /// </summary>
+        /// <param name="result">The result of the game.</param>
+        /// <param name="playerNumber">The player number (1 or 2).</param>
+        /// <returns>The points won (1 for a win, 0.5 for a draw, 0 for a loss).</returns>
         public double ConvertPointsWon(GameResult result, int playerNumber)
         {
             if (result == GameResult.Draw) return 0.5;
@@ -197,6 +232,11 @@ namespace ADSBackend.Controllers
         }
 
 
+        /// <summary>
+        /// Begins a match.
+        /// </summary>
+        /// <param name="forms">The form collection from the request.</param>
+        /// <returns>A string indicating the result of the operation.</returns>
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<String> BeginMatch(IFormCollection forms)
         {
@@ -336,6 +376,11 @@ namespace ADSBackend.Controllers
             return "OK";
         }
 
+        /// <summary>
+        /// Ends a match.
+        /// </summary>
+        /// <param name="forms">The form collection from the request.</param>
+        /// <returns>A string indicating the result of the operation.</returns>
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<String> EndMatch(IFormCollection forms)
         {
@@ -451,6 +496,11 @@ namespace ADSBackend.Controllers
             return "OK";
         }
 
+        /// <summary>
+        /// Reports the result of a game.
+        /// </summary>
+        /// <param name="forms">The form collection from the request.</param>
+        /// <returns>A JSON string with the status and updated game information.</returns>
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<String> ReportResult(IFormCollection forms)
         {
@@ -519,6 +569,11 @@ namespace ADSBackend.Controllers
         }
 
 
+        /// <summary>
+        /// Locks or unlocks a team's roster for a match.
+        /// </summary>
+        /// <param name="forms">The form collection from the request.</param>
+        /// <returns>A string indicating the new lock state.</returns>
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<String> LockRoster(IFormCollection forms)
         {
@@ -568,6 +623,11 @@ namespace ADSBackend.Controllers
         }
 
 
+        /// <summary>
+        /// Updates the roster for a team in a match.
+        /// </summary>
+        /// <param name="forms">The form collection from the request.</param>
+        /// <returns>A string indicating the result of the operation.</returns>
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<String> UpdateRoster(IFormCollection forms)
         {

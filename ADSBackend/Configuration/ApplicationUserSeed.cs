@@ -1,4 +1,5 @@
-﻿using ADSBackend.Data;
+
+using ADSBackend.Data;
 using ADSBackend.Models.Identity;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -12,8 +13,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ADSBackend.Configuration
 {
+    /// <summary>
+    /// Seeds the database with an initial admin user and performs user migrations.
+    /// </summary>
     public class ApplicationUserSeed : ISeeder
     {
+        /// <summary>
+        /// Creates an administrative user if one does not already exist.
+        /// </summary>
+        /// <param name="_userManager">The user manager.</param>
         public void CreateAdminUser(UserManager<ApplicationUser> _userManager)
         {
             if (_userManager.FindByNameAsync("mike@logic-gate.com").Result != null)
@@ -53,8 +61,11 @@ namespace ADSBackend.Configuration
             _userManager.AddToRoleAsync(adminUser, "Admin").Wait();
         }
 
-        // Temporarily used to migrate all users who have old school mappings to new style
-        // Can be removed once the SchoolId field from ApplicationUser is removed
+        /// <summary>
+        /// Temporarily used to migrate all users who have old school mappings to new style.
+        /// Can be removed once the SchoolId field from ApplicationUser is removed.
+        /// </summary>
+        /// <param name="dbContext">The database context.</param>
         public void MigrateUsers(ApplicationDbContext dbContext)
         {
             var users = dbContext.Users
@@ -87,6 +98,12 @@ namespace ADSBackend.Configuration
             }
         }
 
+        /// <summary>
+        /// Asynchronously seeds the admin user and migrates user data.
+        /// </summary>
+        /// <param name="dbContext">The database context.</param>
+        /// <param name="serviceProvider">The service provider.</param>
+        /// <returns>A task that represents the asynchronous seed operation.</returns>
         public Task SeedAsync(ApplicationDbContext dbContext, IServiceProvider serviceProvider)
         {
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();

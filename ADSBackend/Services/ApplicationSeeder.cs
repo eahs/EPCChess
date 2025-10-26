@@ -1,4 +1,5 @@
-﻿using ADSBackend.Configuration;
+
+using ADSBackend.Configuration;
 using ADSBackend.Data;
 using Serilog;
 using System;
@@ -9,8 +10,17 @@ using System.Threading.Tasks;
 
 namespace ADSBackend.Services
 {
+    /// <summary>
+    /// Main seeder class that orchestrates other seeders.
+    /// </summary>
     public class ApplicationSeeder : ISeeder
     {
+        /// <summary>
+        /// Asynchronously seeds the database by running all registered seeders.
+        /// </summary>
+        /// <param name="dbContext">The database context.</param>
+        /// <param name="serviceProvider">The service provider.</param>
+        /// <returns>A task that represents the asynchronous seed operation.</returns>
         public async Task SeedAsync(ApplicationDbContext dbContext, IServiceProvider serviceProvider)
         {
             if (dbContext == null)

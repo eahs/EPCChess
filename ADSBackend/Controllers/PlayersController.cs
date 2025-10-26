@@ -1,4 +1,5 @@
-﻿using System;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,9 @@ using ADSBackend.Services;
 
 namespace ADSBackend.Controllers
 {
+    /// <summary>
+    /// Controller for managing players.
+    /// </summary>
     [Authorize(Roles = "Admin,Advisor")]
     public class PlayersController : Controller
     {
@@ -21,6 +25,12 @@ namespace ADSBackend.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly DataService _dataService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PlayersController"/> class.
+        /// </summary>
+        /// <param name="context">The database context.</param>
+        /// <param name="userManager">The user manager.</param>
+        /// <param name="dataService">The data service.</param>
         public PlayersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, DataService dataService)
         {
             _context = context;
@@ -28,6 +38,10 @@ namespace ADSBackend.Controllers
             _dataService = dataService;
         }
 
+        /// <summary>
+        /// Displays a list of players for the advisor's school in the current season.
+        /// </summary>
+        /// <returns>The index view with a list of players.</returns>
         // GET: Players
         public async Task<IActionResult> Index()
         {
@@ -50,6 +64,11 @@ namespace ADSBackend.Controllers
             return View(players);
         }
 
+        /// <summary>
+        /// Displays the details of a specific player.
+        /// </summary>
+        /// <param name="id">The ID of the player.</param>
+        /// <returns>The details view for the player.</returns>
         // GET: Players/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -77,12 +96,21 @@ namespace ADSBackend.Controllers
             return View(player);
         }
 
+        /// <summary>
+        /// Displays the form for creating a new player.
+        /// </summary>
+        /// <returns>The create view.</returns>
         // GET: Players/Create
         public IActionResult Create()
         {
             return View();
         }
 
+        /// <summary>
+        /// Handles the creation of a new player.
+        /// </summary>
+        /// <param name="player">The player to create.</param>
+        /// <returns>A redirect to the index page on success, or the create view with errors on failure.</returns>
         // POST: Players/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -109,6 +137,11 @@ namespace ADSBackend.Controllers
             return View(player);
         }
 
+        /// <summary>
+        /// Displays the form for editing an existing player.
+        /// </summary>
+        /// <param name="id">The ID of the player to edit.</param>
+        /// <returns>The edit view for the player.</returns>
         // GET: Players/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -125,6 +158,12 @@ namespace ADSBackend.Controllers
             return View(player);
         }
 
+        /// <summary>
+        /// Handles the update of an existing player.
+        /// </summary>
+        /// <param name="id">The ID of the player to edit.</param>
+        /// <param name="player">The updated player data.</param>
+        /// <returns>A redirect to the index page on success, or the edit view with errors on failure.</returns>
         // POST: Players/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -184,6 +223,11 @@ namespace ADSBackend.Controllers
             return View(player);
         }
 
+        /// <summary>
+        /// Displays the confirmation page for deleting a player.
+        /// </summary>
+        /// <param name="id">The ID of the player to delete.</param>
+        /// <returns>The delete confirmation view.</returns>
         // GET: Players/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -210,6 +254,11 @@ namespace ADSBackend.Controllers
             return View(player);
         }
 
+        /// <summary>
+        /// Handles the deletion of a player.
+        /// </summary>
+        /// <param name="id">The ID of the player to delete.</param>
+        /// <returns>A redirect to the index page.</returns>
         // POST: Players/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

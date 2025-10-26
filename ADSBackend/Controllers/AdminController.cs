@@ -1,4 +1,5 @@
-﻿using ADSBackend.Data;
+
+using ADSBackend.Data;
 using ADSBackend.Models;
 using ADSBackend.Models.HomeViewModels;
 using ADSBackend.Models.Identity;
@@ -22,6 +23,9 @@ using Newtonsoft.Json;
 
 namespace ADSBackend.Controllers
 {
+    /// <summary>
+    /// Controller for administrative actions.
+    /// </summary>
     [Authorize]
     [ServiceFilter(typeof(RefreshTokenFilter))]
     public class AdminController : Controller
@@ -33,6 +37,15 @@ namespace ADSBackend.Controllers
         private readonly IEmailSender _mailSender;
         private readonly IRazorViewRenderer _razorViewRenderer;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AdminController"/> class.
+        /// </summary>
+        /// <param name="context">The database context.</param>
+        /// <param name="userManager">The user manager.</param>
+        /// <param name="signInManager">The sign-in manager.</param>
+        /// <param name="dataService">The data service.</param>
+        /// <param name="mailSender">The email sender service.</param>
+        /// <param name="razorViewRenderer">The Razor view renderer service.</param>
         public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, DataService dataService, IEmailSender mailSender, IRazorViewRenderer razorViewRenderer)
         {
             _context = context;
@@ -43,6 +56,11 @@ namespace ADSBackend.Controllers
             _razorViewRenderer = razorViewRenderer;
         }
 
+        /// <summary>
+        /// Displays the admin dashboard.
+        /// </summary>
+        /// <param name="err">An error code, if any.</param>
+        /// <returns>The admin dashboard view.</returns>
         public async Task<IActionResult> Index(int err)
         {
             var currentSeason = await _dataService.GetCurrentSeasonId();
@@ -104,6 +122,11 @@ namespace ADSBackend.Controllers
             return View(viewModel);
         }
 
+        /// <summary>
+        /// Handles the submission of a join code to join a school.
+        /// </summary>
+        /// <param name="model">The view model containing the join code.</param>
+        /// <returns>A redirect to the admin dashboard.</returns>
         [HttpPost]
         public async Task<IActionResult> Index(JoinViewModel model)
         {
@@ -150,6 +173,10 @@ namespace ADSBackend.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        /// <summary>
+        /// Displays the join codes for all schools in the current season.
+        /// </summary>
+        /// <returns>The join codes view.</returns>
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> JoinCodes()
         {
@@ -159,6 +186,11 @@ namespace ADSBackend.Controllers
             return View(schools);
         }
 
+        /// <summary>
+        /// Sends the join code to the advisor of a specific school.
+        /// </summary>
+        /// <param name="id">The ID of the school.</param>
+        /// <returns>A redirect to the join codes page.</returns>
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SendCodes(int id)
         {
@@ -177,6 +209,10 @@ namespace ADSBackend.Controllers
             return RedirectToAction("JoinCodes", new { result = "error"});
         }
 
+        /// <summary>
+        /// Dumps database content as a JSON string.
+        /// </summary>
+        /// <returns>A JSON string representing a dump of the database.</returns>
         [Authorize(Roles = "Admin")]
         public async Task<string> Dump ()
         {

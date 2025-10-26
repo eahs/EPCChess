@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore;
+
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Serilog;
@@ -9,10 +10,20 @@ using ADSBackend.Data;
 
 namespace ADSBackend
 {
+    /// <summary>
+    /// The main entry point for the application.
+    /// </summary>
     public class Program
     {
+        /// <summary>
+        /// Gets or sets the application configuration.
+        /// </summary>
         public static IConfigurationRoot AppConfiguration { get; set; }
 
+        /// <summary>
+        /// The main entry point method.
+        /// </summary>
+        /// <param name="args">Command-line arguments.</param>
         public static void Main(string[] args)
         {
             string logPath = "Logs" + Path.DirectorySeparatorChar;
@@ -45,6 +56,11 @@ namespace ADSBackend
 
         }
 
+        /// <summary>
+        /// Builds the web host for the application.
+        /// </summary>
+        /// <param name="args">Command-line arguments.</param>
+        /// <returns>An <see cref="IWebHost"/> instance.</returns>
         public static IWebHost BuildWebHost(string[] args)
         {
             // Build an app configuration that includes environment-based appsettings

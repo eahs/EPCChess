@@ -1,4 +1,5 @@
-﻿using System;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -6,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace ADSBackend.Util
 {
+    /// <summary>
+    /// Represents a chess game and provides methods for move generation, validation, and game state management.
+    /// </summary>
     public class Chess
     {
         private static readonly string BLACK = "b";
@@ -162,22 +166,29 @@ namespace ADSBackend.Util
 
         private string turn = WHITE;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Chess"/> class with the default starting position.
+        /// </summary>
         // ================ Constructor ====================
         public Chess()
         {
             load(DEFAULT_POSITION);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Chess"/> class from a FEN string.
+        /// </summary>
+        /// <param name="fen">The FEN string representing the board position.</param>
         public Chess(string fen)
         {
             if (!load(fen)) throw new ArgumentException("Invalid fen format", "fen");
         }
 
         /// <summary>
-        /// Loads a game from SAN notation
+        /// Loads a game from SAN notation.
         /// ex. d4 d5 c4 c6 Nc3 e6 e4 Nd7 exd5 cxd5 cxd5 exd5 Nxd5 Nb6 Bb5+ Bd7 Qe2+
         /// </summary>
-        /// <param name="notation"></param>
+        /// <param name="notation">The game moves in Standard Algebraic Notation.</param>
         public void loadSAN(string notation)
         {
             List<string> moves = notation.Split(' ').ToList();
@@ -1252,73 +1263,130 @@ namespace ADSBackend.Util
         // ================================ public API ===============================
         // ===========================================================================
 
+        /// <summary>
+        /// Returns an ASCII representation of the board.
+        /// </summary>
+        /// <returns>A string representing the board in ASCII format.</returns>
         public string Ascii()
         {
             return ascii();
         }
 
+        /// <summary>
+        /// Clears the board and resets the game state.
+        /// </summary>
         public void Clear()
         {
             clear();
         }
 
+        /// <summary>
+        /// Resets the board to the default starting position.
+        /// </summary>
         public void Reset()
         {
             reset();
         }
 
+        /// <summary>
+        /// Returns the Forsyth-Edwards Notation (FEN) string for the current position.
+        /// </summary>
+        /// <returns>The FEN string.</returns>
         public string Fen()
         {
             return generate_fen();
         }
 
 
+        /// <summary>
+        /// Returns true if the current player is in check.
+        /// </summary>
+        /// <returns>True if in check, otherwise false.</returns>
         public bool InCheck()
         {
             return king_attacked(turn);
         }
 
+        /// <summary>
+        /// Returns true if the current player is in checkmate.
+        /// </summary>
+        /// <returns>True if in checkmate, otherwise false.</returns>
         public bool InCheckmate()
         {
             return in_checkmate();
         }
 
+        /// <summary>
+        /// Returns true if the current player is in stalemate.
+        /// </summary>
+        /// <returns>True if in stalemate, otherwise false.</returns>
         public bool InStalemate()
         {
             return in_stalemate();
         }
 
+        /// <summary>
+        /// Returns true if the game is a draw due to insufficient material.
+        /// </summary>
+        /// <returns>True if there is insufficient material, otherwise false.</returns>
         public bool InsufficientMaterial()
         {
             return insufficient_material();
         }
 
+        /// <summary>
+        /// Returns true if the current position has occurred three or more times.
+        /// </summary>
+        /// <returns>True if the position is a threefold repetition, otherwise false.</returns>
         public bool InThreefoldRepetition()
         {
             return in_threefold_repetition();
         }
 
+        /// <summary>
+        /// Returns true if the 50-move rule has been met.
+        /// </summary>
+        /// <returns>True if the 50-move rule is met, otherwise false.</returns>
         public bool FiftyMoveRule()
         {
             return half_moves >= 100;
         }
 
+        /// <summary>
+        /// Returns true if the game is a draw.
+        /// </summary>
+        /// <returns>True if the game is a draw, otherwise false.</returns>
         public bool InDraw()
         {
             return FiftyMoveRule() || in_stalemate() || insufficient_material() || in_threefold_repetition();
         }
 
+        /// <summary>
+        /// Returns true if the game is over.
+        /// </summary>
+        /// <returns>True if the game is over, otherwise false.</returns>
         public bool GameOver()
         {
             return FiftyMoveRule() || in_checkmate() || in_stalemate() || insufficient_material() ||
                    in_threefold_repetition();
         }
 
+        /// <summary>
+        /// Loads a position from a FEN string.
+        /// </summary>
+        /// <param name="fen">The FEN string.</param>
+        /// <returns>True if the FEN was valid and the position was loaded, otherwise false.</returns>
         public bool LoadFen(string fen)
         {
             return load(fen);
         }
 
+        /// <summary>
+        /// Makes a move on the board.
+        /// </summary>
+        /// <param name="move">The move in Standard Algebraic Notation (SAN).</param>
+        /// <param name="sloppy">A flag to indicate if the move parser should be lenient.</param>
+        /// <returns>True if the move was legal and made, otherwise false.</returns>
         public bool Move(string move, bool sloppy = false)
         {
             var move_obj = move_from_san(move, sloppy);
@@ -1329,6 +1397,10 @@ namespace ADSBackend.Util
             return true;
         }
 
+        /// <summary>
+        /// Returns the history of moves in SAN format.
+        /// </summary>
+        /// <returns>An array of strings representing the move history.</returns>
         public string[] MoveHistory()
         {
             var reversed_history = new Stack<Move>();
@@ -1348,6 +1420,10 @@ namespace ADSBackend.Util
             return h;
         }
 
+        /// <summary>
+        /// Undoes the last move.
+        /// </summary>
+        /// <returns>An object with details about the undone move, or null if no moves have been made.</returns>
         public UndoMoveArgs Undo()
         {
             var move = undo_move();
@@ -1361,26 +1437,51 @@ namespace ADSBackend.Util
             return undoMoveArgs;
         }
 
+        /// <summary>
+        /// Places a piece on the specified square.
+        /// </summary>
+        /// <param name="piece">The piece to place.</param>
+        /// <param name="square">The square to place the piece on (e.g., "e4").</param>
+        /// <returns>True if the piece was placed successfully, otherwise false.</returns>
         public bool Put(Piece piece, string square)
         {
             return put(piece, square);
         }
 
+        /// <summary>
+        /// Returns the piece on the specified square.
+        /// </summary>
+        /// <param name="square">The square to get the piece from (e.g., "e4").</param>
+        /// <returns>The piece on the square, or null if the square is empty or invalid.</returns>
         public Piece GetPiece(string square)
         {
             return get(square);
         }
 
+        /// <summary>
+        /// Removes a piece from the specified square.
+        /// </summary>
+        /// <param name="square">The square to remove the piece from (e.g., "e4").</param>
+        /// <returns>The removed piece, or null if the square was empty or invalid.</returns>
         public Piece Remove(string square)
         {
             return remove(square);
         }
 
+        /// <summary>
+        /// Returns the color of the player whose turn it is to move.
+        /// </summary>
+        /// <returns>"w" for white, "b" for black.</returns>
         public string Turn()
         {
             return turn;
         }
 
+        /// <summary>
+        /// Returns the color of the specified square.
+        /// </summary>
+        /// <param name="square">The square to check (e.g., "e4").</param>
+        /// <returns>"light" or "dark", or null if the square is invalid.</returns>
         public string SquareColor(string square)
         {
             if (SQAURES.ContainsKey(square))
@@ -1393,6 +1494,10 @@ namespace ADSBackend.Util
         }
 
 
+        /// <summary>
+        /// Returns a list of all legal moves for the current position.
+        /// </summary>
+        /// <returns>An array of legal moves in SAN format.</returns>
         // todo-e maybe return some sort of verbose object for legal moves i.e from e2 to e4 like chess.js
         public string[] LegalMovesAll()
         {
@@ -1404,6 +1509,11 @@ namespace ADSBackend.Util
             return legalMoves.ToArray();
         }
 
+        /// <summary>
+        /// Returns a list of legal moves for a specific square.
+        /// </summary>
+        /// <param name="square">The square to get moves for (e.g., "e4").</param>
+        /// <returns>An array of legal moves originating from the specified square in SAN format.</returns>
         public string[] LegalMovesSquare(string square)
         {
             Stack<Move> moves = null;
@@ -1417,6 +1527,11 @@ namespace ADSBackend.Util
         }
 
 
+        /// <summary>
+        /// Validates a FEN string.
+        /// </summary>
+        /// <param name="fen">The FEN string to validate.</param>
+        /// <returns>An object with validation results.</returns>
         public ValidateFenArgs ValidateFen(string fen)
         {
             var validateFenArgs = new ValidateFenArgs();
@@ -1439,40 +1554,106 @@ namespace ADSBackend.Util
 
     // =============================== CLASSES =================================
 
+    /// <summary>
+    /// Represents a chess piece.
+    /// </summary>
     public class Piece
     {
+        /// <summary>
+        /// Gets or sets the type of the piece (p, n, b, r, q, k).
+        /// </summary>
         public string type { get; set; }
+        /// <summary>
+        /// Gets or sets the color of the piece (w, b).
+        /// </summary>
         public string color { get; set; }
     }
 
 
+    /// <summary>
+    /// Represents a chess move.
+    /// </summary>
     public class Move
     {
+        /// <summary>
+        /// Gets or sets the color of the player making the move.
+        /// </summary>
         public string color { get; set; }
+        /// <summary>
+        /// Gets or sets the starting square of the move.
+        /// </summary>
         public int from { get; set; }
+        /// <summary>
+        /// Gets or sets the ending square of the move.
+        /// </summary>
         public int to { get; set; }
+        /// <summary>
+        /// Gets or sets the flags associated with the move (e.g., capture, promotion).
+        /// </summary>
         public int flags { get; set; }
 
+        /// <summary>
+        /// Gets or sets the type of the piece being moved.
+        /// </summary>
         public string piece { get; set; }
+        /// <summary>
+        /// Gets or sets the piece type for promotion.
+        /// </summary>
         public string promotion { get; set; }
+        /// <summary>
+        /// Gets or sets the type of the captured piece.
+        /// </summary>
         public string captured { get; set; }
     }
 
+    /// <summary>
+    /// Represents a move in the game's history for undo purposes.
+    /// </summary>
     public class BoardHistoryMove
     {
+        /// <summary>
+        /// Gets or sets the move that was made.
+        /// </summary>
         public Move move { get; set; }
+        /// <summary>
+        /// Gets or sets the positions of the kings before the move.
+        /// </summary>
         public Dictionary<string, int> kings { get; set; }
+        /// <summary>
+        /// Gets or sets the player whose turn it was before the move.
+        /// </summary>
         public string turn { get; set; }
+        /// <summary>
+        /// Gets or sets the castling rights before the move.
+        /// </summary>
         public Dictionary<string, int> castling { get; set; }
+        /// <summary>
+        /// Gets or sets the en passant square before the move.
+        /// </summary>
         public int ep_square { get; set; }
+        /// <summary>
+        /// Gets or sets the half-move counter before the move.
+        /// </summary>
         public int half_moves { get; set; }
+        /// <summary>
+        /// Gets or sets the move number before the move.
+        /// </summary>
         public int move_number { get; set; }
     }
 
 
+    /// <summary>
+    /// Represents the result of a FEN validation.
+    /// </summary>
     public class FenValidator
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether the FEN is valid.
+        /// </summary>
         public bool valid { get; set; }
+        /// <summary>
+        /// Gets or sets the error message if the FEN is invalid.
+        /// </summary>
         public string error { get; set; }
     }
 
@@ -1494,18 +1675,45 @@ namespace ADSBackend.Util
     }
 
 
+    /// <summary>
+    /// Represents the arguments for a FEN validation result.
+    /// </summary>
     public class ValidateFenArgs
     {
+        /// <summary>
+        /// The error message if validation failed.
+        /// </summary>
         public string errorMessage = "";
+        /// <summary>
+        /// A value indicating whether the validation was successful.
+        /// </summary>
         public bool success;
+        /// <summary>
+        /// The validated FEN string.
+        /// </summary>
         public string validatedFen = "";
     }
 
+    /// <summary>
+    /// Represents the arguments for an undo move operation.
+    /// </summary>
     public class UndoMoveArgs
     {
+        /// <summary>
+        /// The color of the player whose move was undone.
+        /// </summary>
         public string color = "";
+        /// <summary>
+        /// The starting square of the undone move.
+        /// </summary>
         public string from = "";
+        /// <summary>
+        /// The piece that was moved.
+        /// </summary>
         public string piece = "";
+        /// <summary>
+        /// The ending square of the undone move.
+        /// </summary>
         public string to = "";
     }
 

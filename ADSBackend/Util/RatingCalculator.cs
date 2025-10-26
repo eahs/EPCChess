@@ -1,4 +1,5 @@
-﻿using System;
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -6,23 +7,59 @@ using System.Threading.Tasks;
 
 namespace ADSBackend.Util
 {
+    /// <summary>
+    /// Represents the result of a game.
+    /// </summary>
     public enum GameResult
     {
+        /// <summary>
+        /// The game was a draw.
+        /// </summary>
         Draw = 0,
+        /// <summary>
+        /// Player 1 won.
+        /// </summary>
         Player1Wins = 1,
+        /// <summary>
+        /// Player 2 won.
+        /// </summary>
         Player2Wins = 2,
+        /// <summary>
+        /// The game result was reset.
+        /// </summary>
         Reset = 3
     }
 
+    /// <summary>
+    /// Represents an entry in the rating lookup table.
+    /// </summary>
     public class RatingLookupEntry
     {
+        /// <summary>
+        /// Gets or sets the lower bound of the rating difference.
+        /// </summary>
         public int Low { get; set; }
+        /// <summary>
+        /// Gets or sets the upper bound of the rating difference.
+        /// </summary>
         public int High { get; set; }
+        /// <summary>
+        /// Gets or sets the rating points gained by the higher-rated player in a win.
+        /// </summary>
         public int HighBoardGains { get; set; }
+        /// <summary>
+        /// Gets or sets the rating points gained by the lower-rated player in a win.
+        /// </summary>
         public int LowBoardGains { get; set; }
+        /// <summary>
+        /// Gets or sets the rating points exchanged in a draw.
+        /// </summary>
         public int DrawHighLosesLowGains { get; set; }
     }
 
+    /// <summary>
+    /// Calculates new player ratings based on game results.
+    /// </summary>
     public class RatingCalculator
     {
         private static RatingCalculator _ratingCalculator;
@@ -49,6 +86,14 @@ namespace ADSBackend.Util
             }
         }
 
+        /// <summary>
+        /// Calculates the new ratings for two players after a game.
+        /// </summary>
+        /// <param name="rating1">The rating of the first player.</param>
+        /// <param name="rating2">The rating of the second player.</param>
+        /// <param name="winner">The result of the game.</param>
+        /// <param name="newRating1">The new rating of the first player.</param>
+        /// <param name="newRating2">The new rating of the second player.</param>
         // Winner is either 0 or 1 or 2
         public void CalculateNewRating (int rating1, int rating2, GameResult winner, out int newRating1, out int newRating2)
         {
@@ -104,6 +149,9 @@ namespace ADSBackend.Util
 
         }
 
+        /// <summary>
+        /// Gets the singleton instance of the <see cref="RatingCalculator"/>.
+        /// </summary>
         public static RatingCalculator Current 
         {
             get {

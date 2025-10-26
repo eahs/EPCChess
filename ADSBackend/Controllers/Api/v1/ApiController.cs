@@ -1,4 +1,5 @@
-﻿using ADSBackend.Models.ApiModels;
+
+using ADSBackend.Models.ApiModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,9 @@ using System.Threading.Tasks;
 
 namespace ADSBackend.Controllers
 {
+    /// <summary>
+    /// API controller for version 1.
+    /// </summary>
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Produces("application/json")]
     [Route("api/v1")]
@@ -18,12 +22,21 @@ namespace ADSBackend.Controllers
         private readonly Services.Configuration Configuration;
         private readonly Services.Cache _cache;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApiController"/> class.
+        /// </summary>
+        /// <param name="configuration">The application configuration service.</param>
+        /// <param name="cache">The application cache service.</param>
         public ApiController(Services.Configuration configuration, Services.Cache cache)
         {
             Configuration = configuration;
             _cache = cache;
         }
 
+        /// <summary>
+        /// Retrieves the news feed.
+        /// </summary>
+        /// <returns>A list of news feed items.</returns>
         // GET: api/v1/News
         [AllowAnonymous]  // Don't require JWT authentication to access this method
         [HttpGet("News")]
@@ -40,6 +53,10 @@ namespace ADSBackend.Controllers
             return feedItems.OrderByDescending(x => x.PublishDate).ToList();
         }
 
+        /// <summary>
+        /// Retrieves the application configuration.
+        /// </summary>
+        /// <returns>The configuration response object.</returns>
         // GET: api/Config
         [AllowAnonymous]
         [HttpGet("Config")]

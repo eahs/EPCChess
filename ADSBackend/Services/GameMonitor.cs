@@ -1,4 +1,5 @@
-﻿using System;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -25,15 +26,27 @@ using Serilog;
 
 namespace ADSBackend.Services
 {
+    /// <summary>
+    /// A hosted service that monitors the status of ongoing virtual games.
+    /// </summary>
     public class GameMonitor : HostedService
     {
         private readonly IServiceProvider _provider;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GameMonitor"/> class.
+        /// </summary>
+        /// <param name="provider">The service provider.</param>
         public GameMonitor(IServiceProvider provider)
         {
             _provider = provider;
         }
         
+        /// <summary>
+        /// Executes the background task for monitoring games.
+        /// </summary>
+        /// <param name="cancellationToken">A token to signal cancellation of the task.</param>
+        /// <returns>A task that represents the long-running operation.</returns>
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             while (true)

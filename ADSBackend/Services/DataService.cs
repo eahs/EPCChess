@@ -1,4 +1,5 @@
-﻿using ADSBackend.Data;
+
+using ADSBackend.Data;
 using ADSBackend.Models;
 using ADSBackend.Models.Identity;
 using ADSBackend.Services;
@@ -15,6 +16,9 @@ using ADSBackend.Util;
 
 namespace ADSBackend.Services
 {
+    /// <summary>
+    /// Service for accessing and manipulating application data.
+    /// </summary>
     public class DataService : IDataService
     {
         internal class PlayerRecord
@@ -29,6 +33,13 @@ namespace ADSBackend.Services
         private readonly HttpContext _httpcontext;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataService"/> class.
+        /// </summary>
+        /// <param name="context">The database context.</param>
+        /// <param name="userManager">The user manager.</param>
+        /// <param name="signInManager">The sign-in manager.</param>
+        /// <param name="httpContextAccessor">The HTTP context accessor.</param>
         public DataService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
@@ -37,6 +48,12 @@ namespace ADSBackend.Services
             _signInManager = signInManager;
         }
 
+        /// <summary>
+        /// Updates player ratings based on a game result and logs the rating change.
+        /// </summary>
+        /// <param name="game">The game that was played.</param>
+        /// <param name="gameResult">The result of the game.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task UpdateAndLogRatingCalculations(Game game, GameResult gameResult)
         {
             if (gameResult == GameResult.Reset)
@@ -102,6 +119,11 @@ namespace ADSBackend.Services
             }
         }
 
+        /// <summary>
+        /// Synchronizes a user's external login data (e.g., Lichess ID) and creates a player record if needed.
+        /// </summary>
+        /// <param name="userId">The ID of the user to synchronize.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task SyncExternalPlayer(int userId)
         {
             var user = await GetUserByIdAsync(userId);
@@ -162,6 +184,10 @@ namespace ADSBackend.Services
 
         }
 
+        /// <summary>
+        /// Updates the win, loss, and draw records for all players in the current season.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task UpdatePlayerRecords ()
         {
             var currentSeason = await GetCurrentSeasonId();
@@ -217,6 +243,16 @@ namespace ADSBackend.Services
             await _context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Logs a rating change event for a player.
+        /// </summary>
+        /// <param name="playerId">The ID of the player.</param>
+        /// <param name="rating">The new rating.</param>
+        /// <param name="type">The type of event.</param>
+        /// <param name="message">An optional message.</param>
+        /// <param name="saveChanges">Whether to save changes to the database immediately.</param>
+        /// <param name="gameId">The ID of the game that caused the rating change, if applicable.</param>
+        /// <returns>The created <see cref="RatingEvent"/>.</returns>
         public async Task<RatingEvent> LogRatingEvent (int playerId, int rating, string type = "game", string message = "", bool saveChanges = true, int? gameId = null)
         {
             RatingEvent entry = new RatingEvent
@@ -236,6 +272,10 @@ namespace ADSBackend.Services
             return entry;
         }
 
+        /// <summary>
+        /// Gets the ID of the current season.
+        /// </summary>
+        /// <returns>The ID of the current season.</returns>
         public async Task<int> GetCurrentSeasonId()
         {
             var season = await _context.Season.FirstOrDefaultAsync(x => x.StartDate <= DateTime.Now && x.EndDate >= DateTime.Now);
@@ -251,6 +291,11 @@ namespace ADSBackend.Services
             return seasonId;
         }
 
+        /// <summary>
+        /// Gets a select list of all seasons.
+        /// </summary>
+        /// <param name="currentSeasonId">The ID of the currently selected season.</param>
+        /// <returns>A <see cref="SelectList"/> of seasons.</returns>
         public async Task<SelectList> GetSeasonSelectList(int currentSeasonId)
         {
             var seasons = await _context.Season.Select(x => x)
@@ -261,10 +306,10 @@ namespace ADSBackend.Services
         }
 
         /// <summary>
-        /// Properly retrieves a user with extension navigation properties
+        /// Properly retrieves a user with extension navigation properties.
         /// </summary>
-        /// <param name="User"></param>
-        /// <returns></returns>
+        /// <param name="User">The claims principal of the user.</param>
+        /// <returns>The <see cref="ApplicationUser"/> with included navigation properties.</returns>
         public async Task<ApplicationUser> GetUserAsync(ClaimsPrincipal User)
         {
             var userId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -272,18 +317,35 @@ namespace ADSBackend.Services
             return await GetUserByIdAsync(userId);
         }
 
+        /// <summary>
+        /// Gets a user by their ID, including their school associations.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <returns>The <see cref="ApplicationUser"/> with included navigation properties.</returns>
         public async Task<ApplicationUser> GetUserByIdAsync(int userId)
         {
             return await _context.Users.Include(x => x.Schools).ThenInclude(s => s.School).SingleOrDefaultAsync(x => x.Id == userId);
             
         }
 
+        /// <summary>
+        /// Removes a user from a school.
+        /// </summary>
+        /// <param name="User">The claims principal of the user.</param>
+        /// <param name="schoolId">The ID of the school.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task RemoveUserFromSchool(ClaimsPrincipal User, int schoolId)
         {
             var user = await GetUserAsync(User);
             await RemoveUserFromSchool(user, schoolId);
         }
 
+        /// <summary>
+        /// Removes a user from a school.
+        /// </summary>
+        /// <param name="User">The application user.</param>
+        /// <param name="schoolId">The ID of the school.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task RemoveUserFromSchool(ApplicationUser User, int schoolId)
         {
             var userSchool =
@@ -297,12 +359,24 @@ namespace ADSBackend.Services
             }
         }
 
+        /// <summary>
+        /// Adds a user to a school.
+        /// </summary>
+        /// <param name="User">The claims principal of the user.</param>
+        /// <param name="schoolId">The ID of the school.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task AddUserToSchoolAsync(ClaimsPrincipal User, int schoolId)
         {
             var user = await GetUserAsync(User);
             await AddUserToSchoolAsync(user, schoolId);
         }
 
+        /// <summary>
+        /// Adds a user to a school.
+        /// </summary>
+        /// <param name="User">The application user.</param>
+        /// <param name="schoolId">The ID of the school.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task AddUserToSchoolAsync(ApplicationUser User, int schoolId)
         {
             if (User is null) return;
@@ -326,6 +400,12 @@ namespace ADSBackend.Services
             
         }
 
+        /// <summary>
+        /// Gets the school ID for a user in a specific season.
+        /// </summary>
+        /// <param name="User">The claims principal of the user.</param>
+        /// <param name="seasonId">The ID of the season.</param>
+        /// <returns>The school ID, or -1 if not found.</returns>
         public async Task<int> GetSchoolIdAsync(ClaimsPrincipal User, int seasonId)
         {
 //            var user = await _userManager.GetUserAsync(User);
@@ -342,6 +422,13 @@ namespace ADSBackend.Services
             return school.SchoolId;
         }
 
+        /// <summary>
+        /// Gets a match by its ID for a specific season, optionally filtered by school.
+        /// </summary>
+        /// <param name="id">The ID of the match.</param>
+        /// <param name="seasonId">The ID of the season.</param>
+        /// <param name="schoolId">Optional: The ID of the school to filter by.</param>
+        /// <returns>The <see cref="Match"/> with included navigation properties, or null if not found.</returns>
         // Returns Match matching matchid id and seasonId and optionally matches a schoolId
         public async Task<Match> GetMatchAsync(int? id, int seasonId, int schoolId = -1)
         {
@@ -359,6 +446,13 @@ namespace ADSBackend.Services
             return match;
         }
 
+        /// <summary>
+        /// Gets a list of upcoming matches for a school in a specific season.
+        /// </summary>
+        /// <param name="seasonId">The ID of the season.</param>
+        /// <param name="schoolId">The ID of the school.</param>
+        /// <param name="count">The maximum number of matches to return.</param>
+        /// <returns>A list of upcoming <see cref="Match"/>es.</returns>
         public async Task<List<Match>> GetUpcomingMatchesAsync (int seasonId, int schoolId, int count = 4)
         {
             return await _context.Match.Include(m => m.HomeSchool)
@@ -370,6 +464,11 @@ namespace ADSBackend.Services
                                                      .ToListAsync();
         }
 
+        /// <summary>
+        /// Gets the standings for all divisions in a specific season.
+        /// </summary>
+        /// <param name="seasonId">The ID of the season.</param>
+        /// <returns>A list of <see cref="Division"/>s with their school standings.</returns>
         public async Task<List<Division>> GetDivisionStandingsAsync (int seasonId)
         {
             var divisions = await _context.Division.Where(d => d.SeasonId == seasonId).OrderBy(d => d.Name).ToListAsync();
@@ -414,6 +513,12 @@ namespace ADSBackend.Services
         }
 
 
+        /// <summary>
+        /// Converts a game result to the number of points won.
+        /// </summary>
+        /// <param name="result">The result of the game.</param>
+        /// <param name="playerNumber">The player number (1 or 2).</param>
+        /// <returns>The number of points won (1 for a win, 0.5 for a draw, 0 for a loss).</returns>
         public double ConvertPointsWon(GameResult result, int playerNumber)
         {
             if (result == GameResult.Draw) return 0.5;

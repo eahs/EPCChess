@@ -1,4 +1,5 @@
-﻿using ADSBackend.Models.Identity;
+
+using ADSBackend.Models.Identity;
 using ADSBackend.Models.ManageViewModels;
 using ADSBackend.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -14,6 +15,9 @@ using System.Threading.Tasks;
 
 namespace ADSBackend.Controllers
 {
+    /// <summary>
+    /// Controller for managing user account settings.
+    /// </summary>
     [Authorize]
     [Route("[controller]/[action]")]
     public class ManageController : Controller
@@ -27,6 +31,14 @@ namespace ADSBackend.Controllers
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
         private const string RecoveryCodesKey = nameof(RecoveryCodesKey);
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ManageController"/> class.
+        /// </summary>
+        /// <param name="userManager">The user manager.</param>
+        /// <param name="signInManager">The sign-in manager.</param>
+        /// <param name="emailSender">The email sender service.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="urlEncoder">The URL encoder.</param>
         public ManageController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, ILogger<ManageController> logger, UrlEncoder urlEncoder)
         {
             _userManager = userManager;
@@ -36,9 +48,16 @@ namespace ADSBackend.Controllers
             _urlEncoder = urlEncoder;
         }
 
+        /// <summary>
+        /// Gets or sets the status message to be displayed.
+        /// </summary>
         [TempData]
         public string StatusMessage { get; set; }
 
+        /// <summary>
+        /// Displays the user profile management page.
+        /// </summary>
+        /// <returns>The index view with user profile information.</returns>
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -60,6 +79,11 @@ namespace ADSBackend.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Handles the submission of updated user profile information.
+        /// </summary>
+        /// <param name="model">The view model containing the updated profile data.</param>
+        /// <returns>A redirect to the index page on success, or the view with errors on failure.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(IndexViewModel model)
@@ -99,6 +123,11 @@ namespace ADSBackend.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        /// <summary>
+        /// Sends a verification email to the user.
+        /// </summary>
+        /// <param name="model">The index view model.</param>
+        /// <returns>A redirect to the index page.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SendVerificationEmail(IndexViewModel model)
@@ -123,6 +152,10 @@ namespace ADSBackend.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        /// <summary>
+        /// Displays the change password page.
+        /// </summary>
+        /// <returns>The change password view.</returns>
         [HttpGet]
         public async Task<IActionResult> ChangePassword()
         {
@@ -142,6 +175,11 @@ namespace ADSBackend.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Handles the submission of the change password form.
+        /// </summary>
+        /// <param name="model">The view model containing the old and new passwords.</param>
+        /// <returns>A redirect to the change password page on success, or the view with errors on failure.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
@@ -171,6 +209,10 @@ namespace ADSBackend.Controllers
             return RedirectToAction(nameof(ChangePassword));
         }
 
+        /// <summary>
+        /// Displays the set password page for users who do not have a local password.
+        /// </summary>
+        /// <returns>The set password view.</returns>
         [HttpGet]
         public async Task<IActionResult> SetPassword()
         {
@@ -191,6 +233,11 @@ namespace ADSBackend.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Handles the submission of the set password form.
+        /// </summary>
+        /// <param name="model">The view model containing the new password.</param>
+        /// <returns>A redirect to the set password page on success, or the view with errors on failure.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SetPassword(SetPasswordViewModel model)
@@ -219,6 +266,10 @@ namespace ADSBackend.Controllers
             return RedirectToAction(nameof(SetPassword));
         }
 
+        /// <summary>
+        /// Displays the external logins management page.
+        /// </summary>
+        /// <returns>The external logins view.</returns>
         [HttpGet]
         public async Task<IActionResult> ExternalLogins()
         {
@@ -238,6 +289,11 @@ namespace ADSBackend.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Links an external login provider to the current user account.
+        /// </summary>
+        /// <param name="provider">The external login provider.</param>
+        /// <returns>A challenge result that redirects to the external provider.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LinkLogin(string provider)
@@ -251,6 +307,10 @@ namespace ADSBackend.Controllers
             return new ChallengeResult(provider, properties);
         }
 
+        /// <summary>
+        /// Handles the callback from linking an external login.
+        /// </summary>
+        /// <returns>A redirect to the external logins page.</returns>
         [HttpGet]
         public async Task<IActionResult> LinkLoginCallback()
         {
@@ -279,6 +339,11 @@ namespace ADSBackend.Controllers
             return RedirectToAction(nameof(ExternalLogins));
         }
 
+        /// <summary>
+        /// Removes an external login from the current user account.
+        /// </summary>
+        /// <param name="model">The view model containing the login provider and provider key.</param>
+        /// <returns>A redirect to the external logins page.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveLogin(RemoveLoginViewModel model)
@@ -300,6 +365,10 @@ namespace ADSBackend.Controllers
             return RedirectToAction(nameof(ExternalLogins));
         }
 
+        /// <summary>
+        /// Displays the two-factor authentication management page.
+        /// </summary>
+        /// <returns>The two-factor authentication view.</returns>
         [HttpGet]
         public async Task<IActionResult> TwoFactorAuthentication()
         {
@@ -319,6 +388,10 @@ namespace ADSBackend.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Displays a warning before disabling two-factor authentication.
+        /// </summary>
+        /// <returns>The disable 2FA warning view.</returns>
         [HttpGet]
         public async Task<IActionResult> Disable2faWarning()
         {
@@ -336,6 +409,10 @@ namespace ADSBackend.Controllers
             return View(nameof(Disable2fa));
         }
 
+        /// <summary>
+        /// Disables two-factor authentication for the user.
+        /// </summary>
+        /// <returns>A redirect to the two-factor authentication page.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Disable2fa()
@@ -356,6 +433,10 @@ namespace ADSBackend.Controllers
             return RedirectToAction(nameof(TwoFactorAuthentication));
         }
 
+        /// <summary>
+        /// Displays the page to enable an authenticator app.
+        /// </summary>
+        /// <returns>The enable authenticator view.</returns>
         [HttpGet]
         public async Task<IActionResult> EnableAuthenticator()
         {
@@ -371,6 +452,11 @@ namespace ADSBackend.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Handles the submission of the authenticator app verification code.
+        /// </summary>
+        /// <param name="model">The view model containing the verification code.</param>
+        /// <returns>A redirect to the recovery codes page on success, or the view with errors on failure.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EnableAuthenticator(EnableAuthenticatorViewModel model)
@@ -408,6 +494,10 @@ namespace ADSBackend.Controllers
             return RedirectToAction(nameof(ShowRecoveryCodes));
         }
 
+        /// <summary>
+        /// Displays the two-factor authentication recovery codes.
+        /// </summary>
+        /// <returns>The recovery codes view.</returns>
         [HttpGet]
         public IActionResult ShowRecoveryCodes()
         {
@@ -421,12 +511,20 @@ namespace ADSBackend.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Displays a warning before resetting the authenticator app.
+        /// </summary>
+        /// <returns>The reset authenticator warning view.</returns>
         [HttpGet]
         public IActionResult ResetAuthenticatorWarning()
         {
             return View(nameof(ResetAuthenticator));
         }
 
+        /// <summary>
+        /// Resets the authenticator app key for the user.
+        /// </summary>
+        /// <returns>A redirect to the enable authenticator page.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetAuthenticator()
@@ -444,6 +542,10 @@ namespace ADSBackend.Controllers
             return RedirectToAction(nameof(EnableAuthenticator));
         }
 
+        /// <summary>
+        /// Displays a warning before generating new recovery codes.
+        /// </summary>
+        /// <returns>The generate recovery codes warning view.</returns>
         [HttpGet]
         public async Task<IActionResult> GenerateRecoveryCodesWarning()
         {
@@ -461,6 +563,10 @@ namespace ADSBackend.Controllers
             return View(nameof(GenerateRecoveryCodes));
         }
 
+        /// <summary>
+        /// Generates new two-factor authentication recovery codes for the user.
+        /// </summary>
+        /// <returns>The recovery codes view.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GenerateRecoveryCodes()

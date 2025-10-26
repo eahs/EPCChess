@@ -1,3 +1,4 @@
+
 using ADSBackend.Configuration;
 using ADSBackend.Data;
 using ADSBackend.Helpers;
@@ -29,12 +30,29 @@ using ADSBackend.Middlewares;
 
 namespace ADSBackend
 {
+    /// <summary>
+    /// The startup class for the application.
+    /// </summary>
     public class Startup
     {
+        /// <summary>
+        /// Gets the application configuration.
+        /// </summary>
         public IConfiguration Configuration { get; }
+        /// <summary>
+        /// Gets or sets the web host environment.
+        /// </summary>
         public IWebHostEnvironment Env { get; set; }
+        /// <summary>
+        /// Gets or sets the database connection string.
+        /// </summary>
         public string ConnString { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Startup"/> class.
+        /// </summary>
+        /// <param name="configuration">The application configuration.</param>
+        /// <param name="env">The web host environment.</param>
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
@@ -43,7 +61,10 @@ namespace ADSBackend
             ConnString = Configuration.GetConnectionString("AppDatabaseContext");
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to add services to the container.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
@@ -180,7 +201,11 @@ namespace ADSBackend
             // configure DI for application services
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// </summary>
+        /// <param name="app">The application builder.</param>
+        /// <param name="env">The web host environment.</param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             UpdateDatabase(app);
@@ -268,7 +293,7 @@ namespace ADSBackend
         /// <summary>
         ///     Checks if the UserAgent is known to interpret an unknown value as Strict.
         ///     For those the <see cref="CookieOptions.SameSite" /> property should be
-        ///     set to <see cref="Unspecified" />.
+        ///     set to <see cref="SameSiteMode.Unspecified" />.
         /// </summary>
         /// <remarks>
         ///     This code is taken from Microsoft:

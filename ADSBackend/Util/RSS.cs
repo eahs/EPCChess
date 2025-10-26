@@ -1,4 +1,5 @@
-﻿using ADSBackend.Models.ApiModels;
+
+using ADSBackend.Models.ApiModels;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -7,8 +8,17 @@ using System.Xml.Linq;
 
 namespace ADSBackend.Util
 {
+    /// <summary>
+    /// Utility class for fetching and parsing RSS feeds.
+    /// </summary>
     public class RSS
     {
+        /// <summary>
+        /// Asynchronously gets a news feed from a given URL.
+        /// </summary>
+        /// <param name="sourceUrl">The base URL of the RSS feed source.</param>
+        /// <param name="endpoint">The endpoint for the RSS feed.</param>
+        /// <returns>A list of <see cref="NewsFeedItem"/>s, or null if the request fails.</returns>
         public static async Task<List<NewsFeedItem>> GetNewsFeed(string sourceUrl, string endpoint)
         {
             var client = new RestClient(sourceUrl);

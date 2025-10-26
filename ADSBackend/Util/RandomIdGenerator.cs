@@ -1,4 +1,5 @@
-﻿using System;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace ADSBackend.Util
 {
+    /// <summary>
+    /// Generates random IDs.
+    /// </summary>
     public class RandomIdGenerator
     {
 
@@ -21,10 +25,10 @@ namespace ADSBackend.Util
         }
 
         /// <summary>
-        /// Generates a random string (all uppercase) of defined length
+        /// Generates a random string (all uppercase) of defined length.
         /// </summary>
-        /// <param name="length"></param>
-        /// <returns></returns>
+        /// <param name="length">The desired length of the string.</param>
+        /// <returns>A random string.</returns>
         public static string Generate(int length)
         {
             var sb = new StringBuilder(length);

@@ -1,4 +1,5 @@
-﻿using System;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -7,6 +8,9 @@ using Microsoft.Extensions.Hosting;
 
 namespace ADSBackend.Services
 {
+    /// <summary>
+    /// Base class for long-running background tasks.
+    /// </summary>
     public abstract class HostedService : IHostedService
     {
         // Example untested base class code kindly provided by David Fowler: https://gist.github.com/davidfowl/a7dd5064d9dcf35b6eae1a7953d615e3
@@ -14,6 +18,11 @@ namespace ADSBackend.Services
         private Task _executingTask;
         private CancellationTokenSource _cts;
 
+        /// <summary>
+        /// Starts the hosted service.
+        /// </summary>
+        /// <param name="cancellationToken">A token to signal cancellation.</param>
+        /// <returns>A task that represents the start operation.</returns>
         public Task StartAsync(CancellationToken cancellationToken)
         {
             // Create a linked token so we can trigger cancellation outside of this token's cancellation
@@ -26,6 +35,11 @@ namespace ADSBackend.Services
             return _executingTask.IsCompleted ? _executingTask : Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Stops the hosted service.
+        /// </summary>
+        /// <param name="cancellationToken">A token to signal cancellation.</param>
+        /// <returns>A task that represents the stop operation.</returns>
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             // Stop called without start
@@ -44,6 +58,11 @@ namespace ADSBackend.Services
             cancellationToken.ThrowIfCancellationRequested();
         }
 
+        /// <summary>
+        /// When overridden in a derived class, executes the long-running background task.
+        /// </summary>
+        /// <param name="cancellationToken">A token to signal cancellation.</param>
+        /// <returns>A task that represents the long-running operation.</returns>
         // Derived classes should override this and execute a long running method until 
         // cancellation is requested
         protected abstract Task ExecuteAsync(CancellationToken cancellationToken);

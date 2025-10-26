@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -14,6 +15,9 @@ using System.Threading.Tasks;
 
 namespace ADSBackend.Services
 {
+    /// <summary>
+    /// Service for rendering Razor views to a string.
+    /// </summary>
     // Code from: https://github.com/aspnet/Entropy/blob/master/samples/Mvc.RenderViewToString/RazorViewToStringRenderer.cs
 
     public class RazorViewRenderer : IRazorViewRenderer
@@ -22,6 +26,12 @@ namespace ADSBackend.Services
         private ITempDataProvider _tempDataProvider;
         private IServiceProvider _serviceProvider;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RazorViewRenderer"/> class.
+        /// </summary>
+        /// <param name="viewEngine">The Razor view engine.</param>
+        /// <param name="tempDataProvider">The temp data provider.</param>
+        /// <param name="serviceProvider">The service provider.</param>
         public RazorViewRenderer(
             IRazorViewEngine viewEngine,
             ITempDataProvider tempDataProvider,
@@ -32,6 +42,13 @@ namespace ADSBackend.Services
             _serviceProvider = serviceProvider;
         }
 
+        /// <summary>
+        /// Asynchronously renders a Razor view to a string.
+        /// </summary>
+        /// <typeparam name="TModel">The type of the view model.</typeparam>
+        /// <param name="viewName">The name of the view to render.</param>
+        /// <param name="model">The model to pass to the view.</param>
+        /// <returns>The rendered view as a string.</returns>
         public async Task<string> RenderViewAsync<TModel>(string viewName, TModel model)
         {
             var actionContext = GetActionContext();
@@ -90,8 +107,18 @@ namespace ADSBackend.Services
         }
 
     }
+    /// <summary>
+    /// Interface for a service that renders Razor views to a string.
+    /// </summary>
     public interface IRazorViewRenderer
     {
+        /// <summary>
+        /// Asynchronously renders a Razor view to a string.
+        /// </summary>
+        /// <typeparam name="TModel">The type of the view model.</typeparam>
+        /// <param name="viewName">The name of the view to render.</param>
+        /// <param name="model">The model to pass to the view.</param>
+        /// <returns>The rendered view as a string.</returns>
         Task<string> RenderViewAsync<TModel>(string viewName, TModel model);
     }
 }
