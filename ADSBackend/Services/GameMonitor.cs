@@ -47,10 +47,16 @@ namespace ADSBackend.Services
                     {
 
                         // Get games from the last week that have not been completed
-                        var matches = await context.Match.Where(m => m.IsVirtual && m.MatchStarted && !m.Completed)
-                            .Include(m => m.Games).ThenInclude(g => g.HomePlayer).ThenInclude(p => p.User)
-                            .Include(m => m.Games).ThenInclude(g => g.AwayPlayer).ThenInclude(p => p.User)
-                            .ToListAsync();
+                        var twoWeeksAgo = DateTime.UtcNow.AddDays(-7);
+
+                        var matches = await context.Match
+	                        .Where(m => m.IsVirtual
+	                                    && m.MatchStarted
+	                                    && !m.Completed
+	                                    && m.MatchStartTime >= twoWeeksAgo)   // exclude “old” matches
+	                        .Include(m => m.Games).ThenInclude(g => g.HomePlayer).ThenInclude(p => p.User)
+	                        .Include(m => m.Games).ThenInclude(g => g.AwayPlayer).ThenInclude(p => p.User)
+	                        .ToListAsync();
 
                         Dictionary<string, Game> games = new Dictionary<string, Game>();
                         Dictionary<int, MatchUpdateViewModel> vms = new Dictionary<int, MatchUpdateViewModel>();
@@ -316,6 +322,14 @@ namespace ADSBackend.Services
 
                                     // Add game to json output
                                     vms[game.MatchId].Games.Add(MapGameToJson(game));
+                                }
+                                else if (body.Contains("Page not found!"))
+                                {
+	                                ResetGame(game);
+
+	                                context.Game.Update(game);
+
+	                                await context.SaveChangesAsync();
                                 }
 
                             }

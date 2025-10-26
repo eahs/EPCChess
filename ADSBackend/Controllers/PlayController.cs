@@ -30,16 +30,14 @@ namespace ADSBackend.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly DataService _dataService;
-        private readonly ITokenRefresher _tokenRefresher;
         private readonly IHubContext<GameHub> _hubContext;
 
-        public PlayController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, DataService dataService, ITokenRefresher tokenRefresher, IHubContext<GameHub> hubContext)
+        public PlayController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, DataService dataService, IHubContext<GameHub> hubContext)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _dataService = dataService;
-            _tokenRefresher = tokenRefresher;
             _hubContext = hubContext;
         }
 
